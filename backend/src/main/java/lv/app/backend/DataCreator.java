@@ -2,6 +2,7 @@ package lv.app.backend;
 
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.model.User;
+import lv.app.backend.model.enums.UserRole;
 import lv.app.backend.model.repository.UserRepository;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -23,7 +24,7 @@ public class DataCreator implements ApplicationRunner {
         List<User> all = userRepository.findAll();
         if (all.isEmpty()) {
             userRepository.save(User.builder()
-                    .role("Admin")
+                    .role(UserRole.ADMIN)
                     .password(passwordEncoder.encode("pass123"))
                     .username("admini")
                     .build());
