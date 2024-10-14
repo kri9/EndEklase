@@ -1,34 +1,28 @@
 package lv.app.backend.service;
 
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.LoginUserDto;
+import lv.app.backend.dto.Records;
 import lv.app.backend.model.User;
 import lv.app.backend.model.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@NoArgsConstructor
-public class AuthenticationService {
+@RequiredArgsConstructor
+public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthenticationService(
-            UserRepository userRepository,
-            AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder
-    ) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public void saveUser(Records.SignUp signUp) {
+        userRepository.save(User.builder()
+                .username(signUp.username())
+                .password(passwordEncoder.encode(signUp.password()))
+                .build());
     }
 
     public User authenticate(LoginUserDto input) {
