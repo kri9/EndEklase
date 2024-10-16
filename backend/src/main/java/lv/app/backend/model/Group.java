@@ -20,6 +20,7 @@ public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToMany
+    @OneToMany(mappedBy = "group")
     private List<Child> children = new ArrayList<>();
+    private String name;
 }
