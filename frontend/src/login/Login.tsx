@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/Login.css';
 import { fetchFromBackend } from '../api';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ const Login: React.FC = () => {
   const [passwordError, setPasswordError] = useState('');
   const [language, setLanguage] = useState('ru');
   const [backendData, setBackendData] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadBackendData = async () => {
@@ -25,8 +27,9 @@ const Login: React.FC = () => {
 
   const validateForm = () => {
     let valid = true;
-    if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-      setEmailError(language === 'ru' ? 'Неправильный формат email' : 'Nepareizs e-pasta formāts');
+
+    if (email.length === 0) {
+      setEmailError(language === 'ru' ? 'Email не может быть пустым' : 'E-pasts nevar būt tukšs');
       valid = false;
     } else {
       setEmailError('');
@@ -49,7 +52,7 @@ const Login: React.FC = () => {
       console.log('Форма валидна, отправляем запрос на сервер');
       
       const loginData = {
-        email,
+        username: email,
         password,
       };
 
@@ -58,6 +61,7 @@ const Login: React.FC = () => {
       if (response) {
         console.log('Ответ от бэкенда:', response);
         setBackendData(response.message || 'Успешный вход');
+        navigate('/dashboard');
       } else {
         setBackendData('Ошибка при попытке входа');
       }
@@ -82,7 +86,7 @@ const Login: React.FC = () => {
               {language === 'ru' ? 'Email' : 'E-pasts'}
             </label>
             <input
-              type="email"
+              type="text"
               className={`form-control ${emailError ? 'is-invalid' : ''}`}
               id="email"
               value={email}
