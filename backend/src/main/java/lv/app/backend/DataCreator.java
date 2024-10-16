@@ -26,13 +26,8 @@ public class DataCreator implements ApplicationRunner {
             userRepository.save(User.builder()
                     .role(UserRole.ADMIN)
                     .password(passwordEncoder.encode("pass123"))
-                    .username("admini")
+                    .username("admini@test.com")
                     .build());
         }
-        else userRepository.save(User.builder()
-                    .role(UserRole.USER)
-                    .password(passwordEncoder.encode("pass12345"))
-                    .username("Drewman")
-                    .build());
     }
 }

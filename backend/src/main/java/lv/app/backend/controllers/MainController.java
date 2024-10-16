@@ -9,6 +9,7 @@ import lv.app.backend.service.JwtService;
 import lv.app.backend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -18,6 +19,11 @@ public class MainController {
 
     private final JwtService jwtService;
     private final UserService userService;
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("TEST STRING");
+    }
 
     @PostMapping("/signup")
     private ResponseEntity<Void> signup(@RequestBody Records.SignUp signUp) {
