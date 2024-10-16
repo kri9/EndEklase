@@ -3,6 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/Login.css';
 import { fetchFromBackend } from '../api';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setAuthToken } from '../redux/authSlice';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +15,7 @@ const Login: React.FC = () => {
   const [language, setLanguage] = useState('ru');
   const [backendData, setBackendData] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const loadBackendData = async () => {
@@ -58,9 +61,10 @@ const Login: React.FC = () => {
 
       const response = await fetchFromBackend('login', 'POST', loginData);
 
-      if (response) {
+      if (response && response.token) {
         console.log('Ответ от бэкенда:', response);
         setBackendData(response.message || 'Успешный вход');
+        dispatch(setAuthToken(response.token));
         navigate('/dashboard');
       } else {
         setBackendData('Ошибка при попытке входа');
