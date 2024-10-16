@@ -30,8 +30,10 @@ public class User implements UserDetails {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;
-    @OneToMany
+    @OneToMany(mappedBy = "parent")
     private List<Child> children = new ArrayList<>();
+    @OneToMany(mappedBy = "user")
+    private List<Invoice> invoices = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

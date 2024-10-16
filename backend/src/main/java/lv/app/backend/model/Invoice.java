@@ -3,6 +3,8 @@ package lv.app.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,18 +16,18 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "children")
-public class Child {
+@Table(name = "invoice")
+public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    private User parent;
-    @ManyToOne
-    private Group group;
-    @OneToMany(mappedBy = "child")
+    private User user;
+    @OneToMany(mappedBy = "invoice")
     private List<Attendance> attendances = new ArrayList<>();
-    private String lastname;
-    private String firstname;
+    private LocalDate dateIssued;
+    private LocalDate dueDate;
+    private Long amount;
+    private String status;
 }

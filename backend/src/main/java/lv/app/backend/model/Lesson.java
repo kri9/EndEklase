@@ -3,6 +3,7 @@ package lv.app.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,18 +15,16 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "children")
-public class Child {
+@Table(name = "lessons")
+public class Lesson {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
-    private User parent;
-    @ManyToOne
-    private Group group;
-    @OneToMany(mappedBy = "child")
+    private String topic;
+    private String notes;
+    private LocalDate date;
+    @OneToMany(mappedBy = "lesson")
     private List<Attendance> attendances = new ArrayList<>();
-    private String lastname;
-    private String firstname;
+
 }
