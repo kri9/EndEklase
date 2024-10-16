@@ -1,11 +1,13 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './login/Login'; // Подключаем страницу логина
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./login/Login";
+import Dashboard from "./dashboard/dashboard";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<Login />} /> {/* Страница логина */}
+        <Route path="/login" element={<Login />} />{" "}
+        <Route path="/dashboard" element={<Dashboard />} />{" "}
       </Routes>
     </Router>
   );
