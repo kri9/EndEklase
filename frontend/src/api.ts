@@ -53,7 +53,7 @@ export const fetchFromBackendWithAuth = async (
       throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
     }
 
-    return responseText ? JSON.parse(responseText) : null; // Проверка на наличие текста
+    return responseText ? JSON.parse(responseText) : { success: true };
   } catch (error) {
     console.error(`Ошибка при выполнении запроса к ${endpoint}:`, error);
     return null;

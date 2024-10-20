@@ -50,9 +50,11 @@ const AdminDashboard: React.FC = () => {
     setSelectedGroup(event.target.value);
     if (token && event.target.value) {
       const fetchedChildren = await getChildrenByGroup(token, event.target.value);
+      console.log('Fetched Children:', fetchedChildren);
       setChildren(fetchedChildren || []);
     }
   };
+  
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setNewChild({ ...newChild, [event.target.name]: event.target.value });
@@ -68,26 +70,18 @@ const AdminDashboard: React.FC = () => {
         selectedGroup
       );
   
-      if (response) {
+      if (response && response.success) {
         alert('Ребенок успешно добавлен');
         setNewChild({ firstname: '', lastname: '', kindergartenId: '', groupId: '' });
   
-        setChildren(prevChildren => [
-          ...prevChildren,
-          {
-            id: response.id,
-            firstname: newChild.firstname,
-            lastname: newChild.lastname,
-            kindergartenId: selectedKindergarten,
-            groupId: selectedGroup
-          }
-        ]);
+        // Обновляем список детей после успешного добавления
+        await handleGroupChange({ target: { value: selectedGroup } } as React.ChangeEvent<HTMLSelectElement>);
       } else {
         alert('Ошибка при добавлении ребенка');
       }
     }
   };
-  
+    
   
   const renderTabContent = () => {
     switch (selectedTab) {
