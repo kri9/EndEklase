@@ -7,11 +7,13 @@ import lv.app.backend.dto.Records;
 import lv.app.backend.model.User;
 import lv.app.backend.service.JwtService;
 import lv.app.backend.service.UserService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @Controller
 @RequiredArgsConstructor
@@ -40,6 +42,12 @@ public class MainController {
                 .expiresIn(jwtService.getExpirationTime())
                 .build();
         return ResponseEntity.ok(loginResponse);
+    }
+
+    @GetMapping("/isadmin")
+    public ResponseEntity<Boolean> isAdmin(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        final String jwt = authHeader.substring(7);
+        return ResponseEntity.ok(userService.isAdmin(jwtService.extractUsername(jwt)));
     }
 
 
