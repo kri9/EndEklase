@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.LoginUserDto;
 import lv.app.backend.dto.Records;
 import lv.app.backend.model.User;
+import lv.app.backend.model.enums.UserRole;
 import lv.app.backend.model.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,5 +34,11 @@ public class UserService {
                 )
         );
         return userRepository.findByUsername(input.getUsername()).orElseThrow();
+    }
+
+    public boolean isAdmin(String username) {
+        return userRepository.findByUsername(username)
+                .map(u -> u.getRole().equals(UserRole.ADMIN))
+                .orElse(false);
     }
 }
