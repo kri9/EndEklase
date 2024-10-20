@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/Login.css';
-import { fetchFromBackend } from '../api';
+import { fetchFromBackend, fetchFromBackendWithAuth } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAuthToken } from '../redux/authSlice';
@@ -65,7 +65,13 @@ const Login: React.FC = () => {
         console.log('Ответ от бэкенда:', response);
         setBackendData(response.message || 'Успешный вход');
         dispatch(setAuthToken(response.token));
-        navigate('/dashboard');
+        
+        // Проверяем, является ли пользователь администратором через сервер
+        const isAdminResponse = await fetchFromBackendWithAuth('isadmin', 'GET', response.token);
+
+        if (isAdminResponse) {
+          navigate(isAdminResponse === true ? '/admin-dashboard' : '/dashboard');
+        }
       } else {
         setBackendData('Ошибка при попытке входа');
       }

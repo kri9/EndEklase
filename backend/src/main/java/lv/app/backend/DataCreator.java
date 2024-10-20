@@ -27,7 +27,7 @@ public class DataCreator implements ApplicationRunner {
     private final LessonRepository lessonRepository;
     private final TransactionTemplate transactionTemplate;
     private final AttendanceRepository attendanceRepository;
-
+    private final KindergartenRepository kindergartenRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -41,6 +41,20 @@ public class DataCreator implements ApplicationRunner {
     }
 
     private void extracted() {
+        Kindergarten kindergarten = init(new Kindergarten(), k -> {
+            k.setName("Kindergarten 239");
+            k.setAddress("123 Main St, Springfield");
+            k.setContactInfo("+123456789");
+            kindergartenRepository.saveAndFlush(k);
+        });
+
+        Group group = init(new Group(), g -> {
+            g.setName("Group 5");
+            g.setDescription("Group for 5-year-old kids");
+            g.setKindergarten(kindergarten);
+            groupRepository.saveAndFlush(g);
+        });
+
         userRepository.save(User.builder()
                 .role(UserRole.ADMIN)
                 .password(passwordEncoder.encode("pass123"))
@@ -49,6 +63,7 @@ public class DataCreator implements ApplicationRunner {
         Child child = init(new Child(), c -> {
             c.setFirstname("George");
             c.setLastname("Bush");
+            c.setGroup(group);
             childRepository.saveAndFlush(c);
             c.setGroup(init(new Group(), g -> {
                 g.setName("US-Government");
