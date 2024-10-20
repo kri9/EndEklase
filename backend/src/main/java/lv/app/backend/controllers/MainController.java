@@ -1,19 +1,18 @@
 package lv.app.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
-import lv.app.backend.dto.LoginResponse;
-import lv.app.backend.dto.LoginUserDto;
-import lv.app.backend.dto.Records;
+import lv.app.backend.dto.*;
+import lv.app.backend.model.Child;
 import lv.app.backend.model.User;
-import lv.app.backend.service.JwtService;
-import lv.app.backend.service.UserService;
+import lv.app.backend.service.*;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -21,6 +20,9 @@ public class MainController {
 
     private final JwtService jwtService;
     private final UserService userService;
+    private final KindergartenService kindergartenService;
+    private final GroupService groupService;
+    private final ChildService childService;
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
@@ -50,5 +52,37 @@ public class MainController {
         return ResponseEntity.ok(userService.isAdmin(jwtService.extractUsername(jwt)));
     }
 
+    @GetMapping("/kindergartens")
+    public ResponseEntity<List<KindergartenDTO>> getAllKindergartens() {
+        List<KindergartenDTO> kindergartens = kindergartenService.getAllKindergartens();
+        return ResponseEntity.ok(kindergartens);
+    }
 
+    @GetMapping("/kindergartens/{kindergartenId}/groups")
+    public ResponseEntity<List<GroupDTO>> getGroupsByKindergarten(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
+            @PathVariable Long kindergartenId) {
+        final String jwt = authHeader.substring(7);
+        if (!userService.isAdmin(jwtService.extractUsername(jwt))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<GroupDTO> groups = kindergartenService.getGroupsByKindergarten(kindergartenId);
+        return ResponseEntity.ok(groups);
+    }
+
+    @GetMapping("/groups/{groupId}/children")
+    public ResponseEntity<List<ChildDTO>> getChildrenByGroup(@PathVariable Long groupId) {
+        List<Child> children = childService.getChildrenByGroup(groupId);
+        List<ChildDTO> childDTOs = children.stream()
+                .map(ChildDTO::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(childDTOs);
+    }
+
+    @PostMapping("/children")
+    public ResponseEntity<Void> addChild(@RequestBody ChildDTO childDTO) {
+        childService.saveChild(childDTO);
+        return ResponseEntity.ok().build();
+    }
 }
