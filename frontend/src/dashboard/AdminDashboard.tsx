@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './css/AdminDashboard.css';
 import { addChild, getKindergartens, getGroupsByKindergarten, getChildrenByGroup } from '../api';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
+import { clearAuthToken } from '../redux/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('Списки групп');
@@ -12,7 +14,10 @@ const AdminDashboard: React.FC = () => {
   const [kindergartens, setKindergartens] = useState<any[]>([]);
   const [groups, setGroups] = useState<any[]>([]);
   const [newChild, setNewChild] = useState({ firstname: '', lastname: '', kindergartenId: '', groupId: '' });
+
   const token = useSelector((state: RootState) => state.auth.token);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch kindergartens from backend
@@ -25,7 +30,6 @@ const AdminDashboard: React.FC = () => {
     };
     loadKindergartens();
   }, [token]);
-  
 
   useEffect(() => {
     // Fetch groups based on selected kindergarten
@@ -54,7 +58,6 @@ const AdminDashboard: React.FC = () => {
       setChildren(fetchedChildren || []);
     }
   };
-  
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setNewChild({ ...newChild, [event.target.name]: event.target.value });
@@ -63,17 +66,17 @@ const AdminDashboard: React.FC = () => {
   const handleAddChild = async () => {
     if (token && newChild.firstname && newChild.lastname && selectedKindergarten && selectedGroup) {
       const response = await addChild(
-        token, 
-        newChild.firstname, 
-        newChild.lastname, 
-        selectedKindergarten, 
+        token,
+        newChild.firstname,
+        newChild.lastname,
+        selectedKindergarten,
         selectedGroup
       );
-  
+
       if (response && response.success) {
         alert('Ребенок успешно добавлен');
         setNewChild({ firstname: '', lastname: '', kindergartenId: '', groupId: '' });
-  
+
         // Обновляем список детей после успешного добавления
         await handleGroupChange({ target: { value: selectedGroup } } as React.ChangeEvent<HTMLSelectElement>);
       } else {
@@ -81,8 +84,12 @@ const AdminDashboard: React.FC = () => {
       }
     }
   };
-    
-  
+
+  const handleLogout = () => {
+    dispatch(clearAuthToken());
+    navigate('/login');
+  };
+
   const renderTabContent = () => {
     switch (selectedTab) {
       case 'Посещение':
@@ -227,7 +234,12 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="admin-dashboard-wrapper d-flex flex-column w-100 vh-100">
-      <h1>Панель администратора</h1>
+      <div className="d-flex justify-content-between align-items-center">
+        <h1>Панель администратора</h1>
+        <button className="btn btn-danger" onClick={handleLogout}>
+          Выйти
+        </button>
+      </div>
       <div className="tabs d-flex">
         {['Посещение', 'Списки групп', 'Отчеты по группам', 'Выставление счетов'].map((tab) => (
           <div
@@ -239,9 +251,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         ))}
       </div>
-      <div className="tab-content flex-grow-1">
-        {renderTabContent()}
-      </div>
+      <div className="tab-content flex-grow-1">{renderTabContent()}</div>
     </div>
   );
 };
