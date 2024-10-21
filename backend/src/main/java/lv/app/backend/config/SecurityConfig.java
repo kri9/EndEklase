@@ -1,6 +1,7 @@
 package lv.app.backend.config;
 
 import lombok.RequiredArgsConstructor;
+import lv.app.backend.model.enums.UserRole;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,6 +10,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import static org.springframework.http.HttpMethod.*;
 
 
 @Configuration
@@ -22,7 +25,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/signup").permitAll()
-                .requestMatchers("/kindergartens", "/kindergartens/**", "/groups/**", "/children", "/children/**").permitAll()
+                .requestMatchers(POST, "/rest/**").hasRole(UserRole.ADMIN.role())
+                .requestMatchers(DELETE, "/rest/**").hasRole(UserRole.ADMIN.role())
+                .requestMatchers(PUT, "/rest/**").hasRole(UserRole.ADMIN.role())
+                .requestMatchers(POST, "/kindergartens", "/kindergartens/**", "/groups/**", "/children", "/children/**").hasRole(UserRole.ADMIN.role())
                 .anyRequest().authenticated()
         );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

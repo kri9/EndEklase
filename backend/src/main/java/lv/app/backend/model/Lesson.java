@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @Entity
 @Builder
-@ToString
+@ToString(of = {"id"})
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
