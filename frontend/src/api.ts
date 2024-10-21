@@ -89,3 +89,25 @@ export const getGroupsByKindergarten = async (token: string, kindergartenId: str
 export const getChildrenByGroup = async (token: string, groupId: string) => {
   return await fetchFromBackendWithAuth(`admin/groups/${groupId}/children`, 'GET', token);
 };
+
+
+export const addLesson = async (
+  token: string,
+  lesson: { topic: string; date: string; notes?: string; groupId: string }
+) => {
+  const body = {
+    topic: lesson.topic,
+    date: lesson.date,
+    notes: lesson.notes,
+    groupId: lesson.groupId,
+  };
+  return await fetchFromBackendWithAuth('admin/lessons', 'POST', token, body);
+};
+
+export const getLessonsByGroup = async (token: string, groupId: string) => {
+  return await fetchFromBackendWithAuth(`admin/groups/${groupId}/lessons`, 'GET', token);
+};
+
+export const getLessons = async (token: string) => {
+  return await fetchFromBackendWithAuth('admin/lessons', 'GET', token);
+};
