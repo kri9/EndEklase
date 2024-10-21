@@ -2,9 +2,13 @@ package lv.app.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.*;
+import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.User;
-import lv.app.backend.service.*;
+import lv.app.backend.service.ChildService;
+import lv.app.backend.service.JwtService;
+import lv.app.backend.service.KindergartenService;
+import lv.app.backend.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +24,9 @@ public class MainController {
 
     private final JwtService jwtService;
     private final UserService userService;
-    private final KindergartenService kindergartenService;
-    private final GroupService groupService;
+    private final EntityMapper entityMapper;
     private final ChildService childService;
+    private final KindergartenService kindergartenService;
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
@@ -75,7 +79,7 @@ public class MainController {
     public ResponseEntity<List<ChildDTO>> getChildrenByGroup(@PathVariable Long groupId) {
         List<Child> children = childService.getChildrenByGroup(groupId);
         List<ChildDTO> childDTOs = children.stream()
-                .map(ChildDTO::fromEntity)
+                .map(entityMapper::childToDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(childDTOs);
     }
