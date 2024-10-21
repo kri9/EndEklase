@@ -71,10 +71,6 @@ public class DataCreator implements ApplicationRunner {
             c.setGroup(group);
             c.setParent(normalUser);
             childRepository.saveAndFlush(c);
-            c.setGroup(init(new Group(), g -> {
-                g.setName("US-Government");
-                groupRepository.saveAndFlush(g);
-            }));
             Lesson lesson = init(new Lesson(), l -> {
                 l.setDate(LocalDate.of(2001, 9, 11));
                 l.setTopic("Immigration");

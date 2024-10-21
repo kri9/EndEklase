@@ -8,11 +8,11 @@ import java.util.List;
 @Value
 @Builder
 public class KindergartenDTO {
-    private Long id;
-    private String name;
-    private String address;
-    private String contactInfo;
-    private List<GroupDTO> groups;
 
+    Long id;
+    String name;
+    String address;
+    String contactInfo;
+    List<GroupDTO> groups;
 }
 
