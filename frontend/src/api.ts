@@ -46,7 +46,7 @@ export const fetchFromBackendWithAuth = async (
 
   try {
     const response = await fetch(`${window.origin}/api/${endpoint}`, options);
-    const responseText = await response.text(); 
+    const responseText = await response.text();
     console.log(`Response from ${endpoint}:`, responseText);
 
     if (!response.ok) {
@@ -75,17 +75,17 @@ export const addChild = async (
     kindergartenId,
     groupId,
   };
-  return await fetchFromBackendWithAuth('children', 'POST', token, body);
+  return await fetchFromBackendWithAuth('admin/children', 'POST', token, body);
 };
 
 export const getKindergartens = async (token: string) => {
-  return await fetchFromBackendWithAuth('kindergartens', 'GET', token);
+  return await fetchFromBackendWithAuth('admin/kindergartens', 'GET', token);
 };
 
 export const getGroupsByKindergarten = async (token: string, kindergartenId: string) => {
-  return await fetchFromBackendWithAuth(`kindergartens/${kindergartenId}/groups`, 'GET', token);
+  return await fetchFromBackendWithAuth(`admin/kindergartens/${kindergartenId}/groups`, 'GET', token);
 };
 
 export const getChildrenByGroup = async (token: string, groupId: string) => {
-  return await fetchFromBackendWithAuth(`groups/${groupId}/children`, 'GET', token);
+  return await fetchFromBackendWithAuth(`admin/groups/${groupId}/children`, 'GET', token);
 };
