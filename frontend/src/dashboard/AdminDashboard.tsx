@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './css/AdminDashboard.css';
-import { addChild, getKindergartens, getGroupsByKindergarten, getChildrenByGroup } from '../api';
+import { addChild, getKindergartens, getGroupsByKindergarten, getChildrenByGroup, addLesson, getLessonsByGroup } from '../api';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../redux/store';
 import { clearAuthToken } from '../redux/authSlice';
 import { useNavigate } from 'react-router-dom';
+
+interface Lesson {
+  id?: number;
+  topic: string;
+  date: string;
+  notes?: string;
+}
 
 const AdminDashboard: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('Списки групп');
@@ -14,6 +21,8 @@ const AdminDashboard: React.FC = () => {
   const [kindergartens, setKindergartens] = useState<any[]>([]);
   const [groups, setGroups] = useState<any[]>([]);
   const [newChild, setNewChild] = useState({ firstname: '', lastname: '', kindergartenId: '', groupId: '' });
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [newLesson, setNewLesson] = useState<Lesson>({ topic: '', date: '', notes: '' });
 
   const token = useSelector((state: RootState) => state.auth.token);
   const dispatch = useDispatch();
@@ -48,6 +57,7 @@ const AdminDashboard: React.FC = () => {
     setSelectedKindergarten(event.target.value);
     setSelectedGroup('');
     setChildren([]);
+    setLessons([]);
   };
 
   const handleGroupChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -56,6 +66,8 @@ const AdminDashboard: React.FC = () => {
       const fetchedChildren = await getChildrenByGroup(token, event.target.value);
       console.log('Fetched Children:', fetchedChildren);
       setChildren(fetchedChildren || []);
+
+      await loadLessonsFromBackend(event.target.value as string);
     }
   };
 
@@ -84,6 +96,36 @@ const AdminDashboard: React.FC = () => {
       }
     }
   };
+
+  const handleAddLesson = async () => {
+    if (newLesson.topic && newLesson.date) {
+      if (token && selectedGroup) {
+        const response = await addLesson(token, { ...newLesson, groupId: selectedGroup });
+        if (response && response.success) {
+          alert('Урок успешно добавлен');
+          setNewLesson({ topic: '', date: '', notes: '' });
+  
+          await loadLessonsFromBackend(selectedGroup);
+          
+        } else {
+          alert('Ошибка при добавлении урока');
+        }
+      }
+    }
+  };
+  
+  const loadLessonsFromBackend = async (groupId: string) => {
+    if (token && groupId) {
+        const fetchedLessons = await getLessonsByGroup(token, groupId);
+        console.log('Fetched Lessons:', fetchedLessons);
+
+        if (Array.isArray(fetchedLessons)) {
+            setLessons(fetchedLessons);
+        } else {
+            console.error('Unexpected response format:', fetchedLessons);
+        }
+    }
+};
 
   const handleLogout = () => {
     dispatch(clearAuthToken());
@@ -182,48 +224,119 @@ const AdminDashboard: React.FC = () => {
                   onChange={handleInputChange}
                 />
               </div>
-              <div className="form-group mt-3">
-                <label htmlFor="kindergartenId">Садик:</label>
-                <select
-                  id="kindergartenId"
-                  name="kindergartenId"
-                  className="form-control"
-                  value={newChild.kindergartenId}
-                  onChange={handleInputChange}
-                >
-                  <option value="">-- Выберите садик --</option>
-                  {kindergartens.map((kg) => (
-                    <option key={kg.id} value={kg.id}>
-                      {kg.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group mt-3">
-                <label htmlFor="groupId">Группа:</label>
-                <select
-                  id="groupId"
-                  name="groupId"
-                  className="form-control"
-                  value={newChild.groupId}
-                  onChange={handleInputChange}
-                  disabled={!newChild.kindergartenId}
-                >
-                  <option value="">-- Выберите группу --</option>
-                  {groups.map((group) => (
-                    <option key={group.id} value={group.id}>
-                      {group.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
               <button className="btn btn-primary mt-3" onClick={handleAddChild}>
                 Добавить ребенка
               </button>
             </div>
           </div>
         );
-      case 'Отчеты по группам':
+        case 'Добавление уроков':
+          return (
+            <div>
+              <h2>Добавление уроков</h2>
+              <div className="filters mb-4">
+                <div className="form-group">
+                  <label htmlFor="kindergartenSelectForLesson">Выберите садик:</label>
+                  <select
+                    id="kindergartenSelectForLesson"
+                    className="form-control"
+                    value={selectedKindergarten}
+                    onChange={handleKindergartenChange}
+                  >
+                    <option value="">-- Выберите садик --</option>
+                    {kindergartens.map((kg) => (
+                      <option key={kg.id} value={kg.id}>
+                        {kg.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group mt-3">
+                  <label htmlFor="groupSelectForLesson">Выберите группу:</label>
+                  <select
+                    id="groupSelectForLesson"
+                    className="form-control"
+                    value={selectedGroup}
+                    onChange={handleGroupChange}
+                    disabled={!selectedKindergarten}
+                  >
+                    <option value="">-- Выберите группу --</option>
+                    {groups.map((group) => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="add-lesson-form mt-4">
+                <div className="form-group">
+                  <label htmlFor="lessonTopic">Тема урока:</label>
+                  <input
+                    type="text"
+                    id="lessonTopic"
+                    name="topic"
+                    className="form-control"
+                    value={newLesson.topic}
+                    onChange={(e) => setNewLesson({ ...newLesson, topic: e.target.value })}
+                  />
+                </div>
+                <div className="form-group mt-3">
+                  <label htmlFor="lessonDate">Дата урока:</label>
+                  <input
+                    type="date"
+                    id="lessonDate"
+                    name="date"
+                    className="form-control"
+                    value={newLesson.date}
+                    onChange={(e) => setNewLesson({ ...newLesson, date: e.target.value })}
+                  />
+                </div>
+                <div className="form-group mt-3">
+                  <label htmlFor="lessonNotes">Заметки:</label>
+                  <textarea
+                    id="lessonNotes"
+                    name="notes"
+                    className="form-control"
+                    value={newLesson.notes}
+                    onChange={(e) => setNewLesson({ ...newLesson, notes: e.target.value })}
+                  />
+                </div>
+                <button className="btn btn-primary mt-3" onClick={handleAddLesson} disabled={!selectedGroup}>
+                  Добавить урок
+                </button>
+              </div>
+        
+              <div className="weekly-schedule mt-5">
+                <h3>Расписание на неделю</h3>
+                <div className="schedule">
+                  {lessons.length > 0 ? (
+                    <table className="table table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Дата</th>
+                          <th>Тема</th>
+                          <th>Заметки</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {lessons.map((lesson) => (
+                          <tr key={lesson.id}>
+                            <td>{lesson.date}</td>
+                            <td>{lesson.topic}</td>
+                            <td>{lesson.notes}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p>Нет уроков на эту неделю.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+              case 'Отчеты по группам':
         return <p>Отчеты по группам.</p>;
       case 'Выставление счетов':
         return <p>Выставление счетов.</p>;
@@ -241,7 +354,7 @@ const AdminDashboard: React.FC = () => {
         </button>
       </div>
       <div className="tabs d-flex">
-        {['Посещение', 'Списки групп', 'Отчеты по группам', 'Выставление счетов'].map((tab) => (
+        {['Посещение', 'Списки групп', 'Добавление уроков','Отчеты по группам', 'Выставление счетов'].map((tab) => (
           <div
             key={tab}
             className={`tab ${selectedTab === tab ? 'active' : ''}`}

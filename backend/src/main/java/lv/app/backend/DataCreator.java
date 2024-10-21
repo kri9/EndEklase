@@ -60,42 +60,51 @@ public class DataCreator implements ApplicationRunner {
                 .password(passwordEncoder.encode("pass123"))
                 .username("admini@test.com")
                 .build());
+
         User normalUser = userRepository.save(User.builder()
                 .role(UserRole.USER)
                 .password(passwordEncoder.encode("pass123"))
                 .username("normie@normalson.com")
                 .build());
+
         Child child = init(new Child(), c -> {
             c.setFirstname("George");
             c.setLastname("Bush");
             c.setGroup(group);
             c.setParent(normalUser);
             childRepository.saveAndFlush(c);
-            Lesson lesson = init(new Lesson(), l -> {
-                l.setDate(LocalDate.of(2001, 9, 11));
-                l.setTopic("Immigration");
-                l.setNotes("Immigration bad");
-                lessonRepository.saveAndFlush(l);
-            });
-            Lesson lesson2 = init(new Lesson(), l -> {
-                l.setDate(LocalDate.of(2001, 10, 10));
-                l.setTopic("Random");
-                l.setNotes("Very random lesson");
-                lessonRepository.saveAndFlush(l);
-            });
-            c.getAttendances().add(init(new Attendance(), a -> {
-                a.setChild(c);
-                a.setLesson(lesson);
-                a.setStatus(AttendanceStatus.ATTENDED);
-                attendanceRepository.saveAndFlush(a);
-            }));
-            c.getAttendances().add(init(new Attendance(), a -> {
-                a.setChild(c);
-                a.setLesson(lesson2);
-                a.setStatus(AttendanceStatus.NOT_ATTENDED);
-                attendanceRepository.saveAndFlush(a);
-            }));
         });
+
+        Lesson lesson = init(new Lesson(), l -> {
+            l.setDate(LocalDate.of(2001, 9, 11));
+            l.setTopic("Immigration");
+            l.setNotes("Immigration bad");
+            l.setGroup(group);
+            lessonRepository.saveAndFlush(l);
+        });
+
+        Lesson lesson2 = init(new Lesson(), l -> {
+            l.setDate(LocalDate.of(2001, 10, 10));
+            l.setTopic("Random");
+            l.setNotes("Very random lesson");
+            l.setGroup(group);
+            lessonRepository.saveAndFlush(l);
+        });
+
+        child.getAttendances().add(init(new Attendance(), a -> {
+            a.setChild(child);
+            a.setLesson(lesson);
+            a.setStatus(AttendanceStatus.ATTENDED);
+            attendanceRepository.saveAndFlush(a);
+        }));
+
+        child.getAttendances().add(init(new Attendance(), a -> {
+            a.setChild(child);
+            a.setLesson(lesson2);
+            a.setStatus(AttendanceStatus.NOT_ATTENDED);
+            attendanceRepository.saveAndFlush(a);
+        }));
+
         userRepository.save(normalUser);
         child.setParent(normalUser);
     }

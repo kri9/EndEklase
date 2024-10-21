@@ -21,10 +21,17 @@ public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String topic;
+
     private String notes;
+
     private LocalDate date;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id", nullable = false)
+    private Group group;
+
     @OneToMany(mappedBy = "lesson")
     private List<Attendance> attendances = new ArrayList<>();
-
 }
