@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lv.app.backend.model.enums.UserRole;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
 @Setter
 @Entity
 @Builder
-@ToString
+@ToString(of = {"id", "username"})
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,8 +38,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority(this.getRole().prefixedRole()));
     }
-
 
 }

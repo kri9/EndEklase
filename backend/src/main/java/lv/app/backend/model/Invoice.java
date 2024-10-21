@@ -3,7 +3,6 @@ package lv.app.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.List;
 @Setter
 @Entity
 @Builder
-@ToString
+@ToString(of = {"id"})
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor

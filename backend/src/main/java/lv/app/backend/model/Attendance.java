@@ -8,7 +8,7 @@ import lv.app.backend.model.enums.AttendanceStatus;
 @Setter
 @Entity
 @Builder
-@ToString
+@ToString(of = {"id"})
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor

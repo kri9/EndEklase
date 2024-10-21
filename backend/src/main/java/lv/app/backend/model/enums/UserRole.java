@@ -12,4 +12,8 @@ public enum UserRole {
     public String role() {
         return role;
     }
+
+    public String prefixedRole() {
+        return "ROLE_" + role;
+    }
 }

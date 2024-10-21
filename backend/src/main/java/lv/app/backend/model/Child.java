@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @Entity
 @Builder
-@ToString
+@ToString(of = {"id"})
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,4 +32,5 @@ public class Child {
     private List<Attendance> attendances = new ArrayList<>();
 
     private String lastname;
-    private String firstname;}
+    private String firstname;
+}
