@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .requestMatchers(POST, "/rest/**").hasRole(UserRole.ADMIN.role())
                 .requestMatchers(DELETE, "/rest/**").hasRole(UserRole.ADMIN.role())
                 .requestMatchers(PUT, "/rest/**").hasRole(UserRole.ADMIN.role())
-                .requestMatchers(POST, "/kindergartens", "/kindergartens/**", "/groups/**", "/children", "/children/**").hasRole(UserRole.ADMIN.role())
+                .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.role())
                 .anyRequest().authenticated()
         );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
