@@ -60,10 +60,16 @@ public class DataCreator implements ApplicationRunner {
                 .password(passwordEncoder.encode("pass123"))
                 .username("admini@test.com")
                 .build());
+        User normalUser = userRepository.save(User.builder()
+                .role(UserRole.USER)
+                .password(passwordEncoder.encode("pass123"))
+                .username("normie@normalson.com")
+                .build());
         Child child = init(new Child(), c -> {
             c.setFirstname("George");
             c.setLastname("Bush");
             c.setGroup(group);
+            c.setParent(normalUser);
             childRepository.saveAndFlush(c);
             c.setGroup(init(new Group(), g -> {
                 g.setName("US-Government");
@@ -94,12 +100,6 @@ public class DataCreator implements ApplicationRunner {
                 attendanceRepository.saveAndFlush(a);
             }));
         });
-        User normalUser = User.builder()
-                .role(UserRole.USER)
-                .password(passwordEncoder.encode("pass123"))
-                .username("normie@normalson.com")
-                .children(List.of(child))
-                .build();
         userRepository.save(normalUser);
         child.setParent(normalUser);
     }
