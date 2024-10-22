@@ -126,3 +126,7 @@ export const updateAttendance = async (
   return await fetchFromBackendWithAuth('admin/attendances', 'PUT', token, body);
 };
 
+export const getAttendanceByGroup = async (token: string, groupId: string) => {
+  return await fetchFromBackendWithAuth(`admin/groups/${groupId}/attendances`, 'GET', token);
+};
+

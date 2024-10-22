@@ -1,11 +1,15 @@
 package lv.app.backend.mappers;
 
+import lv.app.backend.dto.AttendanceDTO;
 import lv.app.backend.dto.ChildDTO;
 import lv.app.backend.dto.LessonDTO;
+import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Lesson;
+import lv.app.backend.model.enums.AttendanceStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,4 +27,23 @@ public interface EntityMapper {
     @Mapping(target = "attendances", ignore = true)
     Lesson dtoToLesson(LessonDTO lessonDTO);
 
+    @Mapping(target = "childId", source = "child.id")
+    @Mapping(target = "lessonId", source = "lesson.id")
+    @Mapping(target = "attended", source = "status", qualifiedByName = "mapAttendanceStatusToBoolean")
+    AttendanceDTO attendanceToDto(Attendance attendance);
+
+    @Mapping(target = "child.id", source = "childId")
+    @Mapping(target = "lesson.id", source = "lessonId")
+    @Mapping(target = "status", source = "attended", qualifiedByName = "mapBooleanToAttendanceStatus")
+    Attendance dtoToAttendance(AttendanceDTO attendanceDTO);
+
+    @Named("mapAttendanceStatusToBoolean")
+    default boolean mapAttendanceStatusToBoolean(AttendanceStatus status) {
+        return AttendanceStatus.ATTENDED.equals(status);
+    }
+
+    @Named("mapBooleanToAttendanceStatus")
+    default AttendanceStatus mapBooleanToAttendanceStatus(boolean attended) {
+        return attended ? AttendanceStatus.ATTENDED : AttendanceStatus.NOT_ATTENDED;
+    }
 }

@@ -7,7 +7,8 @@ import {
   getChildrenByGroup,
   addLesson,
   getLessonsByGroup,
-  updateAttendance
+  updateAttendance,
+  getAttendanceByGroup
 } from "../api";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
@@ -126,10 +127,25 @@ const AdminDashboard: React.FC = () => {
       );
       console.log("Fetched Children:", fetchedChildren);
       setChildren(fetchedChildren || []);
-
+  
       await loadLessonsFromBackend(event.target.value as string);
+  
+      // Загрузка данных о посещаемости
+      const fetchedAttendance = await getAttendanceByGroup(token, event.target.value);
+      console.log("Fetched Attendance:", fetchedAttendance);
+  
+      // Установите состояние посещаемости
+      if (fetchedAttendance) {
+        const newAttendance: { [key: string]: boolean } = {};
+        fetchedAttendance.forEach((attendanceItem: any) => {
+          const key = `${attendanceItem.childId}_${attendanceItem.lessonId}`;
+          newAttendance[key] = attendanceItem.attended;
+        });
+        setAttendance(newAttendance);
+      }
     }
   };
+  
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
