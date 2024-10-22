@@ -93,6 +93,12 @@ public class AdminController {
         System.out.println("Attendance updated successfully");
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/groups/{groupId}/attendances")
+    public ResponseEntity<List<AttendanceDTO>> getAttendanceByGroup(@PathVariable Long groupId) {
+        List<AttendanceDTO> attendances = lessonService.getAttendanceByGroup(groupId);
+        return ResponseEntity.ok(attendances);
+    }
+
 
 }
 

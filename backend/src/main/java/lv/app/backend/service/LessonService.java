@@ -3,6 +3,7 @@ package lv.app.backend.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lv.app.backend.dto.AttendanceDTO;
 import lv.app.backend.dto.LessonDTO;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Attendance;
@@ -68,6 +69,15 @@ public class LessonService {
         attendanceRepository.saveAndFlush(attendance);
         System.out.println("Attendance status updated successfully for childId: " + childId + ", lessonId: " + lessonId);
     }
+
+    @Transactional
+    public List<AttendanceDTO> getAttendanceByGroup(Long groupId) {
+        List<Attendance> attendances = attendanceRepository.findByLessonGroupId(groupId);
+        return attendances.stream()
+                .map(entityMapper::attendanceToDto)
+                .collect(Collectors.toList());
+    }
+
 
 
 
