@@ -80,13 +80,19 @@ public class AdminController {
         return ResponseEntity.ok(lessons);
     }
 
-    @PutMapping("/attendances")
     @PostMapping("/invoice")
     public ResponseEntity<Void> createInvoice(@RequestBody InvoiceCreateDto dto) {
         invoiceCreationService.createInvoice(dto);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/attendances")
+    public ResponseEntity<Void> updateAttendance(@RequestBody AttendanceDTO attendanceDTO) {
+        System.out.println("Received request to update attendance: " + attendanceDTO);
+        lessonService.updateAttendanceStatus(attendanceDTO.getChildId(), attendanceDTO.getLessonId(), attendanceDTO.isAttended());
+        System.out.println("Attendance updated successfully");
+        return ResponseEntity.ok().build();
     }
 
-
 }
+
