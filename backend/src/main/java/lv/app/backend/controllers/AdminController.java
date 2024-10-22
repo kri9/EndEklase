@@ -1,10 +1,7 @@
 package lv.app.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
-import lv.app.backend.dto.ChildDTO;
-import lv.app.backend.dto.GroupDTO;
-import lv.app.backend.dto.KindergartenDTO;
-import lv.app.backend.dto.LessonDTO;
+import lv.app.backend.dto.*;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Child;
 import lv.app.backend.service.ChildService;
@@ -80,7 +77,13 @@ public class AdminController {
         return ResponseEntity.ok(lessons);
     }
 
-
+    @PutMapping("/attendances")
+    public ResponseEntity<Void> updateAttendance(@RequestBody AttendanceDTO attendanceDTO) {
+        System.out.println("Received request to update attendance: " + attendanceDTO);
+        lessonService.updateAttendanceStatus(attendanceDTO.getChildId(), attendanceDTO.getLessonId(), attendanceDTO.isAttended());
+        System.out.println("Attendance updated successfully");
+        return ResponseEntity.ok().build();
+    }
 
 
 }

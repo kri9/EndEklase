@@ -111,3 +111,18 @@ export const getLessonsByGroup = async (token: string, groupId: string) => {
 export const getLessons = async (token: string) => {
   return await fetchFromBackendWithAuth('admin/lessons', 'GET', token);
 };
+
+export const updateAttendance = async (
+  token: string,
+  childId: string,
+  lessonId: string,
+  attended: boolean
+) => {
+  const body = {
+    childId,
+    lessonId,
+    attended,
+  };
+  return await fetchFromBackendWithAuth('admin/attendances', 'PUT', token, body);
+};
+
