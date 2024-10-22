@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.*;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Child;
+import lv.app.backend.model.Invoice;
 import lv.app.backend.service.ChildService;
+import lv.app.backend.service.InvoiceCreationService;
 import lv.app.backend.service.KindergartenService;
 import lv.app.backend.service.LessonService;
 import org.springframework.http.HttpHeaders;
@@ -25,8 +27,9 @@ public class AdminController {
 
     private final EntityMapper entityMapper;
     private final ChildService childService;
-    private final KindergartenService kindergartenService;
     private final LessonService lessonService;
+    private final KindergartenService kindergartenService;
+    private final InvoiceCreationService invoiceCreationService;
 
     @GetMapping("/kindergartens")
     public ResponseEntity<List<KindergartenDTO>> getAllKindergartens() {
@@ -78,11 +81,11 @@ public class AdminController {
     }
 
     @PutMapping("/attendances")
-    public ResponseEntity<Void> updateAttendance(@RequestBody AttendanceDTO attendanceDTO) {
-        System.out.println("Received request to update attendance: " + attendanceDTO);
-        lessonService.updateAttendanceStatus(attendanceDTO.getChildId(), attendanceDTO.getLessonId(), attendanceDTO.isAttended());
-        System.out.println("Attendance updated successfully");
+    @PostMapping("/invoice")
+    public ResponseEntity<Void> createInvoice(@RequestBody InvoiceCreateDto dto) {
+        invoiceCreationService.createInvoice(dto);
         return ResponseEntity.ok().build();
+    }
     }
 
 
