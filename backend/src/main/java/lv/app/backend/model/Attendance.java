@@ -28,4 +28,8 @@ public class Attendance {
     @ManyToOne
     private Invoice invoice;
 
+
+    public boolean isAttended() {
+        return AttendanceStatus.ATTENDED.equals(this.getStatus());
+    }
 }
