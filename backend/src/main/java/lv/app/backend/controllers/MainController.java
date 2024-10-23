@@ -1,14 +1,12 @@
 package lv.app.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lv.app.backend.dto.LoginResponse;
 import lv.app.backend.dto.LoginUserDto;
 import lv.app.backend.dto.Records;
-import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.User;
-import lv.app.backend.service.ChildService;
 import lv.app.backend.service.JwtService;
-import lv.app.backend.service.KindergartenService;
 import lv.app.backend.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class MainController {

@@ -1,6 +1,7 @@
 package lv.app.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lv.app.backend.dto.*;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Child;

@@ -2,7 +2,7 @@ package lv.app.backend.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import lv.app.backend.dto.AttendanceDTO;
 import lv.app.backend.dto.LessonDTO;
 import lv.app.backend.mappers.EntityMapper;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LessonService {
@@ -62,12 +63,12 @@ public class LessonService {
 
     @Transactional
     public void updateAttendanceStatus(Long childId, Long lessonId, boolean attended) {
-        System.out.println("Updating attendance for childId: " + childId + ", lessonId: " + lessonId + ", attended: " + attended);
+        log.trace("Updating attendance for childId: {}, lessonId: {}, attended: {}", childId, lessonId, attended);
         Attendance attendance = attendanceRepository.findByChildIdAndLessonId(childId, lessonId)
                 .orElseThrow(() -> new IllegalArgumentException("Attendance record not found for childId: " + childId + ", lessonId: " + lessonId));
         attendance.setStatus(attended ? AttendanceStatus.ATTENDED : AttendanceStatus.NOT_ATTENDED);
         attendanceRepository.saveAndFlush(attendance);
-        System.out.println("Attendance status updated successfully for childId: " + childId + ", lessonId: " + lessonId);
+        log.trace("Attendance status updated successfully for childId: {}, lessonId: {}", childId, lessonId);
     }
 
     @Transactional
@@ -77,8 +78,6 @@ public class LessonService {
                 .map(entityMapper::attendanceToDto)
                 .collect(Collectors.toList());
     }
-
-
 
 
 }
