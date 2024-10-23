@@ -28,6 +28,7 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String username;
     private String password;
+    private boolean separateInvoices;
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;

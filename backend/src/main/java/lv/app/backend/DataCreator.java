@@ -65,12 +65,14 @@ public class DataCreator implements ApplicationRunner {
                 .role(UserRole.USER)
                 .password(passwordEncoder.encode("pass123"))
                 .username("normie@normalson.com")
+                .separateInvoices(true)
                 .build());
 
         Child child = init(new Child(), c -> {
             c.setFirstname("George");
             c.setLastname("Bush");
             c.setGroup(group);
+            group.getChildren().add(c);
             c.setParent(normalUser);
             childRepository.saveAndFlush(c);
         });
@@ -81,6 +83,11 @@ public class DataCreator implements ApplicationRunner {
             l.setNotes("Immigration bad");
             l.setGroup(group);
             lessonRepository.saveAndFlush(l);
+            group.getChildren().forEach(c -> attendanceRepository.saveAndFlush(Attendance.builder()
+                    .status(AttendanceStatus.NOT_ATTENDED)
+                    .child(child)
+                    .lesson(l)
+                    .build()));
         });
 
         Lesson lesson2 = init(new Lesson(), l -> {
@@ -89,21 +96,12 @@ public class DataCreator implements ApplicationRunner {
             l.setNotes("Very random lesson");
             l.setGroup(group);
             lessonRepository.saveAndFlush(l);
+            group.getChildren().forEach(c -> attendanceRepository.saveAndFlush(Attendance.builder()
+                    .status(AttendanceStatus.ATTENDED)
+                    .child(child)
+                    .lesson(l)
+                    .build()));
         });
-
-        child.getAttendances().add(init(new Attendance(), a -> {
-            a.setChild(child);
-            a.setLesson(lesson);
-            a.setStatus(AttendanceStatus.ATTENDED);
-            attendanceRepository.saveAndFlush(a);
-        }));
-
-        child.getAttendances().add(init(new Attendance(), a -> {
-            a.setChild(child);
-            a.setLesson(lesson2);
-            a.setStatus(AttendanceStatus.NOT_ATTENDED);
-            attendanceRepository.saveAndFlush(a);
-        }));
 
         userRepository.save(normalUser);
         child.setParent(normalUser);
