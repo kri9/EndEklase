@@ -23,14 +23,18 @@ public class Child {
     @ManyToOne
     @JoinColumn(name = "parent_id", nullable = false)
     private User parent;
-
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
-
     @OneToMany(mappedBy = "child")
     private List<Attendance> attendances = new ArrayList<>();
-
     private String lastname;
     private String firstname;
+
+    public List<Lesson> getAttendedLessons() {
+        return getAttendances().stream()
+                .filter(Attendance::isAttended)
+                .map(Attendance::getLesson)
+                .toList();
+    }
 }

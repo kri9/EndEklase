@@ -3,8 +3,8 @@ package lv.app.backend.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Common {
@@ -13,4 +13,9 @@ public class Common {
         initializer.accept(t);
         return t;
     }
+
+    public static <T> List<T> intersection(List<T> a, List<T> b) {
+        return a.stream().filter(b::contains).toList();
+    }
+
 }
