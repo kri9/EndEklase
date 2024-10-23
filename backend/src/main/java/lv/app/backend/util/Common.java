@@ -3,6 +3,7 @@ package lv.app.backend.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -14,8 +15,8 @@ public class Common {
         return t;
     }
 
-    public static <T> List<T> intersection(List<T> a, List<T> b) {
-        return a.stream().filter(b::contains).toList();
+    public static <T> List<T> flatten(List<List<T>> list) {
+        return list.stream().flatMap(Collection::stream).toList();
     }
 
 }
