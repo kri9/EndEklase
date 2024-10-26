@@ -41,6 +41,13 @@ const AdminDashboard: React.FC = () => {
     date: "",
     notes: "",
   });
+    const [newInvoice, setNewInvoice] = useState({
+    userId: "",
+    dateIssued: "",
+    dueDate: "",
+    amount: "",
+    status: "",
+  });
   const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({});
 
   const token = useSelector((state: RootState) => state.auth.token);
@@ -219,6 +226,13 @@ const AdminDashboard: React.FC = () => {
       }
     }
   };
+
+  const handleInvoiceInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setNewInvoice({ ...newInvoice, [event.target.name]: event.target.value });
+  };
+  
 
   const handleLogout = () => {
     dispatch(clearAuthToken());
@@ -533,8 +547,136 @@ const AdminDashboard: React.FC = () => {
         );
       case "Отчеты по группам":
         return <p>Отчеты по группам.</p>;
-      case "Выставление счетов":
-        return <p>Выставление счетов.</p>;
+        case "Выставление счетов":
+          return (
+            <div className="invoice-management mt-5">
+              <h2>Выставление счетов</h2>
+        
+              <div className="invoice-form mt-4">
+                <h3>Добавить новый счет</h3>
+                <div className="form-group">
+                  <label htmlFor="userId">ID Пользователя:</label>
+                  <input
+                    type="text"
+                    id="userId"
+                    name="userId"
+                    className="form-control"
+                    value={newInvoice.userId}
+                    onChange={handleInvoiceInputChange}
+                  />
+                </div>
+                <div className="form-group mt-3">
+                  <label htmlFor="dateIssued">Дата выставления:</label>
+                  <input
+                    type="date"
+                    id="dateIssued"
+                    name="dateIssued"
+                    className="form-control"
+                    value={newInvoice.dateIssued}
+                    onChange={handleInvoiceInputChange}
+                  />
+                </div>
+                <div className="form-group mt-3">
+                  <label htmlFor="dueDate">Дата оплаты:</label>
+                  <input
+                    type="date"
+                    id="dueDate"
+                    name="dueDate"
+                    className="form-control"
+                    value={newInvoice.dueDate}
+                    onChange={handleInvoiceInputChange}
+                  />
+                </div>
+                <div className="form-group mt-3">
+                  <label htmlFor="amount">Сумма:</label>
+                  <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    className="form-control"
+                    value={newInvoice.amount}
+                    onChange={handleInvoiceInputChange}
+                  />
+                </div>
+                <div className="form-group mt-3">
+                  <label htmlFor="status">Статус:</label>
+                  <select
+                    id="status"
+                    name="status"
+                    className="form-control"
+                    value={newInvoice.status}
+                    onChange={handleInvoiceInputChange}
+                  >
+                    <option value="">-- Выберите статус --</option>
+                    <option value="unpaid">Неоплачен</option>
+                    <option value="paid">Оплачен</option>
+                    <option value="overdue">Просрочен</option>
+                  </select>
+                </div>
+                <button className="btn btn-primary mt-3" disabled>
+                  Выставить счет
+                </button>
+              </div>
+        
+              <div className="invoice-list mt-5">
+                <h3>Список счетов</h3>
+                <div className="form-group mt-3">
+                  <label htmlFor="searchByName">Поиск по имени или фамилии:</label>
+                  <input
+                    type="text"
+                    id="searchByName"
+                    name="searchByName"
+                    className="form-control"
+                    placeholder="Введите имя или фамилию"
+                  />
+                </div>
+                <div className="form-group mt-3">
+                  <label htmlFor="searchByDate">Поиск по дате выставления:</label>
+                  <input
+                    type="date"
+                    id="searchByDate"
+                    name="searchByDate"
+                    className="form-control"
+                  />
+                </div>
+                <button className="btn btn-primary mt-3">Искать</button>
+        
+                <div className="invoice-table mt-4">
+                  <table className="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>ID Счета</th>
+                        <th>Имя пользователя</th>
+                        <th>Дата выставления</th>
+                        <th>Дата оплаты</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* fetch data  from backend ;) Drewman*/}
+                      <tr>
+                        <td>1</td>
+                        <td>Иван Иванов</td>
+                        <td>2024-10-10</td>
+                        <td>2024-10-20</td>
+                        <td>500</td>
+                        <td>Неоплачен</td>
+                      </tr>
+                      <tr>
+                        <td>2</td>
+                        <td>Петр Петров</td>
+                        <td>2024-10-11</td>
+                        <td>2024-10-25</td>
+                        <td>300</td>
+                        <td>Оплачен</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          );
       default:
         return null;
     }
