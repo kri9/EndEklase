@@ -8,12 +8,16 @@ import {
   addLesson,
   getLessonsByGroup,
   updateAttendance,
-  getAttendanceByGroup
+  getAttendanceByGroup,
+  fetchFromBackendWithAuth,
+  getRequest,
+  postRequest
 } from "../api";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 import { clearAuthToken } from "../redux/authSlice";
 import { useNavigate } from "react-router-dom";
+import Autosuggest from 'react-autosuggest';
 
 interface Lesson {
   id?: number;
@@ -41,18 +45,30 @@ const AdminDashboard: React.FC = () => {
     date: "",
     notes: "",
   });
-    const [newInvoice, setNewInvoice] = useState({
-    userId: "",
+  const [newInvoice, setNewInvoice] = useState({
+    fullName: "",
+    userId: 0,
     dateIssued: "",
     dueDate: "",
     amount: "",
     status: "",
   });
   const [attendance, setAttendance] = useState<{ [key: string]: boolean }>({});
+  const [usersInfo, setUsersInfo] = useState<{ id: number, fullName: string }[]>([]);
+  const [userSuggestions, setUserSuggestions] = useState<{ text: string }[]>([]);
 
   const token = useSelector((state: RootState) => state.auth.token);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const updateSuggestions = () => setUserSuggestions(usersInfo
+    .map(ui => ui.fullName)
+    .filter(e => e.toLowerCase().includes(newInvoice.fullName.toLowerCase()) && e != newInvoice.fullName)
+    .map(e => ({ text: e })))
+
+  useEffect(() => {
+    getRequest<{ id: number, fullName: string }[]>('admin/user-emails').then(setUsersInfo);
+  }, []);
+  useEffect(() => updateSuggestions(), [usersInfo, newInvoice.fullName])
 
   useEffect(() => {
     // Fetch kindergartens from backend
@@ -81,6 +97,15 @@ const AdminDashboard: React.FC = () => {
     };
     loadGroups();
   }, [token, selectedKindergarten]);
+  const inputProps = {
+    placeholder: "Enter text",
+    onChange: (v: any, { newValue, method }: { newValue: string, method: any }) => {
+      setNewInvoice({ ...newInvoice, ['fullName']: newValue });
+    },
+    value: newInvoice.fullName,
+    id: "fullName",
+    name: "fullName",
+  }
 
   const handleKindergartenChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -94,7 +119,7 @@ const AdminDashboard: React.FC = () => {
   const handleAttendanceChange = (childId: string, lessonId: string) => {
     const key = `${childId}_${lessonId}`;
     const newStatus = !attendance[key];
-  
+
     setAttendance((prev) => ({
       ...prev,
       [key]: newStatus,
@@ -110,7 +135,7 @@ const AdminDashboard: React.FC = () => {
           const [childId, lessonId] = key.split('_');
           const attended = attendance[key];
           console.log(`Updating attendance for child ${childId}, lesson ${lessonId} to ${attended}`);
-  
+
           const response = await updateAttendance(token, childId, lessonId, attended);
           console.log(`Response from server for child ${childId}, lesson ${lessonId}:`, response);
         }
@@ -121,7 +146,14 @@ const AdminDashboard: React.FC = () => {
       }
     }
   };
-  
+
+  const saveInvoice = () => {
+    const userId = usersInfo.filter(u => u.fullName == newInvoice.fullName)[0].id;
+    newInvoice.userId = userId;
+    postRequest('admin/invoice', newInvoice)
+    setNewInvoice({ fullName: "", userId: 0, dateIssued: "", dueDate: "", amount: "", status: "" })
+    alert('Счёт успешно сохранён');
+  }
 
   const handleGroupChange = async (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -134,13 +166,13 @@ const AdminDashboard: React.FC = () => {
       );
       console.log("Fetched Children:", fetchedChildren);
       setChildren(fetchedChildren || []);
-  
+
       await loadLessonsFromBackend(event.target.value as string);
-  
+
       // Загрузка данных о посещаемости
       const fetchedAttendance = await getAttendanceByGroup(token, event.target.value);
       console.log("Fetched Attendance:", fetchedAttendance);
-  
+
       // Установите состояние посещаемости
       if (fetchedAttendance) {
         const newAttendance: { [key: string]: boolean } = {};
@@ -152,7 +184,7 @@ const AdminDashboard: React.FC = () => {
       }
     }
   };
-  
+
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -232,7 +264,7 @@ const AdminDashboard: React.FC = () => {
   ) => {
     setNewInvoice({ ...newInvoice, [event.target.name]: event.target.value });
   };
-  
+
 
   const handleLogout = () => {
     dispatch(clearAuthToken());
@@ -280,7 +312,7 @@ const AdminDashboard: React.FC = () => {
                 </select>
               </div>
             </div>
-        
+
             {lessons.length > 0 && children.length > 0 ? (
               <div className="attendance-table mt-5">
                 <table className="table table-bordered">
@@ -333,7 +365,7 @@ const AdminDashboard: React.FC = () => {
             )}
           </div>
         );
-              case "Списки групп":
+      case "Списки групп":
         return (
           <div>
             <h2>Списки групп</h2>
@@ -547,136 +579,136 @@ const AdminDashboard: React.FC = () => {
         );
       case "Отчеты по группам":
         return <p>Отчеты по группам.</p>;
-        case "Выставление счетов":
-          return (
-            <div className="invoice-management mt-5">
-              <h2>Выставление счетов</h2>
-        
-              <div className="invoice-form mt-4">
-                <h3>Добавить новый счет</h3>
-                <div className="form-group">
-                  <label htmlFor="userId">ID Пользователя:</label>
-                  <input
-                    type="text"
-                    id="userId"
-                    name="userId"
-                    className="form-control"
-                    value={newInvoice.userId}
-                    onChange={handleInvoiceInputChange}
-                  />
-                </div>
-                <div className="form-group mt-3">
-                  <label htmlFor="dateIssued">Дата выставления:</label>
-                  <input
-                    type="date"
-                    id="dateIssued"
-                    name="dateIssued"
-                    className="form-control"
-                    value={newInvoice.dateIssued}
-                    onChange={handleInvoiceInputChange}
-                  />
-                </div>
-                <div className="form-group mt-3">
-                  <label htmlFor="dueDate">Дата оплаты:</label>
-                  <input
-                    type="date"
-                    id="dueDate"
-                    name="dueDate"
-                    className="form-control"
-                    value={newInvoice.dueDate}
-                    onChange={handleInvoiceInputChange}
-                  />
-                </div>
-                <div className="form-group mt-3">
-                  <label htmlFor="amount">Сумма:</label>
-                  <input
-                    type="number"
-                    id="amount"
-                    name="amount"
-                    className="form-control"
-                    value={newInvoice.amount}
-                    onChange={handleInvoiceInputChange}
-                  />
-                </div>
-                <div className="form-group mt-3">
-                  <label htmlFor="status">Статус:</label>
-                  <select
-                    id="status"
-                    name="status"
-                    className="form-control"
-                    value={newInvoice.status}
-                    onChange={handleInvoiceInputChange}
-                  >
-                    <option value="">-- Выберите статус --</option>
-                    <option value="unpaid">Неоплачен</option>
-                    <option value="paid">Оплачен</option>
-                    <option value="overdue">Просрочен</option>
-                  </select>
-                </div>
-                <button className="btn btn-primary mt-3" disabled>
-                  Выставить счет
-                </button>
+      case "Выставление счетов":
+        return (
+          <div className="invoice-management mt-5">
+            <h2>Выставление счетов</h2>
+
+            <div className="invoice-form mt-4">
+              <h3>Добавить новый счет</h3>
+              <div className="form-group">
+                <label htmlFor="userId">Имя Пользователя:</label>
+                <Autosuggest
+                  suggestions={userSuggestions}
+                  onSuggestionsFetchRequested={updateSuggestions}
+                  onSuggestionsClearRequested={() => setUserSuggestions([])}
+                  getSuggestionValue={s => s.text}
+                  renderSuggestion={s => (<div>{s.text}</div>)}
+                  inputProps={inputProps}
+                />
               </div>
-        
-              <div className="invoice-list mt-5">
-                <h3>Список счетов</h3>
-                <div className="form-group mt-3">
-                  <label htmlFor="searchByName">Поиск по имени или фамилии:</label>
-                  <input
-                    type="text"
-                    id="searchByName"
-                    name="searchByName"
-                    className="form-control"
-                    placeholder="Введите имя или фамилию"
-                  />
-                </div>
-                <div className="form-group mt-3">
-                  <label htmlFor="searchByDate">Поиск по дате выставления:</label>
-                  <input
-                    type="date"
-                    id="searchByDate"
-                    name="searchByDate"
-                    className="form-control"
-                  />
-                </div>
-                <button className="btn btn-primary mt-3">Искать</button>
-        
-                <div className="invoice-table mt-4">
-                  <table className="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>ID Счета</th>
-                        <th>Имя пользователя</th>
-                        <th>Дата выставления</th>
-                        <th>Дата оплаты</th>
-                        <th>Сумма</th>
-                        <th>Статус</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {/* fetch data  from backend ;) Drewman*/}
-                      <tr>
-                        <td>1</td>
-                        <td>Иван Иванов</td>
-                        <td>2024-10-10</td>
-                        <td>2024-10-20</td>
-                        <td>500</td>
-                        <td>Неоплачен</td>
-                      </tr>
-                      <tr>
-                        <td>2</td>
-                        <td>Петр Петров</td>
-                        <td>2024-10-11</td>
-                        <td>2024-10-25</td>
-                        <td>300</td>
-                        <td>Оплачен</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div className="form-group mt-3">
+                <label htmlFor="dateIssued">Дата выставления:</label>
+                <input
+                  type="date"
+                  id="dateIssued"
+                  name="dateIssued"
+                  className="form-control"
+                  value={newInvoice.dateIssued}
+                  onChange={handleInvoiceInputChange}
+                />
+              </div>
+              <div className="form-group mt-3">
+                <label htmlFor="dueDate">Дата оплаты:</label>
+                <input
+                  type="date"
+                  id="dueDate"
+                  name="dueDate"
+                  className="form-control"
+                  value={newInvoice.dueDate}
+                  onChange={handleInvoiceInputChange}
+                />
+              </div>
+              <div className="form-group mt-3">
+                <label htmlFor="amount">Сумма:</label>
+                <input
+                  type="number"
+                  id="amount"
+                  name="amount"
+                  className="form-control"
+                  value={newInvoice.amount}
+                  onChange={handleInvoiceInputChange}
+                />
+              </div>
+              <div className="form-group mt-3">
+                <label htmlFor="status">Статус:</label>
+                <select
+                  id="status"
+                  name="status"
+                  className="form-control"
+                  value={newInvoice.status}
+                  onChange={handleInvoiceInputChange}
+                >
+                  <option value="">-- Выберите статус --</option>
+                  <option value="NOT_PAID">Неоплачен</option>
+                  <option value="PAID">Оплачен</option>
+                  <option value="EXPIRED">Просрочен</option>
+                </select>
+              </div>
+              <button onClick={saveInvoice} className="btn btn-primary mt-3">
+                Выставить счет
+              </button>
+            </div>
+
+            <div className="invoice-list mt-5">
+              <h3>Список счетов</h3>
+              <div className="form-group mt-3">
+                <label htmlFor="searchByName">Поиск по имени или фамилии:</label>
+                <input
+                  type="text"
+                  id="searchByName"
+                  name="searchByName"
+                  className="form-control"
+                  placeholder="Введите имя или фамилию"
+                />
+              </div>
+              <div className="form-group mt-3">
+                <label htmlFor="searchByDate">Поиск по дате выставления:</label>
+                <input
+                  type="date"
+                  id="searchByDate"
+                  name="searchByDate"
+                  className="form-control"
+                />
+              </div>
+              <button className="btn btn-primary mt-3">Искать</button>
+
+              <div className="invoice-table mt-4">
+                <table className="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>ID Счета</th>
+                      <th>Имя пользователя</th>
+                      <th>Дата выставления</th>
+                      <th>Дата оплаты</th>
+                      <th>Сумма</th>
+                      <th>Статус</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* fetch data  from backend ;) Drewman*/}
+                    <tr>
+                      <td>1</td>
+                      <td>Иван Иванов</td>
+                      <td>2024-10-10</td>
+                      <td>2024-10-20</td>
+                      <td>500</td>
+                      <td>Неоплачен</td>
+                    </tr>
+                    <tr>
+                      <td>2</td>
+                      <td>Петр Петров</td>
+                      <td>2024-10-11</td>
+                      <td>2024-10-25</td>
+                      <td>300</td>
+                      <td>Оплачен</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
-          );
+          </div>
+        );
       default:
         return null;
     }

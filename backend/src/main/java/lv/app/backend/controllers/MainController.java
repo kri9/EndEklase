@@ -3,7 +3,7 @@ package lv.app.backend.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lv.app.backend.dto.LoginResponse;
-import lv.app.backend.dto.LoginUserDto;
+import lv.app.backend.dto.LoginUserDTO;
 import lv.app.backend.dto.Records;
 import lv.app.backend.model.User;
 import lv.app.backend.service.JwtService;
@@ -36,7 +36,7 @@ public class MainController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
+    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDTO loginUserDto) {
         User authenticatedUser = userService.authenticate(loginUserDto);
         String jwtToken = jwtService.generateToken(authenticatedUser);
         LoginResponse loginResponse = LoginResponse.builder()

@@ -1,7 +1,7 @@
 package lv.app.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import lv.app.backend.dto.LoginUserDto;
+import lv.app.backend.dto.LoginUserDTO;
 import lv.app.backend.dto.Records;
 import lv.app.backend.model.User;
 import lv.app.backend.model.enums.UserRole;
@@ -26,7 +26,7 @@ public class UserService {
                 .build());
     }
 
-    public User authenticate(LoginUserDto input) {
+    public User authenticate(LoginUserDTO input) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getUsername(),

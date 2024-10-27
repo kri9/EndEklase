@@ -2,7 +2,8 @@ package lv.app.backend.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lv.app.backend.dto.InvoiceCreateDto;
+import lv.app.backend.dto.InvoiceCreateDTO;
+import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
@@ -26,13 +27,18 @@ public class InvoiceCreationService {
     @Value("${lesson-attendance-cost}")
     private Long cost;
 
+    private final EntityMapper entityMapper;
     private final UserRepository userRepository;
     private final InvoiceRepository invoiceRepository;
 
     @Transactional
-    public void createInvoice(InvoiceCreateDto dto) {
+    public void createInvoice(InvoiceCreateDTO dto) {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found: " + dto.getUserId()));
+        if (dto.getAmount() != null) {
+            createManualInvoice(dto, user);
+            return;
+        }
         if (user.isSeparateInvoices()) {
             Supplier<Double> costRateGenerator = getCostRateGenerator();
             user.getChildren().forEach(c -> makeInvoice(c, dto.getLessonIds(), costRateGenerator));
@@ -41,7 +47,13 @@ public class InvoiceCreationService {
         makeSingleInvoice(dto, user);
     }
 
-    private void makeSingleInvoice(InvoiceCreateDto dto, User user) {
+    private void createManualInvoice(InvoiceCreateDTO dto, User user) {
+        Invoice invoice = entityMapper.dtoToInvoice(dto);
+        invoice.setUser(user);
+        invoiceRepository.saveAndFlush(invoice);
+    }
+
+    private void makeSingleInvoice(InvoiceCreateDTO dto, User user) {
         Supplier<Double> costRateGenerator = getCostRateGenerator();
         List<List<Attendance>> attendancesToPay = user.getChildren().stream()
                 .map(c -> getAttendancesToPay(c, dto.getLessonIds()))

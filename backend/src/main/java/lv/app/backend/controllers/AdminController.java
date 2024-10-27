@@ -1,11 +1,10 @@
 package lv.app.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import lv.app.backend.dto.*;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Child;
-import lv.app.backend.model.Invoice;
+import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.ChildService;
 import lv.app.backend.service.InvoiceCreationService;
 import lv.app.backend.service.KindergartenService;
@@ -29,6 +28,7 @@ public class AdminController {
     private final EntityMapper entityMapper;
     private final ChildService childService;
     private final LessonService lessonService;
+    private final UserRepository userRepository;
     private final KindergartenService kindergartenService;
     private final InvoiceCreationService invoiceCreationService;
 
@@ -82,7 +82,7 @@ public class AdminController {
     }
 
     @PostMapping("/invoice")
-    public ResponseEntity<Void> createInvoice(@RequestBody InvoiceCreateDto dto) {
+    public ResponseEntity<Void> createInvoice(@RequestBody InvoiceCreateDTO dto) {
         invoiceCreationService.createInvoice(dto);
         return ResponseEntity.ok().build();
     }
@@ -94,12 +94,20 @@ public class AdminController {
         System.out.println("Attendance updated successfully");
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("/groups/{groupId}/attendances")
     public ResponseEntity<List<AttendanceDTO>> getAttendanceByGroup(@PathVariable Long groupId) {
         List<AttendanceDTO> attendances = lessonService.getAttendanceByGroup(groupId);
         return ResponseEntity.ok(attendances);
     }
 
+    @ResponseBody
+    @GetMapping("/user-emails")
+    public List<Records.UserInfo> getUserEmails() {
+        return userRepository.findAll().stream()
+                .map(u -> new Records.UserInfo(u.getId(), u.getFullName()))
+                .toList();
+    }
 
 }
 
