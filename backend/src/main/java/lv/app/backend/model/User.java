@@ -28,6 +28,8 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String username;
     private String password;
+    private String firstName;
+    private String lastName;
     private boolean separateInvoices;
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -42,4 +44,7 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(this.getRole().prefixedRole()));
     }
 
+    public String getFullName() {
+        return getFirstName() + " " + getLastName();
+    }
 }

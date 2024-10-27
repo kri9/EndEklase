@@ -59,12 +59,16 @@ public class DataCreator implements ApplicationRunner {
                 .role(UserRole.ADMIN)
                 .password(passwordEncoder.encode("pass123"))
                 .username("admini@test.com")
+                .firstName("The")
+                .lastName("Administrator")
                 .build());
 
         User normalUser = userRepository.save(User.builder()
                 .role(UserRole.USER)
                 .password(passwordEncoder.encode("pass123"))
                 .username("normie@normalson.com")
+                .firstName("Jeffrey")
+                .lastName("Epstein")
                 .separateInvoices(true)
                 .build());
 

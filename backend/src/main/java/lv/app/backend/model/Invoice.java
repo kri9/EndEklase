@@ -2,6 +2,7 @@ package lv.app.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lv.app.backend.model.enums.InvoiceStatus;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -28,5 +29,7 @@ public class Invoice {
     private LocalDate dateIssued;
     private LocalDate dueDate;
     private Long amount;
-    private String status;
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private InvoiceStatus status = InvoiceStatus.NOT_PAID;
 }

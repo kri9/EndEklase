@@ -1,3 +1,5 @@
+import { store } from "./redux/store";
+
 export const fetchFromBackend = async (
   endpoint: string,
   method: string = 'GET',
@@ -26,10 +28,20 @@ export const fetchFromBackend = async (
   }
 };
 
+export function getRequest<T>(endpoint: string): Promise<T> {
+  const token = store.getState().auth.token;
+  return fetchFromBackendWithAuth(endpoint, 'GET', token);
+}
+
+export function postRequest<T>(endpoint: string, body: any): Promise<T> {
+  const token = store.getState().auth.token;
+  return fetchFromBackendWithAuth(endpoint, 'POST', token, body);
+}
+
 export const fetchFromBackendWithAuth = async (
   endpoint: string,
   method: string = 'GET',
-  token: string,
+  token: string | null,
   body: any = null
 ) => {
   const options: RequestInit = {
