@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Autosuggest from "react-autosuggest";
-import { getRequest, postRequest } from "src/api";
+import { useSelector } from "react-redux";
+import { getInvoices, getRequest, postRequest } from "src/api";
+import { RootState } from "src/redux/store";
 
 const InvoicesTab: React.FC = () => {
   const [newInvoice, setNewInvoice] = useState({
@@ -18,6 +20,7 @@ const InvoicesTab: React.FC = () => {
     []
   );
   const [invoices, setInvoices] = useState<any[]>([]);
+  const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
     getRequest<{ id: number; fullName: string }[]>(
@@ -27,8 +30,10 @@ const InvoicesTab: React.FC = () => {
   }, []);
 
   const loadInvoices = async () => {
-    const fetchedInvoices = null; //await getRequest<any[]>("admin/invoices");
-    setInvoices(fetchedInvoices || []);
+    if (token) {
+      const fetchedInvoices = await getInvoices(token);
+      setInvoices(fetchedInvoices || []);
+    }
   };
 
   const updateSuggestions = ({ value }: { value: string }) => {

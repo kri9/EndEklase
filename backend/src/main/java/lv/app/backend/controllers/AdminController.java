@@ -87,6 +87,14 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/invoices")
+    public ResponseEntity<List<InvoiceDTO>> getAllInvoices() {
+        List<InvoiceDTO> invoices = invoiceCreationService.getAllInvoices();
+        return ResponseEntity.ok(invoices);
+    }
+
+
+
     @PutMapping("/attendances")
     public ResponseEntity<Void> updateAttendance(@RequestBody AttendanceDTO attendanceDTO) {
         System.out.println("Received request to update attendance: " + attendanceDTO);

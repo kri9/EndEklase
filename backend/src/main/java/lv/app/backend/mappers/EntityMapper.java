@@ -1,9 +1,6 @@
 package lv.app.backend.mappers;
 
-import lv.app.backend.dto.AttendanceDTO;
-import lv.app.backend.dto.ChildDTO;
-import lv.app.backend.dto.InvoiceCreateDTO;
-import lv.app.backend.dto.LessonDTO;
+import lv.app.backend.dto.*;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
@@ -39,6 +36,9 @@ public interface EntityMapper {
     @Mapping(target = "status", source = "attended", qualifiedByName = "mapBooleanToAttendanceStatus")
     Attendance dtoToAttendance(AttendanceDTO attendanceDTO);
 
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "userFullName", source = "user.fullName")
+    InvoiceDTO invoiceToDto(Invoice invoice);
     Invoice dtoToInvoice(InvoiceCreateDTO invoice);
 
     @Named("mapAttendanceStatusToBoolean")
