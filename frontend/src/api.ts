@@ -144,3 +144,6 @@ export const getAttendanceByGroup = async (token: string, groupId: string) => {
   return await fetchFromBackendWithAuth(`admin/groups/${groupId}/attendances`, 'GET', token);
 };
 
+export const getInvoices = async (token: string) => {
+  return await fetchFromBackendWithAuth('admin/invoices', 'GET', token);
+};

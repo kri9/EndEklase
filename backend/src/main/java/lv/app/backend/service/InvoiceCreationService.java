@@ -3,6 +3,7 @@ package lv.app.backend.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.InvoiceCreateDTO;
+import lv.app.backend.dto.InvoiceDTO;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static lv.app.backend.util.Common.flatten;
 
@@ -46,6 +48,15 @@ public class InvoiceCreationService {
         }
         makeSingleInvoice(dto, user);
     }
+
+    @Transactional
+    public List<InvoiceDTO> getAllInvoices() {
+        return invoiceRepository.findAll().stream()
+                .map(entityMapper::invoiceToDto)
+                .collect(Collectors.toList());
+    }
+
+
 
     private void createManualInvoice(InvoiceCreateDTO dto, User user) {
         Invoice invoice = entityMapper.dtoToInvoice(dto);
