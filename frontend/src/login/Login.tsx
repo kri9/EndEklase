@@ -5,6 +5,7 @@ import { fetchFromBackend, fetchFromBackendWithAuth } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAuthToken } from '../redux/authSlice';
+import { FaEnvelope, FaLock } from 'react-icons/fa';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -24,13 +25,11 @@ const Login: React.FC = () => {
         setBackendData(data.message || 'Нет данных');
       }
     };
-
     loadBackendData();
   }, []);
 
   const validateForm = () => {
     let valid = true;
-
     if (email.length === 0) {
       setEmailError(language === 'ru' ? 'Email не может быть пустым' : 'E-pasts nevar būt tukšs');
       valid = false;
@@ -52,26 +51,16 @@ const Login: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (validateForm()) {
-      console.log('Форма валидна, отправляем запрос на сервер');
-      
       const loginData = {
         username: email,
         password,
       };
-
       const response = await fetchFromBackend('login', 'POST', loginData);
-
       if (response && response.token) {
-        console.log('Ответ от бэкенда:', response);
         setBackendData(response.message || 'Успешный вход');
         dispatch(setAuthToken(response.token));
-        
-        // Проверяем, является ли пользователь администратором через сервер
         const isAdminResponse = await fetchFromBackendWithAuth('isadmin', 'GET', response.token);
-
-        if (isAdminResponse) {
-          navigate(isAdminResponse === true ? '/admin-dashboard' : '/dashboard');
-        }
+        navigate(isAdminResponse === true ? '/admin-dashboard' : '/dashboard');
       } else {
         setBackendData('Ошибка при попытке входа');
       }
@@ -89,30 +78,26 @@ const Login: React.FC = () => {
         </div>
         <form className={`needs-validation ${validated ? 'was-validated' : ''}`} noValidate onSubmit={handleSubmit}>
           <h2 className="text-center mb-4">
-            {language === 'ru' ? 'Вход в систему' : 'Pieslegties'}
+            {language === 'ru' ? 'Вход в систему' : 'Pieslēgties'}
           </h2>
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label">
-              {language === 'ru' ? 'Email' : 'E-pasts'}
-            </label>
+          <div className="mb-3 input-group">
+            <span className="input-group-text"><FaEnvelope /></span>
             <input
               type="text"
               className={`form-control ${emailError ? 'is-invalid' : ''}`}
-              id="email"
+              placeholder={language === 'ru' ? 'Email' : 'E-pasts'}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
             <div className="invalid-feedback">{emailError}</div>
           </div>
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">
-              {language === 'ru' ? 'Пароль' : 'Parole'}
-            </label>
+          <div className="mb-3 input-group">
+            <span className="input-group-text"><FaLock /></span>
             <input
               type="password"
               className={`form-control ${passwordError ? 'is-invalid' : ''}`}
-              id="password"
+              placeholder={language === 'ru' ? 'Пароль' : 'Parole'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -123,7 +108,6 @@ const Login: React.FC = () => {
             {language === 'ru' ? 'Войти' : 'Pieslēgties'}
           </button>
         </form>
-        {/* Отображение данных с бэкенда */}
         <div className="backend-response mt-4">
           <p>{language === 'ru' ? 'Ответ с бэкенда:' : 'Atbilde no servera:'} {backendData}</p>
         </div>

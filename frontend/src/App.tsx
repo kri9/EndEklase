@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useSelector } from 'react-redux';
 import { RootState } from './redux/store';
 import Login from './login/Login';
-import Dashboard from './dashboard/Dashboard';
+import Dashboard from './dashboard/UserDashboard/Dashboard';
 import AdminDashboard from './dashboard/AdminDashboard/AdminDashboard';
 
 function App() {
