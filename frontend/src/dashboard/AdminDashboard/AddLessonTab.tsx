@@ -3,9 +3,9 @@ import {
   getKindergartens,
   getGroupsByKindergarten,
   addLesson,
-} from "../api";
+} from "src/api";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "src/redux/store";
 
 interface Lesson {
   id?: number;
