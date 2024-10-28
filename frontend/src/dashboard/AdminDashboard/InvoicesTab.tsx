@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Autosuggest from "react-autosuggest";
-import { getRequest, postRequest } from "../api";
+import { getRequest, postRequest } from "src/api";
 
 const InvoicesTab: React.FC = () => {
   const [newInvoice, setNewInvoice] = useState({

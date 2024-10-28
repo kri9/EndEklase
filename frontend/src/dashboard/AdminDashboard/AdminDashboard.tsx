@@ -7,7 +7,7 @@ import GroupListTab from "./GroupListTab";
 import AddLessonTab from "./AddLessonTab";
 import ReportsTab from "./ReportsTab";
 import InvoicesTab from "./InvoicesTab";
-import { clearAuthToken } from "../redux/authSlice";
+import { clearAuthToken } from "src/redux/authSlice";
 import "./css/AdminDashboard.css";
 
 const AdminDashboard: React.FC = () => {

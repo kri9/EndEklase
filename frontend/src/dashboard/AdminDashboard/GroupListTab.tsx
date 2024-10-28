@@ -7,9 +7,9 @@ import {
   getChildrenByGroup,
   addChild,
   getRequest,
-} from "../api";
+} from "src/api";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "src/redux/store";
 
 const GroupListTab: React.FC = () => {
   const [selectedKindergarten, setSelectedKindergarten] = useState("");
