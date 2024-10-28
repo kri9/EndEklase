@@ -1,10 +1,12 @@
 // GroupListTab.tsx
 import React, { useState, useEffect } from "react";
+import Autosuggest from "react-autosuggest";
 import {
   getKindergartens,
   getGroupsByKindergarten,
   getChildrenByGroup,
   addChild,
+  getRequest,
 } from "../api";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
@@ -15,10 +17,15 @@ const GroupListTab: React.FC = () => {
   const [kindergartens, setKindergartens] = useState<any[]>([]);
   const [groups, setGroups] = useState<any[]>([]);
   const [children, setChildren] = useState<any[]>([]);
-  const [newChild, setNewChild] = useState({
+  const [newChild, setNewChild] = useState<any>({
     firstname: "",
     lastname: "",
+    userId: null,
+    userFullName: "",
   });
+
+  const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>([]);
+  const [userSuggestions, setUserSuggestions] = useState<{ text: string }[]>([]);
 
   const token = useSelector((state: RootState) => state.auth.token);
 
@@ -47,6 +54,16 @@ const GroupListTab: React.FC = () => {
     loadGroups();
   }, [token, selectedKindergarten]);
 
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (token) {
+        const fetchedUsers = await getRequest<{ id: number; fullName: string }[]>("admin/user-emails");
+        setUsersInfo(fetchedUsers || []);
+      }
+    };
+    fetchUsers();
+  }, [token]);
+
   const handleKindergartenChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -74,20 +91,53 @@ const GroupListTab: React.FC = () => {
     setNewChild({ ...newChild, [event.target.name]: event.target.value });
   };
 
+  const updateUserSuggestions = ({ value }: { value: string }) => {
+    setUserSuggestions(
+      usersInfo
+        .map((user) => user.fullName)
+        .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
+        .map((name) => ({ text: name }))
+    );
+  };
+
+  const inputProps = {
+    placeholder: "Введите имя пользователя",
+    value: newChild.userFullName,
+    onChange: (event: any, { newValue }: Autosuggest.ChangeEvent) => {
+      setNewChild({ ...newChild, userFullName: newValue });
+    },
+    id: "userFullName",
+    name: "userFullName",
+    className: "form-control",
+  };
+
   const handleAddChild = async () => {
     if (
       token &&
       newChild.firstname &&
       newChild.lastname &&
+      newChild.userFullName &&
       selectedKindergarten &&
       selectedGroup
     ) {
+      const selectedUser = usersInfo.find(
+        (user) => user.fullName === newChild.userFullName
+      );
+
+      if (!selectedUser) {
+        alert("Пользователь не найден");
+        return;
+      }
+
+      newChild.userId = selectedUser.id;
+
       const response = await addChild(
         token,
         newChild.firstname,
         newChild.lastname,
         selectedKindergarten,
-        selectedGroup
+        selectedGroup,
+        newChild.userId
       );
 
       if (response && response.success) {
@@ -95,6 +145,8 @@ const GroupListTab: React.FC = () => {
         setNewChild({
           firstname: "",
           lastname: "",
+          userId: null,
+          userFullName: "",
         });
 
         await handleGroupChange({
@@ -193,6 +245,17 @@ const GroupListTab: React.FC = () => {
             onChange={handleInputChange}
           />
         </div>
+        <div className="form-group mt-3">
+          <label htmlFor="userFullName">Имя Пользователя:</label>
+          <Autosuggest
+            suggestions={userSuggestions}
+            onSuggestionsFetchRequested={updateUserSuggestions}
+            onSuggestionsClearRequested={() => setUserSuggestions([])}
+            getSuggestionValue={(suggestion) => suggestion.text}
+            renderSuggestion={(suggestion) => <div>{suggestion.text}</div>}
+            inputProps={inputProps}
+          />
+        </div>
         <button onClick={handleAddChild} className="btn btn-primary mt-3">
           Добавить ребенка
         </button>
@@ -202,4 +265,3 @@ const GroupListTab: React.FC = () => {
 };
 
 export default GroupListTab;
-

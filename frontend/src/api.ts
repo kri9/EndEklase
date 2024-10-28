@@ -79,13 +79,15 @@ export const addChild = async (
   firstname: string,
   lastname: string,
   kindergartenId: string,
-  groupId: string
+  groupId: string,
+  userId: number
 ) => {
   const body = {
     firstname,
     lastname,
     kindergartenId,
     groupId,
+    userId
   };
   return await fetchFromBackendWithAuth('admin/children', 'POST', token, body);
 };
