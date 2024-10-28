@@ -12,4 +12,5 @@ public class ChildDTO {
     String lastname;
     Long groupId;
     Long kindergartenId;
+    Long userId;
 }

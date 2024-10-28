@@ -19,7 +19,9 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"first_name", "last_name"})
+})
 public class User implements UserDetails {
 
     @Id
