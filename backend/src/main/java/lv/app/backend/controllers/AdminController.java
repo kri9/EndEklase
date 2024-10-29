@@ -69,6 +69,12 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/children")
+    public ResponseEntity<Void> addChild(@RequestBody List<ChildDTO> children) {
+        childService.updateChildren(children);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/lessons")
     public ResponseEntity<Void> addLesson(@RequestBody LessonDTO lessonDTO) {
         lessonService.saveLesson(lessonDTO);

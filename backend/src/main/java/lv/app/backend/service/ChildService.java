@@ -3,6 +3,7 @@ package lv.app.backend.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.ChildDTO;
+import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Group;
@@ -15,10 +16,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static lv.app.backend.util.Common.matchIds;
+
 @Service
 @RequiredArgsConstructor
 public class ChildService {
 
+    private final EntityMapper entityMapper;
     private final UserRepository userRepository;
     private final ChildRepository childRepository;
     private final GroupRepository groupRepository;
@@ -45,5 +49,14 @@ public class ChildService {
 
     public List<Child> getChildrenByGroup(Long groupId) {
         return childRepository.findByGroupId(groupId);
+    }
+
+    public void updateChildren(List<ChildDTO> children) {
+        List<Long> ids = children.stream().map(ChildDTO::getId).toList();
+        List<Child> dbChildren = childRepository.findAllById(ids);
+        matchIds(dbChildren, children).forEach(p -> {
+            entityMapper.updateChild(p.getFirst(), p.getSecond());
+            childRepository.save(p.getFirst());
+        });
     }
 }

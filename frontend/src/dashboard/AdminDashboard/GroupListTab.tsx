@@ -6,6 +6,7 @@ import {
   getGroupsByKindergarten,
   getChildrenByGroup,
   addChild,
+  updateChildren,
   getRequest,
 } from "src/api";
 import { useSelector } from "react-redux";
@@ -158,6 +159,30 @@ const GroupListTab: React.FC = () => {
     }
   };
 
+  // New function to handle changes in children's data
+  const handleChildChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    const updatedChildren = [...children];
+    updatedChildren[index][field] = value;
+    setChildren(updatedChildren);
+  };
+
+  // Function to save changes to the backend
+  const handleSaveChildrenChanges = async () => {
+    if (token && children.length > 0) {
+      try {
+        await updateChildren(children);
+        alert("Изменения успешно сохранены");
+      } catch (error) {
+        console.error("Error updating children:", error);
+        alert("Ошибка при сохранении изменений");
+      }
+    }
+  };
+
   return (
     <div>
       <h2>Списки групп</h2>
@@ -200,22 +225,48 @@ const GroupListTab: React.FC = () => {
       <div className="children-list">
         <h3>Дети в группе:</h3>
         {children.length > 0 ? (
-          <table className="table table-bordered mt-3">
-            <thead>
-              <tr>
-                <th>Имя</th>
-                <th>Фамилия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {children.map((child) => (
-                <tr key={child.id}>
-                  <td>{child.firstname}</td>
-                  <td>{child.lastname}</td>
+          <>
+            <table className="table table-bordered mt-3">
+              <thead>
+                <tr>
+                  <th>Имя</th>
+                  <th>Фамилия</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {children.map((child, index) => (
+                  <tr key={child.id}>
+                    <td>
+                      <input
+                        type="text"
+                        value={child.firstname}
+                        onChange={(e) =>
+                          handleChildChange(index, "firstname", e.target.value)
+                        }
+                        className="form-control"
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={child.lastname}
+                        onChange={(e) =>
+                          handleChildChange(index, "lastname", e.target.value)
+                        }
+                        className="form-control"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button
+              onClick={handleSaveChildrenChanges}
+              className="btn btn-success mt-3"
+            >
+              Сохранить изменения
+            </button>
+          </>
         ) : (
           <p>Выберите садик и группу, чтобы увидеть список детей.</p>
         )}
@@ -265,3 +316,4 @@ const GroupListTab: React.FC = () => {
 };
 
 export default GroupListTab;
+

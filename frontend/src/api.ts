@@ -147,3 +147,9 @@ export const getAttendanceByGroup = async (token: string, groupId: string) => {
 export const getInvoices = async (token: string) => {
   return await fetchFromBackendWithAuth('admin/invoices', 'GET', token);
 };
+
+export const updateChildren = async (children: any) => {
+  const token = store.getState().auth.token;
+  return fetchFromBackendWithAuth('admin/children', 'PATCH', token, children);
+
+}

@@ -2,6 +2,7 @@ package lv.app.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lv.app.backend.common.IdSupplier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "children")
-public class Child {
+public class Child implements IdSupplier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
