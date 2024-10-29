@@ -8,6 +8,7 @@ import lv.app.backend.model.Lesson;
 import lv.app.backend.model.enums.AttendanceStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
 
@@ -39,7 +40,16 @@ public interface EntityMapper {
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "userFullName", source = "user.fullName")
     InvoiceDTO invoiceToDto(Invoice invoice);
+
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "attendances", ignore = true)
     Invoice dtoToInvoice(InvoiceCreateDTO invoice);
+
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "group", ignore = true)
+    @Mapping(target = "attendances", ignore = true)
+    Child updateChild(@MappingTarget Child child, ChildDTO childDTO);
 
     @Named("mapAttendanceStatusToBoolean")
     default boolean mapAttendanceStatusToBoolean(AttendanceStatus status) {
