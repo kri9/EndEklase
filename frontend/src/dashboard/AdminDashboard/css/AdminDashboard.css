@@ -42,8 +42,8 @@ h1 {
   padding: 20px;
   background-color: #fff;
   border-radius: 5px;
-  flex: 1; /* Это важно, чтобы содержимое занимало доступное пространство */
-  overflow-y: auto; /* Добавляем прокрутку для длинного контента */
+  flex: 1; 
+  overflow-y: auto; 
 }
 
 .invoice-form {
@@ -76,6 +76,20 @@ h1 {
 .invoice-form .btn-primary {
   width: 100%;
   padding: 10px;
+}
+
+.invoice-form .btn-secondary {
+  width: 100%;
+  padding: 10px;
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.invoice-form .btn-danger {
+  width: 100%;
+  padding: 10px;
+  background-color: #dc3545;
+  color: #fff;
 }
 
 .invoice-list {
@@ -113,8 +127,26 @@ h1 {
 }
 
 .btn {
-  width: 10%;
   padding: 10px;
+}
+
+.filter-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.filter-form .form-group {
+  flex: 1;
+  min-width: 150px;
+}
+
+.generate-invoices {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .react-autosuggest__input--open {
@@ -133,30 +165,21 @@ h1 {
 .react-autosuggest__suggestions-container--open {
   display: block;
   position: absolute;
-  top: 47px;
+  top: 100%;
   width: 100%;
   border: 1px solid #aaa;
   background-color: #fff;
-  font-family: Helvetica, sans-serif;
-  font-weight: 300;
   font-size: 16px;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
   z-index: 2;
 }
 
-.react-autosuggest__suggestions-list {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-}
-
 .react-autosuggest__suggestion {
-  cursor: pointer;
   padding: 10px 20px;
+  cursor: pointer;
 }
 
 .react-autosuggest__suggestion--highlighted {
   background-color: #ddd;
 }
-
