@@ -38,6 +38,11 @@ export function postRequest<T>(endpoint: string, body: any): Promise<T> {
   return fetchFromBackendWithAuth(endpoint, 'POST', token, body);
 }
 
+export function putRequest<T>(endpoint: string, body: any): Promise<T> {
+  const token = store.getState().auth.token;
+  return fetchFromBackendWithAuth(endpoint, 'PUT', token, body);
+}
+
 export const fetchFromBackendWithAuth = async (
   endpoint: string,
   method: string = 'GET',
@@ -153,3 +158,5 @@ export const updateChildren = async (children: any) => {
   return fetchFromBackendWithAuth('admin/children', 'PATCH', token, children);
 
 }
+
+
