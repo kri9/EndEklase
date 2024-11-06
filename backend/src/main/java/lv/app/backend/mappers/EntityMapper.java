@@ -51,6 +51,10 @@ public interface EntityMapper {
     @Mapping(target = "attendances", ignore = true)
     Child updateChild(@MappingTarget Child child, ChildDTO childDTO);
 
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "attendances", ignore = true)
+    void updateInvoice(@MappingTarget Invoice invoice, InvoiceDTO dto);
+
     @Named("mapAttendanceStatusToBoolean")
     default boolean mapAttendanceStatusToBoolean(AttendanceStatus status) {
         return AttendanceStatus.ATTENDED.equals(status);
