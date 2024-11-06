@@ -25,7 +25,7 @@ import static lv.app.backend.util.Common.flatten;
 
 @Service
 @RequiredArgsConstructor
-public class InvoiceCreationService {
+public class InvoiceService {
 
     @Value("${lesson-attendance-cost}")
     private Long cost;
@@ -34,6 +34,17 @@ public class InvoiceCreationService {
     private final UserRepository userRepository;
     private final LessonRepository lessonRepository;
     private final InvoiceRepository invoiceRepository;
+
+    @Transactional
+    public void updateInvoice(InvoiceDTO dto) {
+        Invoice invoice = invoiceRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Invoice not found"));
+        entityMapper.updateInvoice(invoice, dto);
+        if (dto.getUserId() != null) {
+            invoice.setUser(userRepository.getReferenceById(dto.getUserId()));
+        }
+        invoiceRepository.save(invoice);
+    }
 
     @Transactional
     public void createInvoices(LocalDate startDate, LocalDate endDate) {

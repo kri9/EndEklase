@@ -6,7 +6,7 @@ import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.ChildService;
-import lv.app.backend.service.InvoiceCreationService;
+import lv.app.backend.service.InvoiceService;
 import lv.app.backend.service.KindergartenService;
 import lv.app.backend.service.LessonService;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +32,7 @@ public class AdminController {
     private final LessonService lessonService;
     private final UserRepository userRepository;
     private final KindergartenService kindergartenService;
-    private final InvoiceCreationService invoiceCreationService;
+    private final InvoiceService invoiceService;
 
     @GetMapping("/kindergartens")
     public ResponseEntity<List<KindergartenDTO>> getAllKindergartens() {
@@ -93,19 +93,25 @@ public class AdminController {
     public ResponseEntity<Void> createInvoices(@RequestBody Map<String, LocalDate> request) {
         LocalDate startDate = request.get("startDate");
         LocalDate endDate = request.get("endDate");
-        invoiceCreationService.createInvoices(startDate, endDate);
+        invoiceService.createInvoices(startDate, endDate);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/invoice")
     public ResponseEntity<Void> createInvoice(@RequestBody InvoiceCreateDTO dto) {
-        invoiceCreationService.createInvoice(dto);
+        invoiceService.createInvoice(dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/invoice")
+    public ResponseEntity<Void> updateInvoice(@RequestBody InvoiceDTO dto) {
+        invoiceService.updateInvoice(dto);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/invoices")
     public ResponseEntity<List<InvoiceDTO>> getAllInvoices() {
-        List<InvoiceDTO> invoices = invoiceCreationService.getAllInvoices();
+        List<InvoiceDTO> invoices = invoiceService.getAllInvoices();
         return ResponseEntity.ok(invoices);
     }
 
