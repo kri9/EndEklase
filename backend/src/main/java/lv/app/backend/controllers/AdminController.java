@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -87,6 +89,14 @@ public class AdminController {
         return ResponseEntity.ok(lessons);
     }
 
+    @PostMapping("/invoices")
+    public ResponseEntity<Void> createInvoices(@RequestBody Map<String, LocalDate> request) {
+        LocalDate startDate = request.get("startDate");
+        LocalDate endDate = request.get("endDate");
+        invoiceCreationService.createInvoices(startDate, endDate);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/invoice")
     public ResponseEntity<Void> createInvoice(@RequestBody InvoiceCreateDTO dto) {
         invoiceCreationService.createInvoice(dto);
@@ -98,8 +108,6 @@ public class AdminController {
         List<InvoiceDTO> invoices = invoiceCreationService.getAllInvoices();
         return ResponseEntity.ok(invoices);
     }
-
-
 
     @PutMapping("/attendances")
     public ResponseEntity<Void> updateAttendance(@RequestBody AttendanceDTO attendanceDTO) {

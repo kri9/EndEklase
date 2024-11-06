@@ -10,6 +10,7 @@ import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
 import lv.app.backend.model.User;
 import lv.app.backend.model.repository.InvoiceRepository;
+import lv.app.backend.model.repository.LessonRepository;
 import lv.app.backend.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,20 @@ public class InvoiceCreationService {
 
     private final EntityMapper entityMapper;
     private final UserRepository userRepository;
+    private final LessonRepository lessonRepository;
     private final InvoiceRepository invoiceRepository;
+
+    @Transactional
+    public void createInvoices(LocalDate startDate, LocalDate endDate) {
+        List<User> users = userRepository.findAll();
+        users.forEach(u -> {
+            List<Long> lessons = lessonRepository.findUserLessonsToPay(startDate, endDate, u);
+            this.createInvoice(InvoiceCreateDTO.builder()
+                    .userId(u.getId())
+                    .lessonIds(lessons)
+                    .build());
+        });
+    }
 
     @Transactional
     public void createInvoice(InvoiceCreateDTO dto) {
@@ -55,7 +69,6 @@ public class InvoiceCreationService {
                 .map(entityMapper::invoiceToDto)
                 .collect(Collectors.toList());
     }
-
 
 
     private void createManualInvoice(InvoiceCreateDTO dto, User user) {

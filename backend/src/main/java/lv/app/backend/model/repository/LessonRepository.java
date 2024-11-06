@@ -1,13 +1,19 @@
 package lv.app.backend.model.repository;
 
 import lv.app.backend.model.Lesson;
+import lv.app.backend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import java.util.Collection;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     List<Lesson> findByGroupId(Long groupId);
+
+    @Query("select l.id from Lesson l " +
+            "join l.attendances a " +
+            "where l.date >= ?1 and l.date <= ?2 and a.child.parent = ?3 and a.invoice is NULL ")
+    List<Long> findUserLessonsToPay(LocalDate start, LocalDate end, User user);
 }
