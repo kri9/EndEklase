@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { getInvoices, putRequest } from "src/api";
-import { RootState } from "src/redux/store";
+import React from "react";
 
 interface InvoiceListProps {
   invoices: any[];
   filters: any;
   onFilterChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   onEdit: (invoice: any) => void;
-  onSave: (invoice: any) => void;
+  onSave: () => void;
   onCancel: () => void;
+  editingInvoiceId: number | null;
+  editingInvoice: any;
+  setEditingInvoice: (invoice: any) => void;
 }
 
 const InvoiceList: React.FC<InvoiceListProps> = ({
@@ -19,26 +19,10 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
   onEdit,
   onSave,
   onCancel,
+  editingInvoiceId,
+  editingInvoice,
+  setEditingInvoice,
 }) => {
-  const [editingInvoiceId, setEditingInvoiceId] = useState<number | null>(null);
-  const [editingInvoice, setEditingInvoice] = useState<any>(null);
-  const token = useSelector((state: RootState) => state.auth.token);
-
-  useEffect(() => {
-    loadInvoices();
-  }, []);
-
-  const loadInvoices = async () => {
-    if (token) {
-      const fetchedInvoices = await getInvoices(token);
-      setInvoices(fetchedInvoices || []);
-    }
-  };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    onFilterChange(e);
-  };
-
   const filteredInvoices = invoices.filter((invoice) => {
     return (
       (!filters.fullName || (invoice.userFullName && invoice.userFullName.toLowerCase().includes(filters.fullName.toLowerCase()))) &&
@@ -49,30 +33,6 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
       (!filters.status || invoice.status === filters.status)
     );
   });
-
-  const startEditing = (invoice: any) => {
-    setEditingInvoiceId(invoice.id);
-    setEditingInvoice({ ...invoice });
-  };
-
-  const cancelEditing = () => {
-    setEditingInvoiceId(null);
-    setEditingInvoice(null);
-  };
-
-  const saveEditing = async () => {
-    if (editingInvoiceId && editingInvoice) {
-      await putRequest(`admin/invoice/${editingInvoiceId}`, editingInvoice);
-      alert("Изменения сохранены");
-      setEditingInvoiceId(null);
-      setEditingInvoice(null);
-      loadInvoices();
-    }
-  };
-
-  const handleEditingChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setEditingInvoice({ ...editingInvoice, [e.target.name]: e.target.value });
-  };
 
   return (
     <div className="invoice-list mt-5">
@@ -86,7 +46,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
             name="fullName"
             className="form-control"
             value={filters.fullName}
-            onChange={handleFilterChange}
+            onChange={onFilterChange}
           />
         </div>
         <div className="form-group">
@@ -97,7 +57,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
             name="dateIssuedFrom"
             className="form-control"
             value={filters.dateIssuedFrom}
-            onChange={handleFilterChange}
+            onChange={onFilterChange}
           />
         </div>
         <div className="form-group">
@@ -108,7 +68,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
             name="dateIssuedTo"
             className="form-control"
             value={filters.dateIssuedTo}
-            onChange={handleFilterChange}
+            onChange={onFilterChange}
           />
         </div>
         <div className="form-group">
@@ -119,7 +79,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
             name="dueDateFrom"
             className="form-control"
             value={filters.dueDateFrom}
-            onChange={handleFilterChange}
+            onChange={onFilterChange}
           />
         </div>
         <div className="form-group">
@@ -130,7 +90,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
             name="dueDateTo"
             className="form-control"
             value={filters.dueDateTo}
-            onChange={handleFilterChange}
+            onChange={onFilterChange}
           />
         </div>
         <div className="form-group">
@@ -140,7 +100,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
             name="status"
             className="form-control"
             value={filters.status}
-            onChange={handleFilterChange}
+            onChange={onFilterChange}
           >
             <option value="">-- Выберите статус --</option>
             <option value="NOT_PAID">Неоплачен</option>
@@ -164,7 +124,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
             </tr>
           </thead>
           <tbody>
-            {filteredInvoices && filteredInvoices.map((invoice) => (
+            {filteredInvoices.map((invoice) => (
               <tr key={invoice.id}>
                 <td>{invoice.id}</td>
                 <td>
@@ -173,7 +133,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                       type="text"
                       name="userFullName"
                       value={editingInvoice.userFullName || ""}
-                      onChange={handleEditingChange}
+                      onChange={(e) => setEditingInvoice({ ...editingInvoice, [e.target.name]: e.target.value })}
                       className="form-control"
                     />
                   ) : (
@@ -186,7 +146,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                       type="date"
                       name="dateIssued"
                       value={editingInvoice.dateIssued || ""}
-                      onChange={handleEditingChange}
+                      onChange={(e) => setEditingInvoice({ ...editingInvoice, [e.target.name]: e.target.value })}
                       className="form-control"
                     />
                   ) : (
@@ -199,7 +159,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                       type="date"
                       name="dueDate"
                       value={editingInvoice.dueDate || ""}
-                      onChange={handleEditingChange}
+                      onChange={(e) => setEditingInvoice({ ...editingInvoice, [e.target.name]: e.target.value })}
                       className="form-control"
                     />
                   ) : (
@@ -212,7 +172,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                       type="number"
                       name="amount"
                       value={editingInvoice.amount || ""}
-                      onChange={handleEditingChange}
+                      onChange={(e) => setEditingInvoice({ ...editingInvoice, [e.target.name]: e.target.value })}
                       className="form-control"
                     />
                   ) : (
@@ -224,7 +184,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                     <select
                       name="status"
                       value={editingInvoice.status || ""}
-                      onChange={handleEditingChange}
+                      onChange={(e) => setEditingInvoice({ ...editingInvoice, [e.target.name]: e.target.value })}
                       className="form-control"
                     >
                       <option value="NOT_PAID">Неоплачен</option>
@@ -236,20 +196,24 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                   )}
                 </td>
                 <td>
-                  {invoice.lessons && invoice.lessons.map((lesson: any) => (
-                    <div key={lesson.id}>
-                      {lesson.topic} ({lesson.date})
-                    </div>
-                  ))}
+                  {invoice.lessons && invoice.lessons.length > 0
+                    ? invoice.lessons.map((lesson: any) => lesson.topic).join(", ")
+                    : "Нет уроков"}
                 </td>
                 <td>
                   {editingInvoiceId === invoice.id ? (
                     <div className="d-flex justify-content-around">
-                      <button onClick={saveEditing} className="btn btn-primary">Сохранить</button>
-                      <button onClick={cancelEditing} className="btn btn-secondary">Отменить</button>
+                      <button onClick={onSave} className="btn btn-primary">
+                        Сохранить
+                      </button>
+                      <button onClick={onCancel} className="btn btn-secondary">
+                        Отменить
+                      </button>
                     </div>
                   ) : (
-                    <button onClick={() => startEditing(invoice)} className="btn btn-primary">Редактировать</button>
+                    <button onClick={() => onEdit(invoice)} className="btn btn-primary">
+                      Редактировать
+                    </button>
                   )}
                 </td>
               </tr>

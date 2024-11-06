@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getRequest, postRequest } from "src/api";
+import { getRequest, postRequest, putRequest } from "src/api";
 import { RootState } from "src/redux/store";
 import InvoiceForm from "./InvoiceForm";
 import GenerateInvoicesForm from "./GenerateInvoicesForm";
@@ -20,6 +20,9 @@ const InvoicesTab: React.FC = () => {
     dueDateTo: "",
     status: "",
   });
+  const [editingInvoiceId, setEditingInvoiceId] = useState<number | null>(null);
+  const [editingInvoice, setEditingInvoice] = useState<any>(null);
+
   const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
@@ -63,17 +66,23 @@ const InvoicesTab: React.FC = () => {
   };
 
   const handleEdit = (invoice: any) => {
-    // Андрюха нужно логика для изменения счета
+    setEditingInvoiceId(invoice.id);
+    setEditingInvoice({ ...invoice });
   };
 
-  const handleSave = (invoice: any) => {
-    //Тут для повторного сохранения можно юзать так как для создания счета?
-    loadInvoices();
+  const handleSave = async () => {
+    if (editingInvoiceId && editingInvoice) {
+      await putRequest(`admin/invoice/${editingInvoiceId}`, editingInvoice);
+      alert("Изменения сохранены");
+      setEditingInvoiceId(null);
+      setEditingInvoice(null);
+      loadInvoices();
+    }
   };
 
   const handleCancel = () => {
-    // Логика отмены редактирования мне уж впадлу было писать, реализуешь?
-    //  Я тут разделил на 3 компонента invoice tab, добавил в некоторых проверки редукса так же
+    setEditingInvoiceId(null);
+    setEditingInvoice(null);
   };
 
   const handleInvoiceSave = (invoice: any) => {
@@ -84,6 +93,9 @@ const InvoicesTab: React.FC = () => {
 
   const handleGenerateInvoices = (from: string, to: string, groupId: number | "") => {
     // Логика генерации счетов
+    postRequest("admin/generate-invoices", { from, to, groupId }).then(() => {
+      loadInvoices();
+    });
   };
 
   return (
@@ -100,6 +112,9 @@ const InvoicesTab: React.FC = () => {
         onEdit={handleEdit}
         onSave={handleSave}
         onCancel={handleCancel}
+        editingInvoiceId={editingInvoiceId}
+        editingInvoice={editingInvoice}
+        setEditingInvoice={setEditingInvoice}
       />
     </div>
   );

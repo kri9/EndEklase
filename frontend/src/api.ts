@@ -77,8 +77,6 @@ export const fetchFromBackendWithAuth = async (
   }
 };
 
-
-
 export const addChild = async (
   token: string,
   firstname: string,
@@ -108,7 +106,6 @@ export const getGroupsByKindergarten = async (token: string, kindergartenId: str
 export const getChildrenByGroup = async (token: string, groupId: string) => {
   return await fetchFromBackendWithAuth(`admin/groups/${groupId}/children`, 'GET', token);
 };
-
 
 export const addLesson = async (
   token: string,
@@ -156,7 +153,9 @@ export const getInvoices = async (token: string) => {
 export const updateChildren = async (children: any) => {
   const token = store.getState().auth.token;
   return fetchFromBackendWithAuth('admin/children', 'PATCH', token, children);
+};
 
-}
-
-
+export const generateInvoices = async (data: { startDate: string, endDate: string }) => {
+  const token = store.getState().auth.token;
+  return await fetchFromBackendWithAuth('admin/invoices', 'POST', token, data);
+};
