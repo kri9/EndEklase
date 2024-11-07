@@ -36,8 +36,10 @@ public class User implements UserDetails {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;
+    @Builder.Default
     @OneToMany(mappedBy = "parent")
     private List<Child> children = new ArrayList<>();
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<Invoice> invoices = new ArrayList<>();
 
