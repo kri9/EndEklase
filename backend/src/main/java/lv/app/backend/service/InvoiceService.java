@@ -2,6 +2,7 @@ package lv.app.backend.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lv.app.backend.dto.InvoiceCreateDTO;
 import lv.app.backend.dto.InvoiceDTO;
 import lv.app.backend.mappers.EntityMapper;
@@ -9,6 +10,7 @@ import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
 import lv.app.backend.model.User;
+import lv.app.backend.model.repository.AttendanceRepository;
 import lv.app.backend.model.repository.InvoiceRepository;
 import lv.app.backend.model.repository.LessonRepository;
 import lv.app.backend.model.repository.UserRepository;
@@ -23,10 +25,12 @@ import java.util.stream.Collectors;
 
 import static lv.app.backend.util.Common.flatten;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InvoiceService {
 
+    private final AttendanceRepository attendanceRepository;
     @Value("${lesson-attendance-cost}")
     private Long cost;
 
@@ -51,6 +55,10 @@ public class InvoiceService {
         List<User> users = userRepository.findAll();
         users.forEach(u -> {
             List<Long> lessons = lessonRepository.findUserLessonsToPay(startDate, endDate, u);
+            if (lessons.isEmpty()) {
+                log.error("No lessons to pay for user {}", u);
+                return;
+            }
             this.createInvoice(InvoiceCreateDTO.builder()
                     .userId(u.getId())
                     .lessonIds(lessons)
@@ -66,12 +74,16 @@ public class InvoiceService {
             createManualInvoice(dto, user);
             return;
         }
-        if (user.isSeparateInvoices()) {
-            Supplier<Double> costRateGenerator = getCostRateGenerator();
-            user.getChildren().forEach(c -> makeInvoice(c, dto.getLessonIds(), costRateGenerator));
+        if (!user.isSeparateInvoices()) {
+            makeSingleInvoice(dto, user);
             return;
         }
-        makeSingleInvoice(dto, user);
+        Supplier<Double> costRateGenerator = getCostRateGenerator();
+        user.getChildren().forEach(c -> {
+            List<Attendance> attendancesToPay = getAttendancesToPay(c, dto.getLessonIds());
+            long round = getCost(attendancesToPay, costRateGenerator);
+            formInvoice(round, c.getParent(), attendancesToPay);
+        });
     }
 
     @Transactional
@@ -81,10 +93,16 @@ public class InvoiceService {
                 .collect(Collectors.toList());
     }
 
-
     private void createManualInvoice(InvoiceCreateDTO dto, User user) {
         Invoice invoice = entityMapper.dtoToInvoice(dto);
         invoice.setUser(user);
+        List<Attendance> coveredAttendances = dto.getLessonIds().stream()
+                .map(lessonRepository::getReferenceById)
+                .flatMap(l -> l.getAttendances().stream())
+                .filter(a -> user.getChildren().contains(a.getChild()) && a.isAttended() && a.getInvoice() == null)
+                .toList();
+        coveredAttendances.forEach(a -> a.setInvoice(invoice));
+        invoice.setAttendances(coveredAttendances);
         invoiceRepository.saveAndFlush(invoice);
     }
 
@@ -103,12 +121,6 @@ public class InvoiceService {
         return Math.round(ats.size() * cost * costRateGenerator.get());
     }
 
-    private void makeInvoice(Child c, List<Long> lessonsToPay, Supplier<Double> costRateGenerator) {
-        List<Attendance> attendancesToPay = getAttendancesToPay(c, lessonsToPay);
-        long round = getCost(attendancesToPay, costRateGenerator);
-        formInvoice(round, c.getParent(), attendancesToPay);
-    }
-
     private List<Attendance> getAttendancesToPay(Child child, List<Long> lessonsToPay) {
         return child.getAttendances().stream()
                 .filter(a -> a.isAttended() && lessonsToPay.contains(a.getLesson().getId()))
@@ -116,14 +128,22 @@ public class InvoiceService {
     }
 
     private void formInvoice(Long invoiceAmount, User user, List<Attendance> attendancesToPay) {
+        if (attendancesToPay.isEmpty()) {
+            log.trace("No attendances to pay for user {}", user);
+            return;
+        }
         LocalDate currentDate = LocalDate.now();
-        invoiceRepository.save(Invoice.builder()
+        Invoice savedInvoice = invoiceRepository.save(Invoice.builder()
                 .attendances(attendancesToPay)
                 .amount(invoiceAmount)
                 .dateIssued(currentDate)
                 .dueDate(currentDate.plusWeeks(2))
                 .user(user)
                 .build());
+        attendancesToPay.forEach(a -> {
+            a.setInvoice(savedInvoice);
+            attendanceRepository.save(a);
+        });
     }
 
     private Supplier<Double> getCostRateGenerator() {

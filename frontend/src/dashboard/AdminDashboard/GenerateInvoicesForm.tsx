@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { generateInvoices } from "src/api";
 
-const GenerateInvoiceForm = () => {
+const GenerateInvoiceForm = (props: { kindergartens: any[], onGenerate: any }) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 

@@ -28,7 +28,6 @@ const InvoicesTab: React.FC = () => {
   useEffect(() => {
     getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(setUsersInfo);
     loadLessons();
-    loadGroups();
     loadKindergartens();
     loadInvoices();
   }, []);
@@ -37,13 +36,6 @@ const InvoicesTab: React.FC = () => {
     if (token) {
       const fetchedLessons = await getRequest<any[]>("admin/lessons");
       setLessons(fetchedLessons || []);
-    }
-  };
-
-  const loadGroups = async () => {
-    if (token) {
-      const fetchedGroups = await getRequest<any[]>("admin/groups");
-      setGroups(fetchedGroups || []);
     }
   };
 
@@ -72,7 +64,7 @@ const InvoicesTab: React.FC = () => {
 
   const handleSave = async () => {
     if (editingInvoiceId && editingInvoice) {
-      await putRequest(`admin/invoice/${editingInvoiceId}`, editingInvoice);
+      await putRequest(`admin/invoice`, editingInvoice);
       alert("Изменения сохранены");
       setEditingInvoiceId(null);
       setEditingInvoice(null);
