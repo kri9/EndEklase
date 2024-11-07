@@ -14,7 +14,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
     dateIssued: "",
     dueDate: "",
     amount: "",
-    status: "",
+    status: null as any,
     lessons: [] as any[],
   });
   const [userSuggestions, setUserSuggestions] = useState<{ text: string }[]>([]);
@@ -70,6 +70,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
     const user = usersInfo.find((u) => u.fullName === newInvoice.fullName);
     if (user) {
       newInvoice.userId = user.id;
+      newInvoice.lessons = newInvoice.lessons.map(l => l.id);
+
       onSave(newInvoice);
       setNewInvoice({
         fullName: "",
@@ -77,7 +79,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
         dateIssued: "",
         dueDate: "",
         amount: "",
-        status: "",
+        status: null,
         lessons: [],
       });
     } else {
