@@ -42,6 +42,8 @@ public class User implements UserDetails {
     @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<Invoice> invoices = new ArrayList<>();
+    @OneToOne
+    private Discount discount;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Autosuggest from "react-autosuggest";
+import UserSelect from "./common/UserSelect";
 
 interface InvoiceFormProps {
   usersInfo: { id: number; fullName: string }[];
@@ -17,35 +17,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
     status: null as any,
     lessons: [] as any[],
   });
-  const [userSuggestions, setUserSuggestions] = useState<{ text: string }[]>([]);
   const [selectedLessonId, setSelectedLessonId] = useState<number | "">("");
-
-  const updateSuggestions = ({ value }: { value: string }) => {
-    setUserSuggestions(
-      usersInfo
-        .map((ui) => ui.fullName)
-        .filter(
-          (e) =>
-            e.toLowerCase().includes(value.toLowerCase()) &&
-            e !== newInvoice.fullName
-        )
-        .map((e) => ({ text: e }))
-    );
-  };
-
-  const inputProps = {
-    placeholder: "Введите имя пользователя",
-    onChange: (
-      event: any,
-      { newValue }: { newValue: string; method: any }
-    ) => {
-      setNewInvoice({ ...newInvoice, ["fullName"]: newValue });
-    },
-    value: newInvoice.fullName,
-    id: "fullName",
-    name: "fullName",
-    className: "form-control",
-  };
 
   const addLesson = () => {
     if (selectedLessonId) {
@@ -92,13 +64,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
       <h3>Добавить новый счет (Вручную)</h3>
       <div className="form-group">
         <label htmlFor="userId">Имя Пользователя:</label>
-        <Autosuggest
-          suggestions={userSuggestions}
-          onSuggestionsFetchRequested={updateSuggestions}
-          onSuggestionsClearRequested={() => setUserSuggestions([])}
-          getSuggestionValue={(s) => s.text}
-          renderSuggestion={(s) => <div>{s.text}</div>}
-          inputProps={inputProps}
+        <UserSelect
+          currentValue={newInvoice.fullName}
+          onChange={nv => setNewInvoice({ ...newInvoice, ["fullName"]: nv })}
         />
       </div>
       <div className="form-group mt-3">

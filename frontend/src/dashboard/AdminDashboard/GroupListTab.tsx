@@ -1,6 +1,5 @@
 // GroupListTab.tsx
 import React, { useState, useEffect } from "react";
-import Autosuggest from "react-autosuggest";
 import {
   getKindergartens,
   getGroupsByKindergarten,
@@ -11,6 +10,7 @@ import {
 } from "src/api";
 import { useSelector } from "react-redux";
 import { RootState } from "src/redux/store";
+import UserSelect from "./common/UserSelect";
 
 const GroupListTab: React.FC = () => {
   const [selectedKindergarten, setSelectedKindergarten] = useState("");
@@ -26,7 +26,6 @@ const GroupListTab: React.FC = () => {
   });
 
   const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>([]);
-  const [userSuggestions, setUserSuggestions] = useState<{ text: string }[]>([]);
 
   const token = useSelector((state: RootState) => state.auth.token);
 
@@ -90,26 +89,6 @@ const GroupListTab: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setNewChild({ ...newChild, [event.target.name]: event.target.value });
-  };
-
-  const updateUserSuggestions = ({ value }: { value: string }) => {
-    setUserSuggestions(
-      usersInfo
-        .map((user) => user.fullName)
-        .filter((name) => name.toLowerCase().includes(value.toLowerCase()))
-        .map((name) => ({ text: name }))
-    );
-  };
-
-  const inputProps = {
-    placeholder: "Введите имя пользователя",
-    value: newChild.userFullName,
-    onChange: (event: any, { newValue }: Autosuggest.ChangeEvent) => {
-      setNewChild({ ...newChild, userFullName: newValue });
-    },
-    id: "userFullName",
-    name: "userFullName",
-    className: "form-control",
   };
 
   const handleAddChild = async () => {
@@ -298,13 +277,9 @@ const GroupListTab: React.FC = () => {
         </div>
         <div className="form-group mt-3">
           <label htmlFor="userFullName">Имя Пользователя:</label>
-          <Autosuggest
-            suggestions={userSuggestions}
-            onSuggestionsFetchRequested={updateUserSuggestions}
-            onSuggestionsClearRequested={() => setUserSuggestions([])}
-            getSuggestionValue={(suggestion) => suggestion.text}
-            renderSuggestion={(suggestion) => <div>{suggestion.text}</div>}
-            inputProps={inputProps}
+          <UserSelect
+            currentValue={newChild.userFullName}
+            onChange={nv => setNewChild({ ...newChild, userFullName: nv })}
           />
         </div>
         <button onClick={handleAddChild} className="btn btn-primary mt-3">
