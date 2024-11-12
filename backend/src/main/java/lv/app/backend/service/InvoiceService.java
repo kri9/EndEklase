@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -81,7 +82,7 @@ public class InvoiceService {
         Supplier<Double> costRateGenerator = getCostRateGenerator();
         user.getChildren().forEach(c -> {
             List<Attendance> attendancesToPay = getAttendancesToPay(c, dto.getLessonIds());
-            long round = getCost(attendancesToPay, costRateGenerator);
+            long round = getCost(attendancesToPay, costRateGenerator, user);
             formInvoice(round, c.getParent(), attendancesToPay);
         });
     }
@@ -112,13 +113,16 @@ public class InvoiceService {
                 .map(c -> getAttendancesToPay(c, dto.getLessonIds()))
                 .toList();
         long sum = attendancesToPay.stream()
-                .mapToLong(ats -> getCost(ats, costRateGenerator))
+                .mapToLong(ats -> getCost(ats, costRateGenerator, user))
                 .sum();
         formInvoice(sum, user, flatten(attendancesToPay));
     }
 
-    private long getCost(List<Attendance> ats, Supplier<Double> costRateGenerator) {
-        return Math.round(ats.size() * cost * costRateGenerator.get());
+    private long getCost(List<Attendance> ats, Supplier<Double> costRateGenerator, User user) {
+        long initialSum = Math.round(ats.size() * cost * costRateGenerator.get());
+        return Optional.ofNullable(user.getDiscount())
+                .map(d -> Math.round(initialSum * d.getDiscountRate()))
+                .orElse(initialSum);
     }
 
     private List<Attendance> getAttendancesToPay(Child child, List<Long> lessonsToPay) {
@@ -151,7 +155,8 @@ public class InvoiceService {
         return () -> {
             int callNum = call.incrementAndGet();
             if (callNum == 1) return 1.; // First child - full rate
-            if (callNum == 2) return 0.8; // Second child - 0.8 rate
+            if (callNum == 2) return 0.5; // Second child - 0.5 rate
+            if (callNum == 3) return 0.5; // third child - 0.5 rate
             return 1.; // Other children full rate
         };
     }
