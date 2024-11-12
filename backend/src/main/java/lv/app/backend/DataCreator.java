@@ -196,7 +196,7 @@ public class DataCreator implements ApplicationRunner {
     private User createUser(List<Group> groups, boolean separateInvoices, int children) {
         UserNameInfo nameInfo = fullName();
         User user = userRepository.save(User.builder()
-                .role(UserRole.ADMIN)
+                .role(UserRole.USER)
                 .password(passwordEncoder.encode("pass123"))
                 .username(nameInfo.email)
                 .firstName(nameInfo.firstName)
