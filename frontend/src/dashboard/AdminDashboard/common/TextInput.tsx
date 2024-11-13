@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { RootFormInput, useRootObject } from "./RootObjectForm";
 
 export default function TextInput(props: { header: string } & RootFormInput) {
@@ -13,9 +14,9 @@ export default function TextInput(props: { header: string } & RootFormInput) {
         id={props.field}
         name={props.field}
         className="form-control"
-        value={rootObject[props.field]}
+        value={rootObject[props.field] || ''}
         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          rootObjectSetter({ ...rootObject, [props.field]: event.target.value })
+          rootObjectSetter({ ...rootObject, [props.field]: event.target.value });
         }}
       />
     </div>

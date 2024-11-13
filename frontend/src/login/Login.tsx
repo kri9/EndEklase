@@ -18,16 +18,6 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const loadBackendData = async () => {
-      const data = await fetchFromBackend('test2');
-      if (data) {
-        setBackendData(data.message || 'Нет данных');
-      }
-    };
-    loadBackendData();
-  }, []);
-
   const validateForm = () => {
     let valid = true;
     if (email.length === 0) {
