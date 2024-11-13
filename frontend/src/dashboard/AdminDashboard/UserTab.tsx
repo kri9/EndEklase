@@ -17,29 +17,29 @@ interface UserFormData {
   children: { id: number, firsname: string, lastname: string }[]
 }
 
+const defaultFormValues: UserFormData = {
+  id: undefined,
+  email: '',
+  firstName: '',
+  lastName: '',
+  password: '',
+  separateInvoices: false,
+  discountRate: 0,
+  children: []
+}
+
 export default function UserTab() {
-  const [user, setUser] = useState<UserFormData>({
-    id: undefined,
-    email: '',
-    firstName: '',
-    lastName: '',
-    password: '',
-    separateInvoices: false,
-    discountRate: 0,
-    children: []
-  });
+  const [user, setUser] = useState<UserFormData>(defaultFormValues);
   const [userId, setUserId] = useState<number | undefined>(undefined);
-  useEffect(() => { userId && getRequest<UserFormData>(`admin/user/${userId}`).then(setUser) }, [userId])
-  const saveUser = async () => {
-    try {
-      const response = await postRequest<UserFormData>('admin/user', user)
-      setUser(await getRequest<UserFormData>(`admin/user/${response.id}`));
-      alert('Succesfully saved user')
-    } catch (e) {
-      alert('Failed to save user');
-      console.log(e);
-    }
-  }
+  useEffect(() => {
+    userId && getRequest<UserFormData>(`admin/user/${userId}`).then(setUser);
+    userId || setUser(defaultFormValues);
+  }, [userId])
+  const saveUser = () => postRequest<any>('admin/user', user)
+    .then(r => getRequest<UserFormData>(`admin/user/${r.id}`))
+    .then(setUser)
+    .then(() => alert('Succesfully saved user'))
+    .catch(e => { alert('Failed to save user'); console.log(e) });
 
   return (
     <div>

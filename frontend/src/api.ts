@@ -24,7 +24,7 @@ export const fetchFromBackend = async (
     return await response.json();
   } catch (error) {
     console.error(`Ошибка при выполнении запроса к ${endpoint}:`, error);
-    return null;
+    throw new Error(`Ошибка при выполнении запроса к ${endpoint}: ${error} zz`);
   }
 };
 
