@@ -164,7 +164,7 @@ const GroupListTab: React.FC = () => {
 
   return (
     <div>
-      <h2>Списки групп</h2>
+      <h2 className="text-3xl">Списки групп</h2>
       <div className="filters mb-4">
         <div className="form-group">
           <label htmlFor="kindergartenSelect">Выберите садик:</label>
@@ -278,7 +278,6 @@ const GroupListTab: React.FC = () => {
         <div className="form-group mt-3">
           <label htmlFor="userFullName">Имя Пользователя:</label>
           <UserSelect
-            currentValue={newChild.userFullName}
             onChange={nv => setNewChild({ ...newChild, userFullName: nv })}
           />
         </div>

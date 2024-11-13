@@ -121,7 +121,7 @@ const AttendanceTab: React.FC = () => {
 
   return (
     <div>
-      <h2>Посещение</h2>
+      <h2 className="text-3xl">Посещение</h2>
       <div className="filters mb-4">
         <div className="form-group">
           <label htmlFor="kindergartenSelect">Выберите садик:</label>

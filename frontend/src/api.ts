@@ -64,7 +64,7 @@ export const fetchFromBackendWithAuth = async (
   try {
     const response = await fetch(`${window.origin}/api/${endpoint}`, options);
     const responseText = await response.text();
-    console.log(`Response from ${endpoint}:`, responseText);
+    console.debug(`Response from ${endpoint}:`, responseText);
 
     if (!response.ok) {
       throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
