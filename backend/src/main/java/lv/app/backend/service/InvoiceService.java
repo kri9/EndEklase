@@ -120,8 +120,8 @@ public class InvoiceService {
 
     private long getCost(List<Attendance> ats, Supplier<Double> costRateGenerator, User user) {
         long initialSum = Math.round(ats.size() * cost * costRateGenerator.get());
-        return Optional.ofNullable(user.getDiscount())
-                .map(d -> Math.round(initialSum * d.getDiscountRate()))
+        return Optional.ofNullable(user.getDiscountRate())
+                .map(d -> Math.round(initialSum * ((100 - d) / 100)))
                 .orElse(initialSum);
     }
 

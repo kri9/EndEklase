@@ -2,7 +2,9 @@ package lv.app.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.LoginUserDTO;
-import lv.app.backend.dto.Records;
+import lv.app.backend.dto.UserDTO;
+import lv.app.backend.mappers.EntityMapper;
+import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.User;
 import lv.app.backend.model.enums.UserRole;
 import lv.app.backend.model.repository.UserRepository;
@@ -10,20 +12,28 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    public void saveUser(Records.SignUp signUp) {
-        userRepository.save(User.builder()
-                .username(signUp.username())
-                .password(passwordEncoder.encode(signUp.password()))
-                .build());
+    @Transactional
+    public User createUser(UserDTO userDTO) {
+        User user = userMapper.dtoToUser(userDTO);
+        user.setRole(UserRole.USER);
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateUser(UserDTO userDTO) {
+        User user = userRepository.getReferenceById(userDTO.getId());
+        userMapper.updateUser(user, userDTO);
+        return userRepository.save(user);
     }
 
     public User authenticate(LoginUserDTO input) {

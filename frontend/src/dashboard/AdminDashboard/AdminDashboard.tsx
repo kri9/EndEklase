@@ -9,6 +9,7 @@ import ReportsTab from "./ReportsTab";
 import InvoicesTab from "./InvoicesTab";
 import { clearAuthToken } from "src/redux/authSlice";
 import "./css/AdminDashboard.css";
+import UserTab from "./UserTab";
 
 const AdminDashboard: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Списки групп");
@@ -22,6 +23,8 @@ const AdminDashboard: React.FC = () => {
 
   const renderTabContent = () => {
     switch (selectedTab) {
+      case "Пользователи":
+        return <UserTab />
       case "Посещение":
         return <AttendanceTab />;
       case "Списки групп":
@@ -47,6 +50,7 @@ const AdminDashboard: React.FC = () => {
       </div>
       <div className="tabs d-flex">
         {[
+          "Пользователи",
           "Посещение",
           "Списки групп",
           "Добавление уроков",

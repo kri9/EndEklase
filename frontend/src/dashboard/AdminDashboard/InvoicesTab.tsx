@@ -92,7 +92,7 @@ const InvoicesTab: React.FC = () => {
 
   return (
     <div>
-      <h2>Выставление счетов</h2>
+      <h2 className="text-3xl">Выставление счетов</h2>
       <div className="d-flex">
         <InvoiceForm usersInfo={usersInfo} lessons={lessons} onSave={handleInvoiceSave} />
         <GenerateInvoicesForm kindergartens={kindergartens} onGenerate={handleGenerateInvoices} />

@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html, body {
   height: 100%;
   margin: 0;
@@ -183,3 +187,20 @@ h1 {
 .react-autosuggest__suggestion--highlighted {
   background-color: #ddd;
 }
+
+.percentage-input {
+  position: relative;
+}
+.percentage-input input {
+  width: 100%;
+  padding-right: 20px; /* space for the percentage sign */
+}
+.percentage-input::after {
+  content: '%';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+

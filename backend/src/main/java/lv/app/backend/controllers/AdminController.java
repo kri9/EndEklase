@@ -3,12 +3,10 @@ package lv.app.backend.controllers;
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.*;
 import lv.app.backend.mappers.EntityMapper;
+import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.repository.UserRepository;
-import lv.app.backend.service.ChildService;
-import lv.app.backend.service.InvoiceService;
-import lv.app.backend.service.KindergartenService;
-import lv.app.backend.service.LessonService;
+import lv.app.backend.service.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,12 +25,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdminController {
 
+    private final UserMapper userMapper;
+    private final UserService userService;
     private final EntityMapper entityMapper;
     private final ChildService childService;
     private final LessonService lessonService;
     private final UserRepository userRepository;
-    private final KindergartenService kindergartenService;
     private final InvoiceService invoiceService;
+    private final KindergartenService kindergartenService;
+
+    @ResponseBody
+    @GetMapping("/user/{userId}")
+    public UserDTO getUser(@PathVariable Long userId) {
+        return userMapper.userToDto(userRepository.getReferenceById(userId));
+    }
+
+    @ResponseBody
+    @PostMapping("/user")
+    public Map<String, Long> saveUser(@RequestBody UserDTO userDTO) {
+        if (userDTO.getId() != null && userDTO.getId() > 0) {
+            return Map.of("id", userService.updateUser(userDTO).getId());
+        }
+        return Map.of("id", userService.createUser(userDTO).getId());
+    }
 
     @GetMapping("/kindergartens")
     public ResponseEntity<List<KindergartenDTO>> getAllKindergartens() {

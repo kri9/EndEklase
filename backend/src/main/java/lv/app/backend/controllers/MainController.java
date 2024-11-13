@@ -29,12 +29,6 @@ public class MainController {
         return ResponseEntity.ok("TEST STRING");
     }
 
-    @PostMapping("/signup")
-    private ResponseEntity<Void> signup(@RequestBody Records.SignUp signUp) {
-        userService.saveUser(signUp);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDTO loginUserDto) {
         User authenticatedUser = userService.authenticate(loginUserDto);

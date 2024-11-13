@@ -65,7 +65,6 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
       <div className="form-group">
         <label htmlFor="userId">Имя Пользователя:</label>
         <UserSelect
-          currentValue={newInvoice.fullName}
           onChange={nv => setNewInvoice({ ...newInvoice, ["fullName"]: nv })}
         />
       </div>
@@ -114,7 +113,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
           id="status"
           name="status"
           className="form-control"
-          value={newInvoice.status}
+          value={newInvoice.status ?? ""}
           onChange={(e) =>
             setNewInvoice({ ...newInvoice, status: e.target.value })
           }
@@ -131,7 +130,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
           id="lesson"
           name="lesson"
           className="form-control"
-          value={selectedLessonId}
+          value={selectedLessonId ?? ""}
           onChange={(e) => setSelectedLessonId(Number(e.target.value))}
         >
           <option value="">-- Выберите урок --</option>
