@@ -15,6 +15,8 @@ import lv.app.backend.model.repository.GroupRepository;
 import lv.app.backend.model.repository.LessonRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -74,6 +76,18 @@ public class LessonService {
     @Transactional
     public List<AttendanceDTO> getAttendanceByGroup(Long groupId) {
         List<Attendance> attendances = attendanceRepository.findByLessonGroupId(groupId);
+        return attendances.stream()
+                .map(entityMapper::attendanceToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<AttendanceDTO> getAttendanceByGroupAndMonth(Long groupId, YearMonth month) {
+        LocalDate startDate = month.atDay(1);
+        LocalDate endDate = month.atEndOfMonth();
+        List<Attendance> attendances = attendanceRepository.findByLesson_Group_IdAndLesson_DateBetween(
+                groupId, startDate, endDate
+        );
         return attendances.stream()
                 .map(entityMapper::attendanceToDto)
                 .collect(Collectors.toList());
