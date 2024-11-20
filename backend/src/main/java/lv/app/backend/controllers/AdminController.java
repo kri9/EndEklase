@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -141,6 +142,13 @@ public class AdminController {
     @GetMapping("/groups/{groupId}/attendances")
     public ResponseEntity<List<AttendanceDTO>> getAttendanceByGroup(@PathVariable Long groupId) {
         List<AttendanceDTO> attendances = lessonService.getAttendanceByGroup(groupId);
+        return ResponseEntity.ok(attendances);
+    }
+
+    @GetMapping("/groups/{groupId}/attendances/{yearMonth}")
+    public ResponseEntity<List<AttendanceDTO>> getAttendanceByGroupAndMonth(@PathVariable Long groupId, @PathVariable String yearMonth) {
+        YearMonth month = YearMonth.parse(yearMonth);
+        List<AttendanceDTO> attendances = lessonService.getAttendanceByGroupAndMonth(groupId, month);
         return ResponseEntity.ok(attendances);
     }
 

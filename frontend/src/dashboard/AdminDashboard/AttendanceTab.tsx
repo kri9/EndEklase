@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   getKindergartens,
   getGroupsByKindergarten,
   getChildrenByGroup,
   getLessonsByGroup,
   getAttendanceByGroup,
+  getAttendanceByGroupAndMonth,
   updateAttendance,
 } from "src/api";
 import { useSelector } from "react-redux";
 import { RootState } from "src/redux/store";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { addMonths, format } from 'date-fns';
 
 const AttendanceTab: React.FC = () => {
   const [selectedKindergarten, setSelectedKindergarten] = useState("");
-  const [selectedGroup, setSelectedGroup] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
   const [kindergartens, setKindergartens] = useState<any[]>([]);
   const [groups, setGroups] = useState<any[]>([]);
   const [children, setChildren] = useState<any[]>([]);
@@ -24,8 +30,12 @@ const AttendanceTab: React.FC = () => {
   useEffect(() => {
     const loadKindergartens = async () => {
       if (token) {
-        const fetchedKindergartens = await getKindergartens(token);
-        setKindergartens(fetchedKindergartens || []);
+        try {
+          const fetchedKindergartens = await getKindergartens(token);
+          setKindergartens(fetchedKindergartens || []);
+        } catch (error) {
+          console.error("Failed to load kindergartens:", error);
+        }
       }
     };
     loadKindergartens();
@@ -34,11 +44,12 @@ const AttendanceTab: React.FC = () => {
   useEffect(() => {
     const loadGroups = async () => {
       if (token && selectedKindergarten) {
-        const fetchedGroups = await getGroupsByKindergarten(
-          token,
-          selectedKindergarten
-        );
-        setGroups(fetchedGroups || []);
+        try {
+          const fetchedGroups = await getGroupsByKindergarten(token, selectedKindergarten);
+          setGroups(fetchedGroups || []);
+        } catch (error) {
+          console.error("Failed to load groups:", error);
+        }
       } else {
         setGroups([]);
       }
@@ -46,40 +57,59 @@ const AttendanceTab: React.FC = () => {
     loadGroups();
   }, [token, selectedKindergarten]);
 
-  const handleKindergartenChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleKindergartenChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedKindergarten(event.target.value);
-    setSelectedGroup("");
+    setSelectedGroup(null);
     setChildren([]);
     setLessons([]);
+    setAttendance({});
   };
 
-  const handleGroupChange = async (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleGroupChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedGroup(event.target.value);
     if (token && event.target.value) {
-      const fetchedChildren = await getChildrenByGroup(
-        token,
-        event.target.value
-      );
-      setChildren(fetchedChildren || []);
+      try {
+        const fetchedChildren = await getChildrenByGroup(token, event.target.value);
+        setChildren(fetchedChildren || []);
 
-      await loadLessonsFromBackend(event.target.value as string);
+        await loadLessonsAndAttendance(event.target.value, selectedMonth);
+      } catch (error) {
+        console.error("Failed to load group data:", error);
+      }
+    }
+  };
 
-      const fetchedAttendance = await getAttendanceByGroup(
-        token,
-        event.target.value
-      );
+  const handleMonthChange = async (date: Date | null) => {
+    setSelectedMonth(date);
+    if (selectedGroup) {
+      await loadLessonsAndAttendance(selectedGroup, date);
+    }
+  };
 
-      if (fetchedAttendance) {
-        const newAttendance: { [key: string]: boolean } = {};
-        fetchedAttendance.forEach((attendanceItem: any) => {
-          const key = `${attendanceItem.childId}_${attendanceItem.lessonId}`;
-          newAttendance[key] = attendanceItem.attended;
-        });
-        setAttendance(newAttendance);
+  const loadLessonsAndAttendance = async (groupId: string, month: Date | null) => {
+    if (token && groupId) {
+      try {
+        const fetchedLessons = await getLessonsByGroup(token, groupId);
+        setLessons(fetchedLessons);
+
+        let fetchedAttendance;
+        if (month) {
+          const formattedMonth = format(month, 'yyyy-MM');
+          fetchedAttendance = await getAttendanceByGroupAndMonth(token, groupId, formattedMonth);
+        } else {
+          fetchedAttendance = await getAttendanceByGroup(token, groupId);
+        }
+
+        if (fetchedAttendance) {
+          const newAttendance: { [key: string]: boolean } = {};
+          fetchedAttendance.forEach((attendanceItem: any) => {
+            const key = `${attendanceItem.childId}_${attendanceItem.lessonId}`;
+            newAttendance[key] = attendanceItem.attended;
+          });
+          setAttendance(newAttendance);
+        }
+      } catch (error) {
+        console.error("Failed to load lessons or attendance:", error);
       }
     }
   };
@@ -110,18 +140,15 @@ const AttendanceTab: React.FC = () => {
     }
   };
 
-  const loadLessonsFromBackend = async (groupId: string) => {
-    if (token && groupId) {
-      const fetchedLessons = await getLessonsByGroup(token, groupId);
-      if (Array.isArray(fetchedLessons)) {
-        setLessons(fetchedLessons);
-      }
-    }
-  };
+  const filteredLessons = lessons.filter((lesson) => {
+    if (!selectedMonth) return true;
+    const lessonDate = new Date(lesson.date);
+    return lessonDate.getFullYear() === selectedMonth.getFullYear() && lessonDate.getMonth() === selectedMonth.getMonth();
+  });
 
   return (
-    <div>
-      <h2 className="text-3xl">Посещение</h2>
+    <div className="container mt-5">
+      <h2 className="text-3xl mb-4">Посещение</h2>
       <div className="filters mb-4">
         <div className="form-group">
           <label htmlFor="kindergartenSelect">Выберите садик:</label>
@@ -144,7 +171,7 @@ const AttendanceTab: React.FC = () => {
           <select
             id="groupSelect"
             className="form-control"
-            value={selectedGroup}
+            value={selectedGroup || ""}
             onChange={handleGroupChange}
             disabled={!selectedKindergarten}
           >
@@ -156,17 +183,28 @@ const AttendanceTab: React.FC = () => {
             ))}
           </select>
         </div>
+        <div className="form-group mt-3">
+          <label htmlFor="monthSelect">Выберите месяц:</label>
+          <DatePicker
+            selected={selectedMonth}
+            onChange={handleMonthChange}
+            dateFormat="yyyy-MM"
+            showMonthYearPicker
+            className="form-control"
+            placeholderText="-- Все месяцы --"
+          />
+        </div>
       </div>
 
-      {lessons.length > 0 && children.length > 0 ? (
-        <div className="attendance-table mt-5">
-          <table className="table table-bordered">
-            <thead>
+      {filteredLessons.length > 0 && children.length > 0 ? (
+        <div className="attendance-table mt-5" style={{ overflowX: 'auto' }}>
+          <table className="table table-bordered table-hover">
+            <thead className="thead-dark">
               <tr>
                 <th>Ребенок</th>
-                {lessons.map((lesson) => (
+                {filteredLessons.map((lesson) => (
                   <th key={lesson.id}>
-                    {lesson.topic} ({lesson.date})
+                    {lesson.topic} <br /> ({lesson.date})
                   </th>
                 ))}
               </tr>
@@ -177,19 +215,12 @@ const AttendanceTab: React.FC = () => {
                   <td>
                     {child.firstname} {child.lastname}
                   </td>
-                  {lessons.map((lesson) => (
+                  {filteredLessons.map((lesson) => (
                     <td key={lesson.id} className="text-center">
                       <input
                         type="checkbox"
-                        checked={
-                          attendance[`${child.id}_${lesson.id}`] || false
-                        }
-                        onChange={() =>
-                          handleAttendanceChange(
-                            child.id,
-                            lesson.id?.toString() || ""
-                          )
-                        }
+                        checked={attendance[`${child.id}_${lesson.id}`] || false}
+                        onChange={() => handleAttendanceChange(child.id, lesson.id?.toString() || "")}
                         style={{ accentColor: "green" }}
                       />
                     </td>
@@ -198,10 +229,7 @@ const AttendanceTab: React.FC = () => {
               ))}
             </tbody>
           </table>
-          <button
-            className="btn btn-primary mt-3"
-            onClick={saveAttendanceChanges}
-          >
+          <button className="btn btn-primary mt-3" onClick={saveAttendanceChanges}>
             Сохранить посещаемость
           </button>
         </div>
@@ -213,4 +241,3 @@ const AttendanceTab: React.FC = () => {
 };
 
 export default AttendanceTab;
-

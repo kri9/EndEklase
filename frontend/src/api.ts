@@ -73,7 +73,7 @@ export const fetchFromBackendWithAuth = async (
     return responseText ? JSON.parse(responseText) : { success: true };
   } catch (error) {
     console.error(`Ошибка при выполнении запроса к ${endpoint}:`, error);
-    return null;
+    throw new Error(`Ошибка при выполнении запроса к ${endpoint}: ${error}`);
   }
 };
 
@@ -144,6 +144,10 @@ export const updateAttendance = async (
 
 export const getAttendanceByGroup = async (token: string, groupId: string) => {
   return await fetchFromBackendWithAuth(`admin/groups/${groupId}/attendances`, 'GET', token);
+};
+
+export const getAttendanceByGroupAndMonth = async (token: string, groupId: string, month: string) => {
+  return await fetchFromBackendWithAuth(`admin/groups/${groupId}/attendances/${month}`, 'GET', token);
 };
 
 export const getInvoices = async (token: string) => {
