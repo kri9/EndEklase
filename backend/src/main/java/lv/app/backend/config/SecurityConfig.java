@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.http.HttpMethod.*;
 
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -24,11 +25,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/signup").permitAll()
-                .requestMatchers(GET, "/api/users/**").permitAll()
                 .requestMatchers(POST, "/rest/**").hasRole(UserRole.ADMIN.role())
                 .requestMatchers(DELETE, "/rest/**").hasRole(UserRole.ADMIN.role())
                 .requestMatchers(PUT, "/rest/**").hasRole(UserRole.ADMIN.role())
                 .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.role())
+                .requestMatchers("/user/**").hasRole(UserRole.USER.role())
                 .anyRequest().authenticated()
         );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -36,4 +37,5 @@ public class SecurityConfig {
         http.sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
+
 }
