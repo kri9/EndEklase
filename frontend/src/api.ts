@@ -67,7 +67,7 @@ export const fetchFromBackendWithAuth = async (
     console.debug(`Response from ${endpoint}:`, responseText);
 
     if (!response.ok) {
-      throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
+      throw new Error(`Ошибка: ${response.status} ${response.statusText} - ${responseText}`);
     }
 
     return responseText ? JSON.parse(responseText) : { success: true };
@@ -162,4 +162,20 @@ export const updateChildren = async (children: any) => {
 export const generateInvoices = async (data: { startDate: string, endDate: string }) => {
   const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth('admin/invoices', 'POST', token, data);
+};
+
+export const getInvoicesByUser = async (token: string, userId: string) => {
+  const response = await fetchFromBackendWithAuth(`users/${userId}/invoices`, 'GET', token);
+  if (!response.ok) {
+    throw new Error('Failed to fetch invoices');
+  }
+  return await response.json();
+};
+
+export const getAttendanceByUser = async (token: string, userId: string) => {
+  const response = await fetchFromBackendWithAuth(`users/${userId}/attendances`, 'GET', token);
+  if (!response.ok) {
+    throw new Error('Failed to fetch attendance');
+  }
+  return await response.json();
 };

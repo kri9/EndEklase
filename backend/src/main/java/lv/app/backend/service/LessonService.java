@@ -92,6 +92,12 @@ public class LessonService {
                 .map(entityMapper::attendanceToDto)
                 .collect(Collectors.toList());
     }
-
+    @Transactional
+    public List<AttendanceDTO> getAttendanceByUser(Long userId) {
+        List<Attendance> attendances = attendanceRepository.findByChildParentId(userId);
+        return attendances.stream()
+                .map(entityMapper::attendanceToDto)
+                .collect(Collectors.toList());
+    }
 
 }

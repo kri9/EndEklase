@@ -94,6 +94,13 @@ public class InvoiceService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public List<InvoiceDTO> getInvoicesByUser(Long userId) {
+        List<Invoice> invoices = invoiceRepository.findByUserId(userId);
+        return invoices.stream()
+                .map(entityMapper::invoiceToDto)
+                .collect(Collectors.toList());
+    }
     private void createManualInvoice(InvoiceCreateDTO dto, User user) {
         Invoice invoice = entityMapper.dtoToInvoice(dto);
         invoice.setUser(user);

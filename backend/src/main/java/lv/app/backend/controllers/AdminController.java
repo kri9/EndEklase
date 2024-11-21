@@ -160,5 +160,17 @@ public class AdminController {
                 .toList();
     }
 
+//    @GetMapping("users/{userId}/invoices")
+//    public ResponseEntity<List<InvoiceDTO>> getInvoicesByUser(@PathVariable Long userId) {
+//        List<InvoiceDTO> invoices = invoiceService.getInvoicesByUser(userId);
+//        return ResponseEntity.ok(invoices);
+//    }
+//
+//    @GetMapping("/attendances")
+//    public ResponseEntity<List<AttendanceDTO>> getAttendanceByUser(@PathVariable Long userId) {
+//        List<AttendanceDTO> attendances = lessonService.getAttendanceByUser(userId);
+//        return ResponseEntity.ok(attendances);
+//    }
+
 }
 
