@@ -1,56 +1,55 @@
-import React, { useState } from 'react';
-import './css/AttendanceTab.css';
+import React, { useState, useEffect } from "react";
+import { getAttendanceByUser } from "src/api";
+import { useSelector } from "react-redux";
+import { RootState } from "src/redux/store";
 
-interface AttendanceRecord {
-    date: string;
-    subject: string;
-    attended: boolean;
-  }
-  
-  const attendanceData: AttendanceRecord[] = [
-    { date: '2024-10-01', subject: 'English', attended: true },
-    { date: '2024-10-02', subject: 'Math', attended: false },
-    { date: '2024-10-03', subject: 'Science', attended: true },
-    { date: '2024-10-04', subject: 'English', attended: true },
-    { date: '2024-10-05', subject: 'Math', attended: false },
-    { date: '2024-10-06', subject: 'English', attended: true },
-  ];
-  
-  const AttendanceTab: React.FC = () => {
-    const [selectedMonth, setSelectedMonth] = useState<string>('2024-10');
-  
-    const handleMonthChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-      setSelectedMonth(event.target.value);
+const AttendanceTab: React.FC = () => {
+  const [attendance, setAttendance] = useState<any[]>([]);
+  const token = useSelector((state: RootState) => state.auth.token);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
+
+  useEffect(() => {
+    const loadAttendance = async () => {
+      if (token && userId) {
+        try {
+          const fetchedAttendance = await getAttendanceByUser(token, userId);
+          console.log("Fetched Attendance:", fetchedAttendance);
+          setAttendance(fetchedAttendance || []);
+        } catch (error) {
+          console.error("Failed to load attendance:", error);
+        }
+      }
     };
-  
-    return (
-      <div className="attendance-tab">
-        <header className="header">
-          <h2>Отслеживайте посещаемость вашего ребенка.</h2>
-        </header>
-  
-        <div className="month-select">
-          <label htmlFor="month-select">Выберите месяц:</label>
-          <select id="month-select" value={selectedMonth} onChange={handleMonthChange}>
-            <option value="2024-10">Октябрь 2024</option>
-            <option value="2024-09">Сентябрь 2024</option>
-            <option value="2024-08">Август 2024</option>
-          </select>
-        </div>
-  
-        <div className="attendance-cards">
-          {attendanceData.map((record, index) => (
-            <div key={index} className={`attendance-card ${record.attended ? 'attended' : 'absent'}`}>
-              <div className="card-date">{record.date}</div>
-              <div className="card-subject">{record.subject}</div>
-              <div className="card-status">
-                {record.attended ? 'Присутствовал' : 'Отсутствовал'}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-  
-  export default AttendanceTab;
+    loadAttendance();
+  }, [token, userId]);
+
+  return (
+    <div className="container mt-5">
+      <h2 className="text-3xl mb-4">Посещение</h2>
+      {attendance.length > 0 ? (
+        <table className="table table-bordered table-hover">
+          <thead className="thead-dark">
+            <tr>
+              <th>ID</th>
+              <th>Дата</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {attendance.map((att) => (
+              <tr key={att.id}>
+                <td>{att.id}</td>
+                <td>{att.lesson.date}</td>
+                <td>{att.attended ? "Посетил" : "Отсутствовал"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Нет доступных данных о посещаемости.</p>
+      )}
+    </div>
+  );
+};
+
+export default AttendanceTab;

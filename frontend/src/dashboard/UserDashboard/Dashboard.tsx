@@ -1,13 +1,13 @@
+// UserDashboard/UserDashboard.tsx
 import React, { useState } from "react";
 import AttendanceTab from "./AttendanceTab";
-import InvoicesTab from "./InvoicesTab";
+import InvoiceTab from "./InvoicesTab";
 import SettingsTab from "./SettingsTab";
 import { FaUserCheck, FaFileInvoice, FaCog } from "react-icons/fa";
 import "./css/UserDashboard.css";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { clearAuthToken } from "src/redux/authSlice";
-
 
 const UserDashboard: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Посещение");
@@ -24,7 +24,7 @@ const UserDashboard: React.FC = () => {
       case "Посещение":
         return <AttendanceTab />;
       case "Инвойсы":
-        return <InvoicesTab />;
+        return <InvoiceTab />;
       case "Настройки":
         return <SettingsTab />;
       default:

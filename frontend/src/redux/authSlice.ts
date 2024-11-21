@@ -1,11 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
+  user: any;
   token: string | null;
 }
 
 const initialState: AuthState = {
   token: localStorage.getItem('authToken'),
+  user: undefined
 };
 
 const authSlice = createSlice({
