@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,4 +16,5 @@ public class AttendanceDTO {
     private Long lessonId;
     private boolean attended;
     private LessonDTO lesson;
+    private LocalDate date;
 }
