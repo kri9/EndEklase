@@ -1,10 +1,15 @@
 package lv.app.backend.mappers;
 
 import lv.app.backend.dto.*;
-import lv.app.backend.model.*;
+import lv.app.backend.model.Attendance;
+import lv.app.backend.model.Child;
+import lv.app.backend.model.Invoice;
+import lv.app.backend.model.Lesson;
 import lv.app.backend.model.enums.AttendanceStatus;
-import org.mapstruct.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -25,6 +30,7 @@ public interface EntityMapper {
     @Mapping(target = "childId", source = "child.id")
     @Mapping(target = "lessonId", source = "lesson.id")
     @Mapping(target = "attended", source = "status", qualifiedByName = "mapAttendanceStatusToBoolean")
+    @Mapping(target = "date", source = "lesson.date")
     AttendanceDTO attendanceToDto(Attendance attendance);
 
 
