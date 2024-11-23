@@ -3,15 +3,15 @@ package lv.app.backend.service;
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.LoginUserDTO;
 import lv.app.backend.dto.UserDTO;
-import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.User;
 import lv.app.backend.model.enums.UserRole;
 import lv.app.backend.model.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +28,12 @@ public class UserService {
         User user = userMapper.dtoToUser(userDTO);
         user.setRole(UserRole.USER);
         return userRepository.save(user);
+    }
+
+    public User currentUser() {
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(principal.getUsername()));
     }
 
     @Transactional
