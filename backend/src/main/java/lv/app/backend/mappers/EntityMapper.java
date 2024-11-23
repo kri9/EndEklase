@@ -27,10 +27,12 @@ public interface EntityMapper {
     @Mapping(target = "attended", source = "status", qualifiedByName = "mapAttendanceStatusToBoolean")
     AttendanceDTO attendanceToDto(Attendance attendance);
 
+
     @Mapping(target = "child.id", source = "childId")
     @Mapping(target = "lesson.id", source = "lessonId")
     @Mapping(target = "status", source = "attended", qualifiedByName = "mapBooleanToAttendanceStatus")
     Attendance dtoToAttendance(AttendanceDTO attendanceDTO);
+
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "userFullName", source = "user.fullName")

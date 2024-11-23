@@ -10,6 +10,7 @@ import lv.app.backend.model.enums.UserRole;
 import lv.app.backend.model.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,4 +52,11 @@ public class UserService {
                 .map(u -> u.getRole().equals(UserRole.ADMIN))
                 .orElse(false);
     }
+
+    public Long getUserIdByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return user.getId();
+    }
+
 }
