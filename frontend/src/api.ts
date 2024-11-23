@@ -164,18 +164,10 @@ export const generateInvoices = async (data: { startDate: string, endDate: strin
   return await fetchFromBackendWithAuth('admin/invoices', 'POST', token, data);
 };
 
-export const getInvoicesByUser = async (token: string, userId: string) => {
-  const response = await fetchFromBackendWithAuth(`users/${userId}/invoices`, 'GET', token);
-  if (!response.ok) {
-    throw new Error('Failed to fetch invoices');
-  }
-  return await response.json();
+export const getInvoicesByUser = async (token: string) => {
+  return await fetchFromBackendWithAuth('user/invoices', 'GET', token);
 };
 
-export const getAttendanceByUser = async (token: string, userId: string) => {
-  const response = await fetchFromBackendWithAuth(`users/${userId}/attendances`, 'GET', token);
-  if (!response.ok) {
-    throw new Error('Failed to fetch attendance');
-  }
-  return await response.json();
+export const getAttendanceByUser = async (token: string) => {
+  return await fetchFromBackendWithAuth('user/attendances', 'GET', token);
 };

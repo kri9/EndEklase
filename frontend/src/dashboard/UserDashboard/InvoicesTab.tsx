@@ -6,13 +6,12 @@ import { RootState } from "src/redux/store";
 const InvoiceTab: React.FC = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const token = useSelector((state: RootState) => state.auth.token);
-  const userId = useSelector((state: RootState) => state.auth.user?.id);
 
   useEffect(() => {
     const loadInvoices = async () => {
-      if (token && userId) {
+      if (token) {
         try {
-          const fetchedInvoices = await getInvoicesByUser(token, userId);
+          const fetchedInvoices = await getInvoicesByUser(token);
           setInvoices(fetchedInvoices || []);
         } catch (error) {
           console.error("Failed to load invoices:", error);
@@ -20,7 +19,7 @@ const InvoiceTab: React.FC = () => {
       }
     };
     loadInvoices();
-  }, [token, userId]);
+  }, [token]);
 
   return (
     <div className="container mt-5">

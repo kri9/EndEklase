@@ -13,4 +13,5 @@ public class AttendanceDTO {
     private Long childId;
     private Long lessonId;
     private boolean attended;
+    private LessonDTO lesson;
 }
