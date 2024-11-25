@@ -32,6 +32,7 @@ public abstract class UserMapper {
 
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "invoices", ignore = true)
+    @Mapping(target = "password", qualifiedByName = "encodePassword", nullValuePropertyMappingStrategy = IGNORE)
     public abstract User dtoToUser(UserDTO userDTO);
 
 
