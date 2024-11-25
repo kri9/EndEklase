@@ -37,6 +37,13 @@
     border: 1px solid #007bff;
     font-size: 16px;
     color: #333;
+    background-color: #f9f9fc;
+    transition: border-color 0.3s;
+  }
+
+  .date-select input[type="date"]:focus {
+    border-color: #0056b3;
+    outline: none;
   }
   
   .invoices-cards {
@@ -54,10 +61,12 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   
   .invoice-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   }
   
   .invoice-header {
@@ -93,7 +102,8 @@
     margin-top: 10px;
     padding: 5px 10px;
     border-radius: 5px;
-    color: #fff;
+    color: #af0c0c;
+    display: inline-block;
   }
   
   .status.оплачен {
@@ -107,7 +117,7 @@
   .status.просрочен {
     background-color: #e74c3c;
   }
-  
+
   .download-button {
     display: flex;
     align-items: center;
@@ -125,3 +135,29 @@
     background-color: #0056b3;
   }
   
+  .buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+  }
+  
+  .pay-button {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .pay-button:hover {
+    background-color: #218838;
+  }
+  
+  .pay-button .icon-pay {
+    font-size: 18px;
+    margin-right: 5px;
+  }
