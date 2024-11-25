@@ -78,12 +78,7 @@ public class InvoiceService {
             makeSingleInvoice(dto, user);
             return;
         }
-        Supplier<Double> costRateGenerator = getCostRateGenerator(user);
-        user.getChildren().forEach(c -> {
-            List<Attendance> attendancesToPay = getAttendancesToPay(c, dto.getLessonIds());
-            setAttendanceCost(attendancesToPay, costRateGenerator, user);
-            formInvoice(c.getParent(), attendancesToPay);
-        });
+        makeInvoicesForEachChild(dto, user);
     }
 
     @Transactional
@@ -99,6 +94,16 @@ public class InvoiceService {
         return invoices.stream()
                 .map(entityMapper::invoiceToDto)
                 .collect(Collectors.toList());
+    }
+
+    private void makeInvoicesForEachChild(InvoiceCreateDTO dto, User user) {
+        Supplier<Double> costRateGenerator = getCostRateGenerator(user);
+        user.getChildren().forEach(c -> {
+            double multiChildDiscount = costRateGenerator.get();
+            List<Attendance> attendancesToPay = getAttendancesToPay(c, dto.getLessonIds());
+            setAttendanceCost(attendancesToPay, multiChildDiscount, user);
+            formInvoice(c.getParent(), attendancesToPay);
+        });
     }
 
     private void createManualInvoice(InvoiceCreateDTO dto, User user) {
@@ -120,13 +125,13 @@ public class InvoiceService {
         List<List<Attendance>> attendancesToPay = user.getChildren().stream()
                 .map(c -> getAttendancesToPay(c, dto.getLessonIds()))
                 .toList();
-        attendancesToPay.forEach(ats -> setAttendanceCost(ats, costRateGenerator, user));
+        attendancesToPay.forEach(ats -> setAttendanceCost(ats, costRateGenerator.get(), user));
         formInvoice(user, flatten(attendancesToPay));
     }
 
-    private void setAttendanceCost(List<Attendance> ats, Supplier<Double> costRateGenerator, User user) {
+    private void setAttendanceCost(List<Attendance> ats, double multiChildDiscount, User user) {
         double discountRate = getDiscountRate(user);
-        ats.forEach(a -> a.setCost(Math.round(cost * costRateGenerator.get() * discountRate)));
+        ats.forEach(a -> a.setCost(Math.round(cost * multiChildDiscount * discountRate)));
     }
 
     private double getDiscountRate(User user) {
