@@ -27,6 +27,7 @@ public class Attendance {
     private AttendanceStatus status = AttendanceStatus.NOT_ATTENDED;
     @ManyToOne
     private Invoice invoice;
+    private Long cost;
 
 
     public boolean isAttended() {
