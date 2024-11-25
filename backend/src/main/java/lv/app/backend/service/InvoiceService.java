@@ -78,7 +78,7 @@ public class InvoiceService {
             makeSingleInvoice(dto, user);
             return;
         }
-        Supplier<Double> costRateGenerator = getCostRateGenerator();
+        Supplier<Double> costRateGenerator = getCostRateGenerator(user);
         user.getChildren().forEach(c -> {
             List<Attendance> attendancesToPay = getAttendancesToPay(c, dto.getLessonIds());
             setAttendanceCost(attendancesToPay, costRateGenerator, user);
@@ -116,7 +116,7 @@ public class InvoiceService {
     }
 
     private void makeSingleInvoice(InvoiceCreateDTO dto, User user) {
-        Supplier<Double> costRateGenerator = getCostRateGenerator();
+        Supplier<Double> costRateGenerator = getCostRateGenerator(user);
         List<List<Attendance>> attendancesToPay = user.getChildren().stream()
                 .map(c -> getAttendancesToPay(c, dto.getLessonIds()))
                 .toList();
@@ -165,8 +165,11 @@ public class InvoiceService {
         });
     }
 
-    private Supplier<Double> getCostRateGenerator() {
+    private Supplier<Double> getCostRateGenerator(User user) {
         AtomicInteger call = new AtomicInteger();
+        if (user.getChildren().size() <= 1) {
+            return () -> 1.;
+        }
         return () -> {
             int callNum = call.incrementAndGet();
             if (callNum == 1) return 1.; // First child - full rate
