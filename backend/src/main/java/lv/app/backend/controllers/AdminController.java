@@ -7,6 +7,8 @@ import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -34,6 +36,7 @@ public class AdminController {
     private final UserRepository userRepository;
     private final InvoiceService invoiceService;
     private final KindergartenService kindergartenService;
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     @ResponseBody
     @GetMapping("/user/{userId}")
@@ -86,7 +89,11 @@ public class AdminController {
         childService.saveChild(childDTO);
         return ResponseEntity.ok().build();
     }
-
+    @PostMapping("/children/delete")
+    public ResponseEntity<Void> deleteChildren(@RequestBody List<Long> childIds) {
+        childService.deleteChildren(childIds);
+        return ResponseEntity.ok().build();
+    }
     @PatchMapping("/children")
     public ResponseEntity<Void> addChild(@RequestBody List<ChildDTO> children) {
         childService.updateChildren(children);

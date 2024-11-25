@@ -95,6 +95,10 @@ export const addChild = async (
   return await fetchFromBackendWithAuth('admin/children', 'POST', token, body);
 };
 
+export const deleteChildren = async (token: string, childIds: number[]) => {
+  return await fetchFromBackendWithAuth('admin/children/delete', 'POST', token, childIds);
+};
+
 export const getKindergartens = async (token: string) => {
   return await fetchFromBackendWithAuth('admin/kindergartens', 'GET', token);
 };
