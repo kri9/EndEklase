@@ -59,4 +59,14 @@ public class ChildService {
             childRepository.save(p.getFirst());
         });
     }
+
+    @Transactional
+    public void deleteChild(Long childId) {
+        childRepository.deleteById(childId);
+    }
+    @Transactional
+    public void deleteChildren(List<Long> childIds) {
+        childRepository.deleteAllByIdInBatch(childIds);
+    }
+
 }
