@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -82,8 +81,8 @@ public class InvoiceService {
         Supplier<Double> costRateGenerator = getCostRateGenerator();
         user.getChildren().forEach(c -> {
             List<Attendance> attendancesToPay = getAttendancesToPay(c, dto.getLessonIds());
-            long round = getCost(attendancesToPay, costRateGenerator, user);
-            formInvoice(round, c.getParent(), attendancesToPay);
+            setAttendanceCost(attendancesToPay, costRateGenerator, user);
+            formInvoice(c.getParent(), attendancesToPay);
         });
     }
 
@@ -101,6 +100,7 @@ public class InvoiceService {
                 .map(entityMapper::invoiceToDto)
                 .collect(Collectors.toList());
     }
+
     private void createManualInvoice(InvoiceCreateDTO dto, User user) {
         Invoice invoice = entityMapper.dtoToInvoice(dto);
         invoice.setUser(user);
@@ -112,6 +112,7 @@ public class InvoiceService {
         coveredAttendances.forEach(a -> a.setInvoice(invoice));
         invoice.setAttendances(coveredAttendances);
         invoiceRepository.saveAndFlush(invoice);
+        log.trace("Created manual invoice: {}", invoice);
     }
 
     private void makeSingleInvoice(InvoiceCreateDTO dto, User user) {
@@ -119,17 +120,20 @@ public class InvoiceService {
         List<List<Attendance>> attendancesToPay = user.getChildren().stream()
                 .map(c -> getAttendancesToPay(c, dto.getLessonIds()))
                 .toList();
-        long sum = attendancesToPay.stream()
-                .mapToLong(ats -> getCost(ats, costRateGenerator, user))
-                .sum();
-        formInvoice(sum, user, flatten(attendancesToPay));
+        attendancesToPay.forEach(ats -> setAttendanceCost(ats, costRateGenerator, user));
+        formInvoice(user, flatten(attendancesToPay));
     }
 
-    private long getCost(List<Attendance> ats, Supplier<Double> costRateGenerator, User user) {
-        long initialSum = Math.round(ats.size() * cost * costRateGenerator.get());
-        return Optional.ofNullable(user.getDiscountRate())
-                .map(d -> Math.round(initialSum * ((100 - d) / 100)))
-                .orElse(initialSum);
+    private void setAttendanceCost(List<Attendance> ats, Supplier<Double> costRateGenerator, User user) {
+        double discountRate = getDiscountRate(user);
+        ats.forEach(a -> a.setCost(Math.round(cost * costRateGenerator.get() * discountRate)));
+    }
+
+    private double getDiscountRate(User user) {
+        if (user.getDiscountRate() == null) {
+            return 1;
+        }
+        return (100 - user.getDiscountRate()) / 100;
     }
 
     private List<Attendance> getAttendancesToPay(Child child, List<Long> lessonsToPay) {
@@ -138,11 +142,14 @@ public class InvoiceService {
                 .toList();
     }
 
-    private void formInvoice(Long invoiceAmount, User user, List<Attendance> attendancesToPay) {
+    private void formInvoice(User user, List<Attendance> attendancesToPay) {
         if (attendancesToPay.isEmpty()) {
             log.trace("No attendances to pay for user {}", user);
             return;
         }
+        long invoiceAmount = attendancesToPay.stream()
+                .mapToLong(Attendance::getCost)
+                .sum();
         LocalDate currentDate = LocalDate.now();
         Invoice savedInvoice = invoiceRepository.save(Invoice.builder()
                 .attendances(attendancesToPay)
@@ -151,6 +158,7 @@ public class InvoiceService {
                 .dueDate(currentDate.plusWeeks(2))
                 .user(user)
                 .build());
+        log.trace("Created invoice: {}", savedInvoice);
         attendancesToPay.forEach(a -> {
             a.setInvoice(savedInvoice);
             attendanceRepository.save(a);

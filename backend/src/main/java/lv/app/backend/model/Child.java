@@ -32,10 +32,7 @@ public class Child implements IdSupplier {
     private String lastname;
     private String firstname;
 
-    public List<Lesson> getAttendedLessons() {
-        return getAttendances().stream()
-                .filter(Attendance::isAttended)
-                .map(Attendance::getLesson)
-                .toList();
+    public String getFullName() {
+        return getFirstname() + " " + getLastname();
     }
 }
