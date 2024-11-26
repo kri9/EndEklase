@@ -46,7 +46,7 @@ public class UserController {
 
     @GetMapping("/invoice/{invoiceId}/pdf")
     public ResponseEntity<InputStreamResource> downloadInvoice(@PathVariable Long invoiceId) {
-        ByteArrayInputStream invoice = pdfInvoiceGenerator.generateInvoice(invoiceId);
+        ByteArrayInputStream invoice = pdfInvoiceGenerator.generateInvoiceUser(invoiceId);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "inline; filename=invoice.pdf");
         return ResponseEntity.ok()

@@ -267,3 +267,20 @@ h1 {
   pointer-events: none;
 }
 
+  .download-button {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: auto;
+  }
+  
+  .download-button:hover {
+    background-color: #0056b3;
+  }
+

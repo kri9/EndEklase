@@ -4,6 +4,7 @@ import { getInvoicesByUser } from "src/api";
 import { useSelector } from "react-redux";
 import { RootState } from "src/redux/store";
 import "./css/InvoiceTab.css";
+import { handleDownloadPDF } from "src/general";
 
 const InvoiceTab: React.FC = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -37,29 +38,6 @@ const InvoiceTab: React.FC = () => {
     loadInvoices();
   }, [token]);
 
-  const handleDownloadPDF = async (invoiceId: number) => {
-    try {
-      const response = await fetch(`/api/user/invoice/${invoiceId}/pdf`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Не удалось скачать PDF.");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `invoice_${invoiceId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Ошибка при скачивании PDF:", error);
-    }
-  };
 
   return (
     <div className="invoices-tab">

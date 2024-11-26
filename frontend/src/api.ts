@@ -63,13 +63,16 @@ export const fetchFromBackendWithAuth = async (
 
   try {
     const response = await fetch(`${window.origin}/api/${endpoint}`, options);
-    const responseText = await response.text();
-    console.debug(`Response from ${endpoint}:`, responseText);
 
     if (!response.ok) {
       throw new Error(`Ошибка: ${response.status} ${response.statusText} - ${responseText}`);
     }
-
+    if (response.headers.get('Content-Disposition')?.includes('filename')) {
+      console.log('Blob response received');
+      return response.blob();
+    }
+    const responseText = await response.text();
+    console.debug(`Response from ${endpoint}:`, responseText);
     return responseText ? JSON.parse(responseText) : { success: true };
   } catch (error) {
     console.error(`Ошибка при выполнении запроса к ${endpoint}:`, error);
@@ -96,7 +99,7 @@ export const addChild = async (
 };
 
 export const deleteChildren = async (token: string, childIds: number[]) => {
-  return await fetchFromBackendWithAuth('admin/children/delete', 'POST', token, childIds);
+  return await fetchFromBackendWithAuth('admin/children', 'DELETE', token, childIds);
 };
 
 export const getKindergartens = async (token: string) => {
