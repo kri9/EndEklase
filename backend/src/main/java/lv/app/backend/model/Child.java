@@ -3,6 +3,7 @@ package lv.app.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lv.app.backend.common.IdSupplier;
+import org.hibernate.annotations.SoftDelete;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @Setter
 @Entity
 @Builder
+@SoftDelete
 @ToString(of = {"id"})
 @EqualsAndHashCode
 @NoArgsConstructor
@@ -28,6 +30,7 @@ public class Child implements IdSupplier {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
     @OneToMany(mappedBy = "child")
+    // If you ever add REMOVE cascading, make sure to fix ChildService deletion to only delete child
     private List<Attendance> attendances = new ArrayList<>();
     private String lastname;
     private String firstname;

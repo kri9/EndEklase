@@ -11,8 +11,10 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
 import lv.app.backend.model.User;
+import lv.app.backend.model.repository.ChildRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ import static lv.app.backend.util.Common.singleResult;
 public class PDFInvoiceGenerator {
 
     private final UserService userService;
+    private final ChildRepository childRepository;
 
     @Transactional
     public ByteArrayInputStream generateInvoice(Long invoiceId) {
@@ -86,11 +89,12 @@ public class PDFInvoiceGenerator {
         table.addHeaderCell(new Cell().add(new Paragraph("Lesson Cost")).setBackgroundColor(new DeviceRgb(211, 211, 211)));
         AtomicReference<Integer> i = new AtomicReference<>(0);
         invoice.getAttendances().forEach(a -> {
+            Child child = childRepository.findEvenDeletedChild(a.getId());
             i.getAndSet(i.get() + 1);
             table.addCell(new Cell().add(new Paragraph(i.toString())));
             table.addCell(new Cell().add(new Paragraph(a.getLesson().getTopic())));
             table.addCell(new Cell().add(new Paragraph(String.valueOf(a.getLesson().getDate()))));
-            table.addCell(new Cell().add(new Paragraph(a.getChild().getFullName())));
+            table.addCell(new Cell().add(new Paragraph(child.getFullName())));
             table.addCell(new Cell().add(new Paragraph(String.valueOf(a.getCost()))));
         });
         document.add(table);

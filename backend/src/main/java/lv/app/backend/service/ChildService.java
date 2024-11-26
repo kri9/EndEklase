@@ -61,10 +61,6 @@ public class ChildService {
     }
 
     @Transactional
-    public void deleteChild(Long childId) {
-        childRepository.deleteById(childId);
-    }
-    @Transactional
     public void deleteChildren(List<Long> childIds) {
         childRepository.deleteAllByIdInBatch(childIds);
     }

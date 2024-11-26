@@ -3,6 +3,7 @@ package lv.app.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lv.app.backend.model.enums.UserRole;
+import org.hibernate.annotations.SoftDelete;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,7 @@ import java.util.List;
 @Setter
 @Entity
 @Builder
+@SoftDelete
 @ToString(of = {"id", "username"})
 @EqualsAndHashCode
 @NoArgsConstructor
