@@ -1,13 +1,16 @@
 package lv.app.backend.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import lv.app.backend.model.enums.AttendanceStatus;
+import org.hibernate.annotations.SoftDelete;
 
 @Getter
 @Setter
 @Entity
 @Builder
+@SoftDelete
 @ToString(of = {"id"})
 @EqualsAndHashCode
 @NoArgsConstructor
@@ -20,6 +23,7 @@ public class Attendance {
     private Long id;
     @ManyToOne
     private Lesson lesson;
+    @Nullable
     @ManyToOne
     private Child child;
     @Builder.Default

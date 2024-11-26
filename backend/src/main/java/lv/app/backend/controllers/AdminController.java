@@ -83,13 +83,13 @@ public class AdminController {
         return ResponseEntity.ok(lessons);
     }
 
-
     @PostMapping("/children")
     public ResponseEntity<Void> addChild(@RequestBody ChildDTO childDTO) {
         childService.saveChild(childDTO);
         return ResponseEntity.ok().build();
     }
-    @PostMapping("/children/delete")
+
+    @DeleteMapping("/children")
     public ResponseEntity<Void> deleteChildren(@RequestBody List<Long> childIds) {
         childService.deleteChildren(childIds);
         return ResponseEntity.ok().build();

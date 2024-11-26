@@ -3,6 +3,7 @@ package lv.app.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import lv.app.backend.model.enums.InvoiceStatus;
+import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 @Setter
 @Entity
 @Builder
+@SoftDelete
 @ToString(of = {"id"})
 @EqualsAndHashCode
 @NoArgsConstructor
