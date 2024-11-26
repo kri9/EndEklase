@@ -15,12 +15,15 @@ import lv.app.backend.model.repository.InvoiceRepository;
 import lv.app.backend.model.repository.LessonRepository;
 import lv.app.backend.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static lv.app.backend.util.Common.flatten;
@@ -97,9 +100,9 @@ public class InvoiceService {
     }
 
     private void makeInvoicesForEachChild(InvoiceCreateDTO dto, User user) {
-        Supplier<Double> costRateGenerator = getCostRateGenerator(user);
+        Function<Child, Double> costRateGenerator = getCostRateGenerator(user);
         user.getChildren().forEach(c -> {
-            double multiChildDiscount = costRateGenerator.get();
+            double multiChildDiscount = costRateGenerator.apply(c);
             List<Attendance> attendancesToPay = getAttendancesToPay(c, dto.getLessonIds());
             setAttendanceCost(attendancesToPay, multiChildDiscount, user);
             formInvoice(c.getParent(), attendancesToPay);
@@ -121,12 +124,12 @@ public class InvoiceService {
     }
 
     private void makeSingleInvoice(InvoiceCreateDTO dto, User user) {
-        Supplier<Double> costRateGenerator = getCostRateGenerator(user);
-        List<List<Attendance>> attendancesToPay = user.getChildren().stream()
-                .map(c -> getAttendancesToPay(c, dto.getLessonIds()))
+        Function<Child, Double> costRateGenerator = getCostRateGenerator(user);
+        List<Pair<Child, List<Attendance>>> attendancesToPay = user.getChildren().stream()
+                .map(c -> Pair.of(c, getAttendancesToPay(c, dto.getLessonIds())))
                 .toList();
-        attendancesToPay.forEach(ats -> setAttendanceCost(ats, costRateGenerator.get(), user));
-        formInvoice(user, flatten(attendancesToPay));
+        attendancesToPay.forEach(p -> setAttendanceCost(p.getSecond(), costRateGenerator.apply(p.getFirst()), user));
+        formInvoice(user, flatten(attendancesToPay.stream().map(Pair::getSecond).toList()));
     }
 
     private void setAttendanceCost(List<Attendance> ats, double multiChildDiscount, User user) {
@@ -170,12 +173,17 @@ public class InvoiceService {
         });
     }
 
-    private Supplier<Double> getCostRateGenerator(User user) {
-        AtomicInteger call = new AtomicInteger();
+    private Function<Child, Double> getCostRateGenerator(User user) {
         if (user.getChildren().size() <= 1) {
-            return () -> 1.;
+            return c -> 1.;
         }
-        return () -> {
+        AtomicInteger call = new AtomicInteger();
+        Set<Child> children = new HashSet<>();
+        return c -> {
+            if (children.contains(c)) {
+                throw new RuntimeException("Duplicate child given");
+            }
+            children.add(c);
             int callNum = call.incrementAndGet();
             if (callNum == 1) return 1.; // First child - full rate
             if (callNum == 2) return 0.5; // Second child - 0.5 rate
