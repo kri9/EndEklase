@@ -15,6 +15,7 @@ import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
 import lv.app.backend.model.User;
 import lv.app.backend.model.repository.ChildRepository;
+import lv.app.backend.model.repository.InvoiceRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +32,24 @@ public class PDFInvoiceGenerator {
 
     private final UserService userService;
     private final ChildRepository childRepository;
+    private final InvoiceRepository invoiceRepository;
 
     @Transactional
-    public ByteArrayInputStream generateInvoice(Long invoiceId) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+    public ByteArrayInputStream generateInvoiceAdmin(Long invoiceId) {
+        Invoice invoice = invoiceRepository.getReferenceById(invoiceId);
+        return generateInvoice(invoice);
+    }
+
+    @Transactional
+    public ByteArrayInputStream generateInvoiceUser(Long invoiceId) {
         Invoice invoice = userService.currentUser().getInvoices().stream()
                 .filter(i -> i.getId().equals(invoiceId))
                 .collect(singleResult());
+        return generateInvoice(invoice);
+    }
+
+    private ByteArrayInputStream generateInvoice(Invoice invoice) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try (PdfWriter writer = new PdfWriter(out); PdfDocument pdfDoc = new PdfDocument(writer)) {
             Document document = new Document(pdfDoc);

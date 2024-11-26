@@ -9,11 +9,14 @@ import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -35,6 +38,7 @@ public class AdminController {
     private final LessonService lessonService;
     private final UserRepository userRepository;
     private final InvoiceService invoiceService;
+    private final PDFInvoiceGenerator pdfInvoiceGenerator;
     private final KindergartenService kindergartenService;
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
@@ -165,6 +169,17 @@ public class AdminController {
         return userRepository.findAll().stream()
                 .map(u -> new Records.UserInfo(u.getId(), u.getFullName()))
                 .toList();
+    }
+
+    @GetMapping("/invoice/{invoiceId}/pdf")
+    public ResponseEntity<InputStreamResource> downloadInvoice(@PathVariable Long invoiceId) {
+        ByteArrayInputStream invoice = pdfInvoiceGenerator.generateInvoiceAdmin(invoiceId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=invoice.pdf");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(invoice));
     }
 
 //    @GetMapping("users/{userId}/invoices")

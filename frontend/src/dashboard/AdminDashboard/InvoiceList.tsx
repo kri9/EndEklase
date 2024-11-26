@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { FaDownload } from "react-icons/fa";
+import { getRequest } from "src/api";
+import { handleDownloadPDF, handleDownloadPDFAdmin } from "src/general";
 
 interface InvoiceListProps {
   invoices: any[];
@@ -23,6 +26,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
   editingInvoice,
   setEditingInvoice,
 }) => {
+
   const filteredInvoices = invoices.filter((invoice) => {
     return (
       (!filters.fullName || (invoice.userFullName && invoice.userFullName.toLowerCase().includes(filters.fullName.toLowerCase()))) &&
@@ -211,9 +215,18 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                       </button>
                     </div>
                   ) : (
-                    <button onClick={() => onEdit(invoice)} className="btn btn-primary">
-                      Редактировать
-                    </button>
+                    <div className="flex flex-col">
+                      <button onClick={() => onEdit(invoice)} className="btn btn-primary">
+                        Редактировать
+                      </button>
+                      <button
+                        className="flex btn btn-primary mt-1 justify-center"
+                        onClick={() => handleDownloadPDFAdmin(invoice.id)}
+                      >
+                        <FaDownload className="icon-download" />
+                        Скачать PDF
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>
