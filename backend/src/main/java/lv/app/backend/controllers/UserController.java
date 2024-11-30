@@ -7,14 +7,12 @@ import lv.app.backend.service.InvoiceService;
 import lv.app.backend.service.LessonService;
 import lv.app.backend.service.PDFInvoiceGenerator;
 import lv.app.backend.service.UserService;
+import lv.app.backend.service.ext.KlixPaymentFormationService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -28,6 +26,7 @@ public class UserController {
     private final LessonService lessonService;
     private final InvoiceService invoiceService;
     private final PDFInvoiceGenerator pdfInvoiceGenerator;
+    private final KlixPaymentFormationService klixPaymentFormationService;
 
 
     @GetMapping("/invoices")
@@ -53,6 +52,11 @@ public class UserController {
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(invoice));
+    }
+
+    @GetMapping("/invoice/{invoiceId}/pay")
+    public String getPaymentUrl(@PathVariable Long invoiceId) {
+        return klixPaymentFormationService.getPaymentUrl(invoiceId);
     }
 
 }
