@@ -8,6 +8,7 @@ import org.hibernate.annotations.SoftDelete;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,12 +19,16 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "invoice")
+@Table(name = "invoice", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "uuid")
+})
 public class Invoice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Builder.Default
+    private UUID uuid = UUID.randomUUID();
     @ManyToOne
     private User user;
     @OneToMany(mappedBy = "invoice")
