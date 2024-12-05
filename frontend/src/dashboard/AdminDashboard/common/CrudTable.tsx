@@ -1,11 +1,20 @@
-import { useEffect, useState } from "react";
+import { ReactElement, TouchList, useEffect, useState } from "react";
 import { DeleteIcon, EditIcon } from "src/assets/Icons";
+import { IdSupplier } from "src/common/interfaces";
+import Modal from "src/common/Modal";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-interface CrudTableProps<T extends object> {
+interface CrudTableProps<T extends IdSupplier> {
   items: T[];
   columns?: string[];
   onDelete: (item: T) => void;
+  editFormSupplier: (item: T, closeForm: () => void) => ReactElement;
+}
+
+interface CrudRowProps<T extends IdSupplier> {
+  item: T;
+  deleteItem: () => void;
+  editFormSupplier: (item: T, closeForm: () => void) => ReactElement;
 }
 
 function ActionButton(props: any) {
@@ -16,7 +25,35 @@ function ActionButton(props: any) {
   );
 }
 
-export default function CrudTable<T extends object>(props: CrudTableProps<T>) {
+function CrudTableRow<T extends IdSupplier>(props: CrudRowProps<T>) {
+  const [openModal, setOpenModal] = useState(false);
+  return (
+    <>
+      <Modal isOpen={openModal}>
+        {props.editFormSupplier(props.item, () => setOpenModal(false))}
+      </Modal>
+      <tr key={props.item.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+        {Object.values(props.item).map((v: any, index) => {
+          return <th key={index} className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{v}</th>;
+        })}
+        <th>
+          <div className="flex align-center justify-center">
+            <ActionButton onClick={() => {
+              setOpenModal(true);
+            }}>
+              <EditIcon />
+            </ActionButton>
+            <ActionButton onClick={props.deleteItem}>
+              <DeleteIcon />
+            </ActionButton>
+          </div>
+        </th>
+      </tr>
+    </>
+  );
+}
+
+export default function CrudTable<T extends IdSupplier>(props: CrudTableProps<T>) {
   const [items, setItems] = useState(props.items);
   useEffect(() => setItems(props.items), [props.items])
   const columns = props.columns || (items.length ? Object.keys(items[0]) : []);
@@ -35,25 +72,14 @@ export default function CrudTable<T extends object>(props: CrudTableProps<T>) {
         </tr>
       </thead>
       <tbody>
-        {items.map((it, index) =>
-          <tr key={index} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-            {Object.values(it).map((v: any, index) => {
-              return <th key={index} className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{v}</th>;
-            })}
-            <th>
-              <div className="flex align-center justify-center">
-                <ActionButton>
-                  <EditIcon />
-                </ActionButton>
-                <ActionButton onClick={() => {
-                  props.onDelete(it);
-                  setItems(items.filter(i => i != it))
-                }}>
-                  <DeleteIcon />
-                </ActionButton>
-              </div>
-            </th>
-          </tr>)}
+        {items.map((it) => <CrudTableRow
+          editFormSupplier={props.editFormSupplier}
+          item={it}
+          deleteItem={() => {
+            props.onDelete(it);
+            setItems(items.filter(i => i != it))
+          }}
+        />)}
       </tbody>
     </table>
   </>);

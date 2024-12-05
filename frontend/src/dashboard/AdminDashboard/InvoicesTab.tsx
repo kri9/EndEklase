@@ -98,7 +98,18 @@ const InvoicesTab: React.FC = () => {
         <InvoiceForm usersInfo={usersInfo} lessons={lessons} onSave={handleInvoiceSave} />
         <GenerateInvoicesForm kindergartens={kindergartens} onGenerate={handleGenerateInvoices} />
       </div>
-      <CrudTable items={invoices} onDelete={it => console.log(`Deleted ${JSON.stringify(it)}`)} />
+      <CrudTable
+        items={invoices}
+        onDelete={it => console.log(`Deleted ${JSON.stringify(it)}`)}
+        editFormSupplier={(it, close) => {
+          return (
+            <>
+              <div>TEST</div>
+              <button onClick={close}>close modal</button>
+            </>
+          );
+        }}
+      />
       {/*
       <InvoiceList
         invoices={invoices}
