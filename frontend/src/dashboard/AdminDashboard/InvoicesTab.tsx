@@ -5,6 +5,7 @@ import { RootState } from "src/redux/store";
 import InvoiceForm from "./InvoiceForm";
 import GenerateInvoicesForm from "./GenerateInvoicesForm";
 import InvoiceList from "./InvoiceList";
+import CrudTable from "./common/CrudTable";
 
 const InvoicesTab: React.FC = () => {
   const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>([]);
@@ -97,6 +98,8 @@ const InvoicesTab: React.FC = () => {
         <InvoiceForm usersInfo={usersInfo} lessons={lessons} onSave={handleInvoiceSave} />
         <GenerateInvoicesForm kindergartens={kindergartens} onGenerate={handleGenerateInvoices} />
       </div>
+      <CrudTable items={invoices} onDelete={it => console.log(`Deleted ${JSON.stringify(it)}`)} />
+      {/*
       <InvoiceList
         invoices={invoices}
         filters={filters}
@@ -108,6 +111,7 @@ const InvoicesTab: React.FC = () => {
         editingInvoice={editingInvoice}
         setEditingInvoice={setEditingInvoice}
       />
+      */}
     </div>
   );
 };
