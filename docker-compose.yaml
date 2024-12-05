@@ -39,14 +39,14 @@ services:
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_PASSWORD: SomeKindOfSorta123GoodPassword!
     volumes:
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - 5432:5432
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8083:8080
+  #  adminer:
+  #    image: adminer
+  #    restart: always
+  #    ports:
+  #      - 8083:8080
