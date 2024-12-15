@@ -6,13 +6,20 @@ import InvoiceForm from "./InvoiceForm";
 import GenerateInvoicesForm from "./GenerateInvoicesForm";
 import InvoiceList from "./InvoiceList";
 import CrudTable from "./common/CrudTable";
+import RootObjectForm from "./common/RootObjectForm";
+import TextInput from "./common/TextInput";
+import BooleanInput from "./common/BooleanInput";
+import NumberInput from "./common/NumberInput";
+import { InvoiceDTO, InvoiceEditDTO, LessonDTO } from "src/common/interfaces";
+import MultiSelect from "./common/MultiSelect";
+import { sortBy } from "src/common/utils";
 
 const InvoicesTab: React.FC = () => {
   const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>([]);
-  const [lessons, setLessons] = useState<any[]>([]);
+  const [lessons, setLessons] = useState<LessonDTO[]>([]);
   const [groups, setGroups] = useState<any[]>([]);
   const [kindergartens, setKindergartens] = useState<any[]>([]);
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<InvoiceDTO[]>([]);
   const [filters, setFilters] = useState<any>({
     fullName: "",
     dateIssuedFrom: "",
@@ -102,10 +109,30 @@ const InvoicesTab: React.FC = () => {
         items={invoices}
         onDelete={it => console.log(`Deleted ${JSON.stringify(it)}`)}
         editFormSupplier={(it, close) => {
+          const [item, setItem] = useState<InvoiceEditDTO>({ ...it, lessons: [] });
+          useEffect(() => setItem({ ...it, lessons: [] }), [it]);
           return (
             <>
-              <div>TEST</div>
-              <button onClick={close}>close modal</button>
+              <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
+                <NumberInput field="amount" header="Сумма" />
+                <MultiSelect field="lessons" columns={["A", "B"]}
+                  columnMap={{
+                    "id": "ID Урока",
+                    "topic": "Тема",
+                    "date": "Дата"
+                  }}
+                  options={lessons
+                    .map((i, index) => ({ ...i, name: `${i.topic} (${i.date})` }))
+                    .sort(sortBy<LessonDTO>(i => new Date(i.date)))}
+                />
+                <button onClick={() => {
+                  it.amount = item.amount;
+                  console.log("save");
+                  close();
+                }} className="btn btn-primary mt-3">
+                  Сохранить
+                </button>
+              </RootObjectForm>
             </>
           );
         }}
