@@ -117,6 +117,12 @@ public class AdminController {
         return ResponseEntity.ok(lessons);
     }
 
+    @GetMapping("/user/{userId}/lessons")
+    public ResponseEntity<List<LessonDTO>> getLessonsByUser(@PathVariable Long userId) {
+        List<LessonDTO> lessons = lessonService.getLessonsByUser(userId);
+        return ResponseEntity.ok(lessons);
+    }
+
     @PostMapping("/invoices")
     public ResponseEntity<Void> createInvoices(@RequestBody Map<String, LocalDate> request) {
         LocalDate startDate = request.get("startDate");

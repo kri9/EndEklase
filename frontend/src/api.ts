@@ -131,6 +131,10 @@ export const getLessonsByGroup = async (token: string, groupId: string) => {
   return await fetchFromBackendWithAuth(`admin/groups/${groupId}/lessons`, 'GET', token);
 };
 
+export const getLessonsByUser = async (token: string, userId: number) => {
+  return await fetchFromBackendWithAuth(`admin/user/${userId}/lessons`, "GET", token);
+};
+
 export const getLessons = async (token: string) => {
   return await fetchFromBackendWithAuth('admin/lessons', 'GET', token);
 };

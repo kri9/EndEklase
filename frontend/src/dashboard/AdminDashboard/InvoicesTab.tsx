@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getRequest, postRequest, putRequest, deleteInvoice } from "src/api";
+import { getRequest, postRequest, putRequest, deleteInvoice, getLessonsByUser } from "src/api";
 import { RootState } from "src/redux/store";
 import InvoiceForm from "./InvoiceForm";
 import GenerateInvoicesForm from "./GenerateInvoicesForm";
@@ -8,27 +8,22 @@ import CrudTable from "./common/CrudTable";
 import RootObjectForm from "./common/RootObjectForm";
 import NumberInput from "./common/NumberInput";
 import {
-  IdSupplier,
   InvoiceDTO,
   InvoiceEditDTO,
   LessonDTO,
 } from "src/common/interfaces";
 import MultiSelect from "./common/MultiSelect";
-import { sortBy } from "src/common/utils";
 
 const InvoicesTab: React.FC = () => {
-  const [usersInfo, setUsersInfo] = useState<
-    { id: number; fullName: string }[]
-  >([]);
+  const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>([]);
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
   const [invoices, setInvoices] = useState<InvoiceDTO[]>([]);
+  const [userLessons, setUserLessons] = useState<LessonDTO[]>([]);
 
   const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
-    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(
-      setUsersInfo
-    );
+    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(setUsersInfo);
     loadLessons();
     loadInvoices();
   }, []);
@@ -49,10 +44,7 @@ const InvoicesTab: React.FC = () => {
 
   const handleDeleteInvoice = async (invoice: InvoiceDTO) => {
     if (!token || invoice.id === undefined) return;
-
-    if (
-      window.confirm(`Вы уверены, что хотите удалить инвойс №${invoice.id}?`)
-    ) {
+    if (window.confirm(`Вы уверены, что хотите удалить инвойс №${invoice.id}?`)) {
       await deleteInvoice(token, invoice.id);
       setInvoices((prev) => prev.filter((i) => i.id !== invoice.id));
     }
@@ -67,25 +59,16 @@ const InvoicesTab: React.FC = () => {
       alert("Ошибка при сохранении инвойса");
     }
   };
-  
 
   return (
     <div>
       <h2 className="text-3xl">Выставление счетов</h2>
       <div className="d-flex">
-        <InvoiceForm
-          usersInfo={usersInfo}
-          lessons={lessons}
-          onSave={handleInvoiceSave}
-        />
+        <InvoiceForm usersInfo={usersInfo} lessons={lessons} onSave={handleInvoiceSave} />
         <GenerateInvoicesForm kindergartens={[]} onGenerate={undefined} />
       </div>
       <CrudTable
-        items={
-          invoices.filter(
-            (inv) => inv.id !== undefined
-          ) as Required<InvoiceDTO>[]
-        }
+        items={invoices as Required<InvoiceDTO>[]}
         onDelete={(item) => {
           const invoice = invoices.find((inv) => inv.id === item.id);
           if (invoice) {
@@ -99,11 +82,10 @@ const InvoicesTab: React.FC = () => {
           });
 
           useEffect(() => {
-            setItem((prev) => ({
-              ...prev,
-              lessons: Array.isArray(it.lessons) ? it.lessons : [],
-            }));
-          }, [it]);
+            if (token && it.userId) {
+              getLessonsByUser(token, it.userId).then(setUserLessons);
+            }
+          }, [it.userId, token]);
 
           return (
             <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
@@ -116,7 +98,7 @@ const InvoicesTab: React.FC = () => {
                   topic: "Тема",
                   date: "Дата",
                 }}
-                options={lessons.map((i) => ({
+                options={userLessons.map((i) => ({
                   ...i,
                   name: `${i.topic} (${i.date})`,
                 }))}
