@@ -1,10 +1,8 @@
-
 export interface IdSupplier {
   id: any;
 }
 
-
-export interface InvoiceDTO {
+export interface InvoiceDTO extends IdSupplier {
   id: number;
   userId: number;
   userFullName: string;
@@ -12,8 +10,8 @@ export interface InvoiceDTO {
   dueDate: Date;
   amount: number;
   status: string;
+  lessons: LessonDTO[];
 }
-
 
 export interface InvoiceEditDTO extends InvoiceDTO {
   lessons: LessonDTO[]
