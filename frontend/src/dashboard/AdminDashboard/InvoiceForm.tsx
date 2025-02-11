@@ -53,7 +53,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
       }
 
       const invoiceToSave: InvoiceDTO = {
-        id: newInvoice.id,
+        id: 0,
         userId: user.id,
         userFullName: user.fullName,
         dateIssued: new Date(newInvoice.dateIssued),

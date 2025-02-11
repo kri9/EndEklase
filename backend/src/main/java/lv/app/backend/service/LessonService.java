@@ -83,6 +83,14 @@ public class LessonService {
     }
 
     @Transactional
+    public List<LessonDTO> getLessonsByUser(Long userId) {
+        List<Lesson> lessons = lessonRepository.findLessonsByUserId(userId);
+        return lessons.stream()
+                .map(entityMapper::lessonToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public List<AttendanceDTO> getAttendanceByGroupAndMonth(Long groupId, YearMonth month) {
         LocalDate startDate = month.atDay(1);
         LocalDate endDate = month.atEndOfMonth();
