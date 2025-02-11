@@ -70,18 +70,24 @@ public class InvoiceService {
     }
 
     @Transactional
-    public void createInvoice(InvoiceCreateDTO dto) {
+    public Invoice createInvoice(InvoiceCreateDTO dto) {
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found: " + dto.getUserId()));
+
         if (dto.getAmount() != null) {
-            createManualInvoice(dto, user);
-            return;
+            return createManualInvoice(dto, user);
         }
         if (!user.isSeparateInvoices()) {
-            makeSingleInvoice(dto, user);
-            return;
+            return makeSingleInvoice(dto, user);
         }
-        makeInvoicesForEachChild(dto, user);
+        return makeInvoicesForEachChild(dto, user);
+    }
+
+    @Transactional
+    public void deleteInvoice(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + invoiceId));
+        invoiceRepository.delete(invoice);
     }
 
     @Transactional
@@ -99,37 +105,48 @@ public class InvoiceService {
                 .collect(Collectors.toList());
     }
 
-    private void makeInvoicesForEachChild(InvoiceCreateDTO dto, User user) {
+    private Invoice makeInvoicesForEachChild(InvoiceCreateDTO dto, User user) {
         Function<Child, Double> costRateGenerator = getCostRateGenerator(user);
-        user.getChildren().forEach(c -> {
+        List<Invoice> invoices = user.getChildren().stream().map(c -> {
             double multiChildDiscount = costRateGenerator.apply(c);
             List<Attendance> attendancesToPay = getAttendancesToPay(c, dto.getLessonIds());
             setAttendanceCost(attendancesToPay, multiChildDiscount, user);
-            formInvoice(c.getParent(), attendancesToPay);
-        });
+            return formInvoice(c.getParent(), attendancesToPay);
+        }).toList();
+
+        return invoices.isEmpty() ? null : invoices.get(0);
     }
 
-    private void createManualInvoice(InvoiceCreateDTO dto, User user) {
+    private Invoice createManualInvoice(InvoiceCreateDTO dto, User user) {
         Invoice invoice = entityMapper.dtoToInvoice(dto);
+        invoice.setId(null);
         invoice.setUser(user);
         List<Attendance> coveredAttendances = dto.getLessonIds().stream()
                 .map(lessonRepository::getReferenceById)
                 .flatMap(l -> l.getAttendances().stream())
                 .filter(a -> user.getChildren().contains(a.getChild()) && a.isAttended() && a.getInvoice() == null)
                 .toList();
+
         coveredAttendances.forEach(a -> a.setInvoice(invoice));
-        invoice.setAttendances(coveredAttendances);
-        invoiceRepository.saveAndFlush(invoice);
-        log.trace("Created manual invoice: {}", invoice);
+        Invoice savedInvoice = invoiceRepository.saveAndFlush(invoice);
+
+        coveredAttendances.forEach(a -> {
+            a.setInvoice(savedInvoice);
+            attendanceRepository.save(a);
+        });
+
+        log.trace("Created manual invoice with ID {}: {}", savedInvoice.getId(), savedInvoice);
+        return savedInvoice;
     }
 
-    private void makeSingleInvoice(InvoiceCreateDTO dto, User user) {
+    private Invoice makeSingleInvoice(InvoiceCreateDTO dto, User user) {
         Function<Child, Double> costRateGenerator = getCostRateGenerator(user);
         List<Pair<Child, List<Attendance>>> attendancesToPay = user.getChildren().stream()
                 .map(c -> Pair.of(c, getAttendancesToPay(c, dto.getLessonIds())))
                 .toList();
+
         attendancesToPay.forEach(p -> setAttendanceCost(p.getSecond(), costRateGenerator.apply(p.getFirst()), user));
-        formInvoice(user, flatten(attendancesToPay.stream().map(Pair::getSecond).toList()));
+        return formInvoice(user, flatten(attendancesToPay.stream().map(Pair::getSecond).toList()));
     }
 
     private void setAttendanceCost(List<Attendance> ats, double multiChildDiscount, User user) {
@@ -150,10 +167,10 @@ public class InvoiceService {
                 .toList();
     }
 
-    private void formInvoice(User user, List<Attendance> attendancesToPay) {
+    private Invoice formInvoice(User user, List<Attendance> attendancesToPay) {
         if (attendancesToPay.isEmpty()) {
             log.trace("No attendances to pay for user {}", user);
-            return;
+            return null;
         }
         long invoiceAmount = attendancesToPay.stream()
                 .mapToLong(Attendance::getCost)
@@ -166,11 +183,14 @@ public class InvoiceService {
                 .dueDate(currentDate.plusWeeks(2))
                 .user(user)
                 .build());
+
         log.trace("Created invoice: {}", savedInvoice);
         attendancesToPay.forEach(a -> {
             a.setInvoice(savedInvoice);
             attendanceRepository.save(a);
         });
+
+        return savedInvoice;
     }
 
     private Function<Child, Double> getCostRateGenerator(User user) {

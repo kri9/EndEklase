@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import UserSelect from "./common/UserSelect";
+import { InvoiceDTO } from "src/common/interfaces";
 
 interface InvoiceFormProps {
   usersInfo: { id: number; fullName: string }[];
@@ -7,8 +8,13 @@ interface InvoiceFormProps {
   onSave: (invoice: any) => void;
 }
 
-const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave }) => {
+const InvoiceForm: React.FC<InvoiceFormProps> = ({
+  usersInfo,
+  lessons,
+  onSave,
+}) => {
   const [newInvoice, setNewInvoice] = useState({
+    id: 0, // добавляем поле id
     fullName: "",
     userId: 0,
     dateIssued: "",
@@ -39,23 +45,28 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
   };
 
   const saveInvoice = () => {
-    const user = usersInfo.find((u) => u.fullName === newInvoice.fullName);
-    if (user) {
-      newInvoice.userId = user.id;
-      newInvoice.lessons = newInvoice.lessons.map(l => l.id);
+    try {
+      const user = usersInfo.find((u) => u.fullName === newInvoice.fullName);
+      if (!user) {
+        alert("Пользователь не найден");
+        return;
+      }
 
-      onSave(newInvoice);
-      setNewInvoice({
-        fullName: "",
-        userId: 0,
-        dateIssued: "",
-        dueDate: "",
-        amount: "",
-        status: null,
-        lessons: [],
-      });
-    } else {
-      alert("Пользователь не найден");
+      const invoiceToSave: InvoiceDTO = {
+        id: newInvoice.id,
+        userId: user.id,
+        userFullName: user.fullName,
+        dateIssued: new Date(newInvoice.dateIssued),
+        dueDate: new Date(newInvoice.dueDate),
+        amount: Number(newInvoice.amount) || 0,
+        status: newInvoice.status ?? "NOT_PAID",
+        lessons: newInvoice.lessons.map((l) => l.id),
+      };
+
+      onSave(invoiceToSave);
+    } catch (error) {
+      console.error("Ошибка при сохранении инвойса:", error);
+      alert("Произошла ошибка при сохранении. Проверьте данные.");
     }
   };
 
@@ -65,7 +76,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
       <div className="form-group">
         <label htmlFor="userId">Имя Пользователя:</label>
         <UserSelect
-          onChange={nv => setNewInvoice({ ...newInvoice, ["fullName"]: nv })}
+          onChange={(nv) => setNewInvoice({ ...newInvoice, ["fullName"]: nv })}
         />
       </div>
       <div className="form-group mt-3">
@@ -134,11 +145,12 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
           onChange={(e) => setSelectedLessonId(Number(e.target.value))}
         >
           <option value="">-- Выберите урок --</option>
-          {lessons && lessons.map((lesson) => (
-            <option key={lesson.id} value={lesson.id}>
-              {lesson.topic} ({lesson.date})
-            </option>
-          ))}
+          {lessons &&
+            lessons.map((lesson) => (
+              <option key={lesson.id} value={lesson.id}>
+                {lesson.topic} ({lesson.date})
+              </option>
+            ))}
         </select>
         <button onClick={addLesson} className="btn btn-secondary mt-2">
           Добавить урок
@@ -156,21 +168,22 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, lessons, onSave })
             </tr>
           </thead>
           <tbody>
-            {newInvoice.lessons && newInvoice.lessons.map((lesson) => (
-              <tr key={lesson.id}>
-                <td>{lesson.id}</td>
-                <td>{lesson.topic}</td>
-                <td>{lesson.date}</td>
-                <td>
-                  <button
-                    onClick={() => removeLesson(lesson.id)}
-                    className="btn btn-danger"
-                  >
-                    Удалить
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {newInvoice.lessons &&
+              newInvoice.lessons.map((lesson) => (
+                <tr key={lesson.id}>
+                  <td>{lesson.id}</td>
+                  <td>{lesson.topic}</td>
+                  <td>{lesson.date}</td>
+                  <td>
+                    <button
+                      onClick={() => removeLesson(lesson.id)}
+                      className="btn btn-danger"
+                    >
+                      Удалить
+                    </button>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

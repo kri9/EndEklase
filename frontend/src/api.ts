@@ -161,6 +161,10 @@ export const getInvoices = async (token: string) => {
   return await fetchFromBackendWithAuth('admin/invoices', 'GET', token);
 };
 
+export const deleteInvoice = async (token: string, invoiceId: number) => {
+  return await fetchFromBackendWithAuth(`admin/invoice/${invoiceId}`, 'DELETE', token);
+};
+
 export const updateChildren = async (children: any) => {
   const token = store.getState().auth.token;
   return fetchFromBackendWithAuth('admin/children', 'PATCH', token, children);

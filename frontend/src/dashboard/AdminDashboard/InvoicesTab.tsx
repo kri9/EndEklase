@@ -1,155 +1,148 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { getRequest, postRequest, putRequest } from "src/api";
+import { getRequest, postRequest, putRequest, deleteInvoice } from "src/api";
 import { RootState } from "src/redux/store";
 import InvoiceForm from "./InvoiceForm";
 import GenerateInvoicesForm from "./GenerateInvoicesForm";
-import InvoiceList from "./InvoiceList";
 import CrudTable from "./common/CrudTable";
 import RootObjectForm from "./common/RootObjectForm";
-import TextInput from "./common/TextInput";
-import BooleanInput from "./common/BooleanInput";
 import NumberInput from "./common/NumberInput";
-import { InvoiceDTO, InvoiceEditDTO, LessonDTO } from "src/common/interfaces";
+import {
+  IdSupplier,
+  InvoiceDTO,
+  InvoiceEditDTO,
+  LessonDTO,
+} from "src/common/interfaces";
 import MultiSelect from "./common/MultiSelect";
 import { sortBy } from "src/common/utils";
 
 const InvoicesTab: React.FC = () => {
-  const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>([]);
+  const [usersInfo, setUsersInfo] = useState<
+    { id: number; fullName: string }[]
+  >([]);
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
-  const [groups, setGroups] = useState<any[]>([]);
-  const [kindergartens, setKindergartens] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<InvoiceDTO[]>([]);
-  const [filters, setFilters] = useState<any>({
-    fullName: "",
-    dateIssuedFrom: "",
-    dateIssuedTo: "",
-    dueDateFrom: "",
-    dueDateTo: "",
-    status: "",
-  });
-  const [editingInvoiceId, setEditingInvoiceId] = useState<number | null>(null);
-  const [editingInvoice, setEditingInvoice] = useState<any>(null);
 
   const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
-    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(setUsersInfo);
+    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(
+      setUsersInfo
+    );
     loadLessons();
-    loadKindergartens();
     loadInvoices();
   }, []);
 
   const loadLessons = async () => {
     if (token) {
-      const fetchedLessons = await getRequest<any[]>("admin/lessons");
+      const fetchedLessons = await getRequest<LessonDTO[]>("admin/lessons");
       setLessons(fetchedLessons || []);
-    }
-  };
-
-  const loadKindergartens = async () => {
-    if (token) {
-      const fetchedKindergartens = await getRequest<any[]>("admin/kindergartens");
-      setKindergartens(fetchedKindergartens || []);
     }
   };
 
   const loadInvoices = async () => {
     if (token) {
-      const fetchedInvoices = await getRequest<any[]>("admin/invoices");
+      const fetchedInvoices = await getRequest<InvoiceDTO[]>("admin/invoices");
       setInvoices(fetchedInvoices || []);
     }
   };
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
-  };
+  const handleDeleteInvoice = async (invoice: InvoiceDTO) => {
+    if (!token || invoice.id === undefined) return;
 
-  const handleEdit = (invoice: any) => {
-    setEditingInvoiceId(invoice.id);
-    setEditingInvoice({ ...invoice });
-  };
-
-  const handleSave = async () => {
-    if (editingInvoiceId && editingInvoice) {
-      await putRequest(`admin/invoice`, editingInvoice);
-      alert("Изменения сохранены");
-      setEditingInvoiceId(null);
-      setEditingInvoice(null);
-      loadInvoices();
+    if (
+      window.confirm(`Вы уверены, что хотите удалить инвойс №${invoice.id}?`)
+    ) {
+      await deleteInvoice(token, invoice.id);
+      setInvoices((prev) => prev.filter((i) => i.id !== invoice.id));
     }
   };
 
-  const handleCancel = () => {
-    setEditingInvoiceId(null);
-    setEditingInvoice(null);
+  const handleInvoiceSave = async (invoice: InvoiceDTO) => {
+    try {
+      const savedInvoice = await postRequest<InvoiceDTO>("admin/invoice", invoice);
+      setInvoices((prevInvoices) => [...prevInvoices, savedInvoice]);
+    } catch (error) {
+      console.error("Ошибка при сохранении инвойса:", error);
+      alert("Ошибка при сохранении инвойса");
+    }
   };
-
-  const handleInvoiceSave = (invoice: any) => {
-    postRequest("admin/invoice", invoice).then(() => {
-      loadInvoices();
-    });
-  };
-
-  const handleGenerateInvoices = (from: string, to: string, groupId: number | "") => {
-    // Логика генерации счетов
-    postRequest("admin/generate-invoices", { from, to, groupId }).then(() => {
-      loadInvoices();
-    });
-  };
+  
 
   return (
     <div>
       <h2 className="text-3xl">Выставление счетов</h2>
       <div className="d-flex">
-        <InvoiceForm usersInfo={usersInfo} lessons={lessons} onSave={handleInvoiceSave} />
-        <GenerateInvoicesForm kindergartens={kindergartens} onGenerate={handleGenerateInvoices} />
+        <InvoiceForm
+          usersInfo={usersInfo}
+          lessons={lessons}
+          onSave={handleInvoiceSave}
+        />
+        <GenerateInvoicesForm kindergartens={[]} onGenerate={undefined} />
       </div>
       <CrudTable
-        items={invoices}
-        onDelete={it => console.log(`Deleted ${JSON.stringify(it)}`)}
+        items={
+          invoices.filter(
+            (inv) => inv.id !== undefined
+          ) as Required<InvoiceDTO>[]
+        }
+        onDelete={(item) => {
+          const invoice = invoices.find((inv) => inv.id === item.id);
+          if (invoice) {
+            handleDeleteInvoice(invoice);
+          }
+        }}
         editFormSupplier={(it, close) => {
-          const [item, setItem] = useState<InvoiceEditDTO>({ ...it, lessons: [] });
-          useEffect(() => setItem({ ...it, lessons: [] }), [it]);
+          const [item, setItem] = useState<InvoiceEditDTO>({
+            ...it,
+            lessons: Array.isArray(it.lessons) ? it.lessons : [],
+          });
+
+          useEffect(() => {
+            setItem((prev) => ({
+              ...prev,
+              lessons: Array.isArray(it.lessons) ? it.lessons : [],
+            }));
+          }, [it]);
+
           return (
-            <>
-              <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
-                <NumberInput field="amount" header="Сумма" />
-                <MultiSelect field="lessons" columns={["A", "B"]}
-                  columnMap={{
-                    "id": "ID Урока",
-                    "topic": "Тема",
-                    "date": "Дата"
+            <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
+              <NumberInput field="amount" header="Сумма" />
+              <MultiSelect
+                field="lessons"
+                columns={["id", "topic", "date"]}
+                columnMap={{
+                  id: "ID Урока",
+                  topic: "Тема",
+                  date: "Дата",
+                }}
+                options={lessons.map((i) => ({
+                  ...i,
+                  name: `${i.topic} (${i.date})`,
+                }))}
+              />
+              <div className="mt-3 flex justify-end space-x-2">
+                <button
+                  onClick={() => {
+                    putRequest("admin/invoice", item).then(() => {
+                      setInvoices((prev) =>
+                        prev.map((inv) => (inv.id === item.id ? item : inv))
+                      );
+                    });
+                    close();
                   }}
-                  options={lessons
-                    .map((i, index) => ({ ...i, name: `${i.topic} (${i.date})` }))
-                    .sort(sortBy<LessonDTO>(i => new Date(i.date)))}
-                />
-                <button onClick={() => {
-                  it.amount = item.amount;
-                  console.log("save");
-                  close();
-                }} className="btn btn-primary mt-3">
+                  className="btn btn-primary"
+                >
                   Сохранить
                 </button>
-              </RootObjectForm>
-            </>
+                <button onClick={close} className="btn btn-secondary">
+                  Закрыть
+                </button>
+              </div>
+            </RootObjectForm>
           );
         }}
       />
-      {/*
-      <InvoiceList
-        invoices={invoices}
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onEdit={handleEdit}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        editingInvoiceId={editingInvoiceId}
-        editingInvoice={editingInvoice}
-        setEditingInvoice={setEditingInvoice}
-      />
-      */}
     </div>
   );
 };

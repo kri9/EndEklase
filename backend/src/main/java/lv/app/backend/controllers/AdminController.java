@@ -5,6 +5,7 @@ import lv.app.backend.dto.*;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.Child;
+import lv.app.backend.model.Invoice;
 import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.*;
 import org.slf4j.Logger;
@@ -125,9 +126,13 @@ public class AdminController {
     }
 
     @PostMapping("/invoice")
-    public ResponseEntity<Void> createInvoice(@RequestBody InvoiceCreateDTO dto) {
-        invoiceService.createInvoice(dto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<InvoiceDTO> createInvoice(@RequestBody InvoiceCreateDTO dto) {
+        Invoice savedInvoice = invoiceService.createInvoice(dto);
+        if (savedInvoice == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        InvoiceDTO responseDto = entityMapper.invoiceToDto(savedInvoice);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PutMapping("/invoice")
@@ -181,6 +186,13 @@ public class AdminController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(invoice));
     }
+
+    @DeleteMapping("/invoice/{invoiceId}")
+    public ResponseEntity<Void> deleteInvoice(@PathVariable Long invoiceId) {
+        invoiceService.deleteInvoice(invoiceId);
+        return ResponseEntity.ok().build();
+    }
+
 
 //    @GetMapping("users/{userId}/invoices")
 //    public ResponseEntity<List<InvoiceDTO>> getInvoicesByUser(@PathVariable Long userId) {
