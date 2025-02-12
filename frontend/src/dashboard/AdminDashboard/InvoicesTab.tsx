@@ -60,12 +60,24 @@ const InvoicesTab: React.FC = () => {
     }
   };
 
+  const handleGenerateInvoices = async (data: { startDate: string; endDate: string }) => {
+    try {
+      await postRequest("admin/invoices", data);
+      await loadInvoices();
+      alert("Invoices generated successfully");
+    } catch (error) {
+      console.error("Ошибка при генерации инвойсов:", error);
+      alert("Ошибка при генерации инвойсов");
+    }
+  };
+  
+
   return (
     <div>
       <h2 className="text-3xl">Выставление счетов</h2>
       <div className="d-flex">
         <InvoiceForm usersInfo={usersInfo} lessons={lessons} onSave={handleInvoiceSave} />
-        <GenerateInvoicesForm kindergartens={[]} onGenerate={undefined} />
+        <GenerateInvoicesForm kindergartens={[]} onGenerate={handleGenerateInvoices} />
       </div>
       <CrudTable
         items={invoices as Required<InvoiceDTO>[]}

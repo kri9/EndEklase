@@ -124,11 +124,11 @@ public class AdminController {
     }
 
     @PostMapping("/invoices")
-    public ResponseEntity<Void> createInvoices(@RequestBody Map<String, LocalDate> request) {
+    public ResponseEntity<List<InvoiceDTO>> createInvoices(@RequestBody Map<String, LocalDate> request) {
         LocalDate startDate = request.get("startDate");
         LocalDate endDate = request.get("endDate");
-        invoiceService.createInvoices(startDate, endDate);
-        return ResponseEntity.ok().build();
+        List<InvoiceDTO> createdInvoices = invoiceService.createInvoices(startDate, endDate);
+        return ResponseEntity.ok(createdInvoices);
     }
 
     @PostMapping("/invoice")

@@ -54,19 +54,26 @@ public class InvoiceService {
     }
 
     @Transactional
-    public void createInvoices(LocalDate startDate, LocalDate endDate) {
+    public List<InvoiceDTO> createInvoices(LocalDate startDate, LocalDate endDate) {
         List<User> users = userRepository.findAll();
-        users.forEach(u -> {
-            List<Long> lessons = lessonRepository.findUserLessonsToPay(startDate, endDate, u);
-            if (lessons.isEmpty()) {
-                log.error("No lessons to pay for user {}", u);
-                return;
-            }
-            this.createInvoice(InvoiceCreateDTO.builder()
-                    .userId(u.getId())
-                    .lessonIds(lessons)
-                    .build());
-        });
+        List<Invoice> createdInvoices = users.stream()
+                .map(user -> {
+                    List<Long> lessons = lessonRepository.findUserLessonsToPay(startDate, endDate, user);
+                    if (lessons.isEmpty()) {
+                        log.error("No lessons to pay for user {}", user);
+                        return null;
+                    }
+                    return createInvoice(InvoiceCreateDTO.builder()
+                            .userId(user.getId())
+                            .lessonIds(lessons)
+                            .build());
+                })
+                .filter(invoice -> invoice != null)
+                .collect(Collectors.toList());
+
+        return createdInvoices.stream()
+                .map(entityMapper::invoiceToDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -119,7 +126,6 @@ public class InvoiceService {
 
     private Invoice createManualInvoice(InvoiceCreateDTO dto, User user) {
         Invoice invoice = entityMapper.dtoToInvoice(dto);
-        invoice.setId(null);
         invoice.setUser(user);
         List<Attendance> coveredAttendances = dto.getLessonIds().stream()
                 .map(lessonRepository::getReferenceById)

@@ -5,12 +5,16 @@ const GenerateInvoiceForm = (props: { kindergartens: any[], onGenerate: any }) =
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    await generateInvoices({ startDate, endDate });
-    alert('Invoices generated successfully');
+    try {
+      await props.onGenerate({ startDate, endDate }); // 🔹 Ждем обновления инвойсов
+    } catch (error) {
+      console.error("Ошибка при генерации инвойсов:", error);
+      alert("Ошибка при генерации инвойсов");
+    }
   };
-
+  
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
