@@ -70,10 +70,12 @@ const InvoicesTab: React.FC = () => {
     }
   };
 
+<<<<<<< origin/invoices_changes
+=======
   const handleGenerateInvoices = async (data: { startDate: string; endDate: string }) => {
     try {
-      await postRequest("admin/invoices", data);
-      await loadInvoices();
+      const generatedInvoices = await postRequest<InvoiceDTO[]>("admin/invoices", data);
+  
       setInvoices((prevInvoices) => 
         [...prevInvoices, ...generatedInvoices].sort((a, b) => a.id - b.id)
       );
@@ -85,8 +87,9 @@ const InvoicesTab: React.FC = () => {
     }
   };
   
+  
 
-
+>>>>>>> local
   return (
     <div>
       <h2 className="text-3xl">Выставление счетов</h2>
