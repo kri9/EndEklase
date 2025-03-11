@@ -57,6 +57,14 @@ public class AdminController {
         return Map.of("id", userService.createUser(userDTO).getId());
     }
 
+    @ResponseBody
+    @GetMapping("/users")
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::userToDto)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/kindergartens")
     public ResponseEntity<List<KindergartenDTO>> getAllKindergartens() {
         List<KindergartenDTO> kindergartens = kindergartenService.getAllKindergartens();

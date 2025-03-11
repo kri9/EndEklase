@@ -5,9 +5,10 @@ import TextInput from "./common/TextInput";
 import RootObjectForm from "./common/RootObjectForm";
 import BooleanInput from "./common/BooleanInput";
 import NumberInput from "./common/NumberInput";
+import UserTable from "./common/UserTable";
 
 interface UserFormData {
-  id: number | undefined,
+  id: number,
   email: string,
   firstName: string,
   lastName: string,
@@ -18,7 +19,7 @@ interface UserFormData {
 }
 
 const defaultFormValues: UserFormData = {
-  id: undefined,
+  id: 0,
   email: '',
   firstName: '',
   lastName: '',
@@ -31,10 +32,18 @@ const defaultFormValues: UserFormData = {
 export default function UserTab() {
   const [user, setUser] = useState<UserFormData>(defaultFormValues);
   const [userId, setUserId] = useState<number | undefined>(undefined);
+  const [users, setUsers] = useState<UserFormData[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     userId && getRequest<UserFormData>(`admin/user/${userId}`).then(setUser);
     userId || setUser(defaultFormValues);
+    loadUsers();
   }, [userId])
+
+  const loadUsers = () => {
+    getRequest<UserFormData[]>("admin/users").then(setUsers);
+  };
+
   const saveUser = () => postRequest<any>('admin/user', user)
     .then(r => getRequest<UserFormData>(`admin/user/${r.id}`))
     .then(setUser)
@@ -62,6 +71,15 @@ export default function UserTab() {
           </button>
         </RootObjectForm>
       </div>
+      <h3 className="text-xl mt-5">Список пользователей</h3>
+      <input
+        type="text"
+        className="form-control my-3"
+        placeholder="Поиск по имени или email"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <UserTable users={users} searchTerm={searchTerm} />
     </div>
   );
 }
