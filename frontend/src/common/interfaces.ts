@@ -19,4 +19,6 @@ export interface LessonDTO {
   notes: string;
   date: string;
   groupId: number;
+  groupName: string;
+  kindergartenName: string;
 }

@@ -21,6 +21,8 @@ public interface EntityMapper {
     ChildDTO childToDto(Child child);
 
     @Mapping(target = "groupId", source = "group.id")
+    @Mapping(target = "groupName", source = "group.name")
+    @Mapping(target = "kindergartenName", source = "group.kindergarten.name")
     LessonDTO lessonToDto(Lesson lesson);
 
     @Mapping(target = "group.id", source = "groupId")

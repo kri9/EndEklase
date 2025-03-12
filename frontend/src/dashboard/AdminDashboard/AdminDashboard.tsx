@@ -10,6 +10,7 @@ import InvoicesTab from "./InvoicesTab";
 import { clearAuthToken } from "src/redux/authSlice";
 import "./css/AdminDashboard.css";
 import UserTab from "./UserTab";
+import { LessonsTab } from "./LessonsTab";
 
 const AdminDashboard: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("Списки групп");
@@ -29,6 +30,8 @@ const AdminDashboard: React.FC = () => {
         return <AttendanceTab />;
       case "Списки групп":
         return <GroupListTab />;
+      case "Уроки":
+        return <LessonsTab />;
       case "Добавление уроков":
         return <AddLessonTab />;
       case "Отчеты по группам":
@@ -54,6 +57,7 @@ const AdminDashboard: React.FC = () => {
           "Посещение",
           "Списки групп",
           "Добавление уроков",
+          "Уроки",
           "Отчеты по группам",
           "Выставление счетов",
         ].map((tab) => (

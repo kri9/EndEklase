@@ -7,11 +7,12 @@ import java.time.LocalDate;
 
 @Value
 @Builder
-
 public class LessonDTO {
-    private Long id;
-    private String topic;
-    private String notes;
-    private LocalDate date;
-    private Long groupId;
+    Long id;
+    String topic;
+    String notes;
+    LocalDate date;
+    Long groupId;
+    String groupName;
+    String kindergartenName;
 }

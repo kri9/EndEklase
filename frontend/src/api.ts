@@ -135,8 +135,9 @@ export const getLessonsByUser = async (token: string, userId: number) => {
   return await fetchFromBackendWithAuth(`admin/user/${userId}/lessons`, "GET", token);
 };
 
-export const getLessons = async (token: string) => {
-  return await fetchFromBackendWithAuth('admin/lessons', 'GET', token);
+export const getLessons = async (token?: string | undefined | null) => {
+  token = token || store.getState().auth.token;
+  return await fetchFromBackendWithAuth('admin/lessons', 'GET', token as string);
 };
 
 export const updateAttendance = async (
