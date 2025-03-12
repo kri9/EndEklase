@@ -34,14 +34,24 @@ export default function UserTab() {
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [users, setUsers] = useState<UserFormData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+
   useEffect(() => {
-    userId && getRequest<UserFormData>(`admin/user/${userId}`).then(setUser);
-    userId || setUser(defaultFormValues);
+    if (userId) {
+      getRequest<UserFormData>(`admin/user/${userId}`).then(setUser);
+    } else {
+      setUser(defaultFormValues);
+    }
     loadUsers();
-  }, [userId])
+  }, [userId]);
 
   const loadUsers = () => {
-    getRequest<UserFormData[]>("admin/users").then(setUsers);
+    getRequest<UserFormData[]>("admin/users").then((data) => {
+      const formattedUsers = data.map((user) => ({
+        ...user,
+        discountRate: parseFloat(Number(user.discountRate).toFixed(2)),
+      }));
+      setUsers(formattedUsers);
+    });
   };
 
   const saveUser = () => postRequest<any>('admin/user', user)
@@ -49,37 +59,49 @@ export default function UserTab() {
     .then(setUser)
     .then(() => alert('Succesfully saved user'))
     .catch(e => { alert('Failed to save user'); console.log(e) });
+    loadUsers();
 
   return (
-    <div>
-      <h2 className="text-3xl mb-3">Пользователи</h2>
-      <div className="text-center invoice-form">
-        <UserSelect onChange={(_, id) => setUserId(id)} />
-        <h3 className="text-xl my-3">Информация о пользователе:</h3>
-        <RootObjectForm rootObject={user} rootObjectSetter={setUser}>
-          <TextInput field="email" header="Почта" />
-          <TextInput field="firstName" header="Имя" />
-          <TextInput field="lastName" header="Фамилия" />
-          <TextInput field="password" header="Пароль" />
-          <BooleanInput field="separateInvoices" displayText="Отдельные счeта для детей" />
-          <NumberInput field="discountRate" header="Скидка (%)" min={0} max={1} step={0.05}
-            valueMapper={v => (v / 100).toFixed(2)}
-            setterMapper={v => v * 100}
+    <div className="p-6">
+      <h2 className="text-3xl mb-5 font-semibold">Пользователи</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white p-6 shadow-md rounded-lg">
+          <h3 className="text-xl font-semibold mb-3">Добавить / Изменить пользователя</h3>
+          <UserSelect onChange={(_, id) => setUserId(id)} />
+
+          <RootObjectForm rootObject={user} rootObjectSetter={setUser}>
+            <TextInput field="email" header="Почта" />
+            <TextInput field="firstName" header="Имя" />
+            <TextInput field="lastName" header="Фамилия" />
+            <TextInput field="password" header="Пароль" />
+            <BooleanInput field="separateInvoices" displayText="Отдельные счeта для детей" />
+            <NumberInput
+              field="discountRate"
+              header="Скидка (%)"
+              min={0}
+              max={1}
+              step={0.05}
+              valueMapper={(v) => (v / 100).toFixed(2)}
+              setterMapper={(v) => v * 100}
+            />
+
+            <button onClick={saveUser} className="btn btn-primary mt-4 w-full">
+              Сохранить пользователя
+            </button>
+          </RootObjectForm>
+        </div>
+        <div className="bg-white p-6 shadow-md rounded-lg">
+          <h3 className="text-xl font-semibold mb-3">Список пользователей</h3>
+          <input
+            type="text"
+            className="form-control my-3"
+            placeholder="Поиск по имени или email"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button onClick={saveUser} className="btn btn-primary mt-3">
-            Сохранить пользователя
-          </button>
-        </RootObjectForm>
+          <UserTable users={users} searchTerm={searchTerm} />
+        </div>
       </div>
-      <h3 className="text-xl mt-5">Список пользователей</h3>
-      <input
-        type="text"
-        className="form-control my-3"
-        placeholder="Поиск по имени или email"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <UserTable users={users} searchTerm={searchTerm} />
     </div>
   );
 }
