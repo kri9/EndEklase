@@ -37,6 +37,7 @@ public class DataCreator implements ApplicationRunner {
     private final KindergartenRepository kindergartenRepository;
     private final Random random = new Random(1970);
     private final Faker faker = new Faker(new Random(1970));
+    private final Set<String> usedNames = new HashSet<>();
 
     private static final List<String> adjectives = Arrays.asList(
             "Sunny", "Little", "Happy", "Rainbow", "Bright", "Creative", "Growing", "Shining", "Playful", "Curious"
@@ -166,20 +167,29 @@ public class DataCreator implements ApplicationRunner {
             k.setContactInfo(faker.phoneNumber().phoneNumber());
         });
         kindergarten.getGroups().add(init(new Group(), g -> {
-            String grpName = "Group " + random.nextInt(100);
+            String grpName = getGroupName();
             g.setName(grpName);
             g.setDescription(grpName + " of " + kindergarten.getName());
             g.setKindergarten(kindergarten);
             groupRepository.save(g);
         }));
         kindergarten.getGroups().add(init(new Group(), g -> {
-            String grpName = "Group " + random.nextInt(100);
+            String grpName = getGroupName();
             g.setName(grpName);
             g.setDescription(grpName + " of " + kindergarten.getName());
             g.setKindergarten(kindergarten);
             groupRepository.save(g);
         }));
         return kindergartenRepository.save(kindergarten);
+    }
+
+    private String getGroupName() {
+        String name = "Group " + random.nextInt(100);
+        if (usedNames.contains(name)) {
+            return getGroupName();
+        }
+        usedNames.add(name);
+        return name;
     }
 
     record UserNameInfo(String firstName, String lastName, String email) {
@@ -233,7 +243,12 @@ public class DataCreator implements ApplicationRunner {
         String adjective = adjectives.get(random.nextInt(adjectives.size()));
         String theme = themes.get(random.nextInt(themes.size()));
         String suffix = suffixes.get(random.nextInt(suffixes.size()));
-        return adjective + " " + theme + " " + suffix;
+        String name = adjective + " " + theme + " " + suffix;
+        if (usedNames.contains(name)) {
+            return generateRandomKindergartenName();
+        }
+        usedNames.add(name);
+        return name;
     }
 
 }

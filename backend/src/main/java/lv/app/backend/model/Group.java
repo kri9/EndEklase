@@ -29,6 +29,7 @@ public class Group {
     private List<Child> children = new ArrayList<>();
     @OneToMany(mappedBy = "group")
     private List<Lesson> lessons = new ArrayList<>();
+    @Column(nullable = false)
     private String name;
     private String description;
 }

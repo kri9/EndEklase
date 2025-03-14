@@ -38,6 +38,13 @@ export function postRequest<T>(endpoint: string, body: any): Promise<T> {
   return fetchFromBackendWithAuth(endpoint, 'POST', token, body);
 }
 
+export function filePostRequest<T>(endpoint: string, body: any): Promise<T> {
+  const token = store.getState().auth.token;
+  return fetchFromBackendWithAuth(endpoint, 'POST', token, body, {
+    'Authorization': `Bearer ${token}`,
+  });
+}
+
 export function putRequest<T>(endpoint: string, body: any): Promise<T> {
   const token = store.getState().auth.token;
   return fetchFromBackendWithAuth(endpoint, 'PUT', token, body);
@@ -47,18 +54,22 @@ export const fetchFromBackendWithAuth = async (
   endpoint: string,
   method: string = 'GET',
   token: string | null,
-  body: any = null
+  body: any = null,
+  headers?: HeadersInit
 ) => {
+  headers = headers || {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  };
   const options: RequestInit = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+    headers,
   };
 
-  if (body) {
+  if (body && headers as any['Content-Type'] === "application/json") {
     options.body = JSON.stringify(body);
+  } else {
+    options.body = body;
   }
 
   try {

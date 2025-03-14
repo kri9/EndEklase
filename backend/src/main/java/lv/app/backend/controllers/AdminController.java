@@ -7,14 +7,13 @@ import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
@@ -39,9 +38,9 @@ public class AdminController {
     private final LessonService lessonService;
     private final UserRepository userRepository;
     private final InvoiceService invoiceService;
+    private final LessonImportService lessonImportService;
     private final PDFInvoiceGenerator pdfInvoiceGenerator;
     private final KindergartenService kindergartenService;
-    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     @ResponseBody
     @GetMapping("/user/{userId}")
@@ -213,6 +212,11 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/lessons/import")
+    public ResponseEntity<Void> importLessons(@RequestParam("file") MultipartFile file) {
+        lessonImportService.importLesson(file);
+        return ResponseEntity.ok().build();
+    }
 
 //    @GetMapping("users/{userId}/invoices")
 //    public ResponseEntity<List<InvoiceDTO>> getInvoicesByUser(@PathVariable Long userId) {

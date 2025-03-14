@@ -38,6 +38,11 @@ public class LessonService {
         Lesson lesson = entityMapper.dtoToLesson(lessonDTO);
         lesson.setGroup(group);
         lessonRepository.saveAndFlush(lesson);
+        linkChildrenWithLesson(lesson);
+    }
+
+    public void linkChildrenWithLesson(Lesson lesson) {
+        Group group = lesson.getGroup();
         group.getChildren().forEach(c ->
                 attendanceRepository.saveAndFlush(Attendance.builder()
                         .lesson(lesson)

@@ -6,6 +6,7 @@ import {
 } from "src/api";
 import { useSelector } from "react-redux";
 import { RootState } from "src/redux/store";
+import { FileUploadButton } from "./common/FileUploadButton";
 
 interface Lesson {
   id?: number;
@@ -164,6 +165,7 @@ const AddLessonTab: React.FC = () => {
         <button onClick={handleAddLesson} className="btn btn-primary mt-3">
           Добавить урок
         </button>
+        <FileUploadButton acceptedFileExtension=".xlsx" buttonTitle="Импортироавть Уроки" uploadUrl="admin/lessons/import" />
       </div>
     </div>
   );
