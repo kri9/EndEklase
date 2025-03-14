@@ -8,9 +8,15 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
   const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
-    setLocalEditedChildren(editedChildren || []);
+    setLocalEditedChildren(
+      [...editedChildren].sort((a, b) => {
+        const fullNameA = `${a.lastname} ${a.firstname}`;
+        const fullNameB = `${b.lastname} ${b.firstname}`;
+        return fullNameA.localeCompare(fullNameB, 'lv', { sensitivity: 'base' });
+      })
+    );
   }, [editedChildren]);
-
+  
   const handleChildChange = (index: number, field: string, value: string) => {
     const updatedChildren = [...localEditedChildren];
     updatedChildren[index] = { ...updatedChildren[index], [field]: value };

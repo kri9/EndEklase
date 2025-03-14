@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,6 +85,8 @@ public class AdminController {
     public ResponseEntity<List<ChildDTO>> getChildrenByGroup(@PathVariable Long groupId) {
         List<Child> children = childService.getChildrenByGroup(groupId);
         List<ChildDTO> childDTOs = children.stream()
+                .sorted(Comparator.comparing(Child::getLastname)
+                        .thenComparing(Child::getFirstname))
                 .map(entityMapper::childToDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(childDTOs);
