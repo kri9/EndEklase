@@ -8,7 +8,7 @@ const GenerateInvoiceForm = (props: { kindergartens: any[], onGenerate: any }) =
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      await props.onGenerate({ startDate, endDate }); // 🔹 Ждем обновления инвойсов
+      await props.onGenerate({ startDate, endDate });
     } catch (error) {
       console.error("Ошибка при генерации инвойсов:", error);
       alert("Ошибка при генерации инвойсов");

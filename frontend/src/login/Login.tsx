@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/Login.css';
 import { fetchFromBackend, fetchFromBackendWithAuth } from '../api';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setAuthToken } from '../redux/authSlice';
 import { FaEnvelope, FaLock } from 'react-icons/fa';
@@ -97,6 +97,13 @@ const Login: React.FC = () => {
           <button type="submit" className="btn btn-primary btn-block w-100 shadow-sm">
             {language === 'ru' ? 'Войти' : 'Pieslēgties'}
           </button>
+
+          <div className="text-center mt-3">
+            <Link to="/forgot-password" className="text-decoration-none">
+              {language === 'ru' ? 'Забыли пароль?' : 'Aizmirsāt paroli?'}
+            </Link>
+          </div>
+
         </form>
         <div className="backend-response mt-4">
           <p>{language === 'ru' ? 'Ответ с бэкенда:' : 'Atbilde no servera:'} {backendData}</p>

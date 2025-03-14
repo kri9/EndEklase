@@ -187,3 +187,11 @@ export const getInvoicesByUser = async (token: string) => {
 export const getAttendanceByUser = async (token: string) => {
   return await fetchFromBackendWithAuth('user/attendances', 'GET', token);
 };
+
+export const requestPasswordReset = async (email: string) => {
+  return await fetchFromBackend(`password/request?email=${encodeURIComponent(email)}`, 'POST');
+};
+
+export const resetPassword = async (token: string, password: string) => {
+  return await fetchFromBackend(`password/reset?token=${token}&password=${password}`, 'POST');
+};

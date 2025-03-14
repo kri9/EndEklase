@@ -2,8 +2,10 @@ package lv.app.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.LoginUserDTO;
+import lv.app.backend.dto.PasswordResetDTO;
 import lv.app.backend.dto.UserDTO;
 import lv.app.backend.mappers.UserMapper;
+import lv.app.backend.model.PasswordResetToken;
 import lv.app.backend.model.User;
 import lv.app.backend.model.enums.UserRole;
 import lv.app.backend.model.repository.UserRepository;
@@ -12,8 +14,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +29,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public User createUser(UserDTO userDTO) {
@@ -63,6 +71,15 @@ public class UserService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         return user.getId();
+    }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByUsername(email);
+    }
+
+    public void updatePassword(User user, String newPassword) {
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
 }
