@@ -55,7 +55,7 @@ export const fetchFromBackendWithAuth = async (
   method: string = 'GET',
   token: string | null,
   body: any = null,
-  headers?: HeadersInit
+  headers?: any
 ) => {
   headers = headers || {
     'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export const fetchFromBackendWithAuth = async (
     headers,
   };
 
-  if (body && headers as any['Content-Type'] === "application/json") {
+  if (body && headers['Content-Type'] === "application/json") {
     options.body = JSON.stringify(body);
   } else {
     options.body = body;

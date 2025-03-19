@@ -57,11 +57,8 @@ const InvoicesTab: React.FC = () => {
 
   const handleInvoiceSave = async (invoice: InvoiceDTO) => {
     try {
-      const savedInvoice = await putRequest<InvoiceDTO>("admin/invoice", invoice);
-
-      setInvoices((prevInvoices) =>
-        prevInvoices.map((inv) => (inv.id === savedInvoice.id ? savedInvoice : inv))
-      );
+      const savedInvoice = await postRequest<InvoiceDTO>("admin/invoice", invoice);
+      setInvoices((invs) => invs.concat(savedInvoice))
     } catch (error) {
       console.error("Ошибка при сохранении инвойса:", error);
       alert("Ошибка при сохранении инвойса");
