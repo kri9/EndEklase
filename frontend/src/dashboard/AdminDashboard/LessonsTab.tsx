@@ -7,8 +7,10 @@ import startOfWeek from 'date-fns/startOfWeek'
 import getDay from 'date-fns/getDay'
 import enUS from 'date-fns/locale/en-US'
 import { useEffect, useState } from 'react'
-import { getLessons } from 'src/api'
+import { getLessons, getRequest } from 'src/api'
 import { LessonDTO } from 'src/common/interfaces'
+import Modal from 'src/common/Modal';
+import { LessonEditForm } from './forms/LessonEditForm';
 
 const locales = {
   'en-US': enUS,
@@ -28,25 +30,36 @@ interface CalendarLessonDTO extends LessonDTO {
   title: string;
 }
 
-
+const calendarLessonMapper = (l: LessonDTO): CalendarLessonDTO => ({
+  ...l,
+  start: new Date(l.date),
+  end: addHours(new Date(l.date), 1),
+  title: `${l.topic} (${l.groupName}, ${l.kindergartenName})`
+})
 
 export function LessonsTab() {
-  const [lessons, setLessons] = useState<LessonDTO[]>([]);
+  const [lessons, setLessons] = useState<CalendarLessonDTO[]>([]);
+  const [selectedLesson, setSelectedLesson] = useState<LessonDTO | null>(null)
   useEffect(() => {
     getLessons().then((lessons: LessonDTO[]) => {
-      setLessons(lessons.map((l: LessonDTO): CalendarLessonDTO => ({
-        ...l,
-        start: new Date(l.date),
-        end: addHours(new Date(l.date), 1),
-        title: `${l.topic} (${l.groupName}, ${l.kindergartenName})`
-      })))
+      setLessons(lessons.map(calendarLessonMapper))
     })
   }, [])
   return (<>
+    <Modal isOpen={selectedLesson != null} onClose={() => {
+      getRequest<LessonDTO>(`admin/lesson/${selectedLesson!.id}`)
+        .then(calendarLessonMapper)
+        .then(fl => setLessons(lessons.map(l => l.id === fl.id ? fl : l)))
+      setSelectedLesson(null);
+    }}>
+      <LessonEditForm lesson={selectedLesson!} />
+    </Modal>
     <Calendar
+      popup
       localizer={localizer}
       events={lessons}
       style={{ height: 750 }}
+      onSelectEvent={l => setSelectedLesson(l)}
     />
 
   </>)

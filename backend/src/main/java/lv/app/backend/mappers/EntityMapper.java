@@ -60,6 +60,10 @@ public interface EntityMapper {
     @Mapping(target = "attendances", ignore = true)
     void updateInvoice(@MappingTarget Invoice invoice, InvoiceDTO dto);
 
+    @Mapping(target = "group", ignore = true)
+    @Mapping(target = "attendances", ignore = true)
+    void updateLesson(@MappingTarget Lesson lesson, LessonDTO dto);
+
     @Named("mapAttendanceStatusToBoolean")
     default boolean mapAttendanceStatusToBoolean(AttendanceStatus status) {
         return AttendanceStatus.ATTENDED.equals(status);

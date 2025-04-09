@@ -135,7 +135,7 @@ export const addLesson = async (
     notes: lesson.notes,
     groupId: lesson.groupId,
   };
-  return await fetchFromBackendWithAuth('admin/lessons', 'POST', token, body);
+  return await fetchFromBackendWithAuth('admin/lesson', 'POST', token, body);
 };
 
 export const getLessonsByGroup = async (token: string, groupId: string) => {

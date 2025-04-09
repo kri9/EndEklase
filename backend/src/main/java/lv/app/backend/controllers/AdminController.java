@@ -115,10 +115,21 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/lessons")
+    @PostMapping("/lesson")
     public ResponseEntity<Void> addLesson(@RequestBody LessonDTO lessonDTO) {
         lessonService.saveLesson(lessonDTO);
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/lesson")
+    public ResponseEntity<Void> updateLesson(@RequestBody LessonDTO lessonDTO) {
+        lessonService.updateLesson(lessonDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/lesson/{lessonId}")
+    public ResponseEntity<LessonDTO> getLesson(@PathVariable Long lessonId) {
+        return ResponseEntity.ok(lessonService.getLessonById(lessonId));
     }
 
     @GetMapping("/lessons")

@@ -128,7 +128,7 @@ public class DataCreator implements ApplicationRunner {
     }
 
     private LocalDate generate2024Date() {
-        return generateRandomDate(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31));
+        return generateRandomDate(LocalDate.of(2024, 8, 1), LocalDate.of(2025, 6, 20));
     }
 
     private Lesson createLesson(List<Group> groups) {

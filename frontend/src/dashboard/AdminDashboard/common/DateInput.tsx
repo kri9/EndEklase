@@ -1,15 +1,15 @@
 import { RootFormInput, useRootObject } from "./RootObjectForm";
 
-export default function TextInput(props: { header: string } & RootFormInput) {
+export default function DateInput(props: { header: string } & RootFormInput) {
   const [rootObjectCon, rootObjectSetterCon] = useRootObject();
   const rootObject = props.rootObject ?? rootObjectCon;
   const rootObjectSetter = props.rootObjectSetter ?? rootObjectSetterCon;
 
   return (
     <div className="form-group mt-3 flex flex-col items-start">
-      <label className="inline " htmlFor={props.field}>{props.header}:</label>
+      <label className="inline" htmlFor={props.field}>{props.header}:</label>
       <input
-        type="text"
+        type="date"
         id={props.field}
         name={props.field}
         className="form-control"
@@ -21,3 +21,4 @@ export default function TextInput(props: { header: string } & RootFormInput) {
     </div>
   );
 }
+

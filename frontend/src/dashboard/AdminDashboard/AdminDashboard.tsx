@@ -30,7 +30,7 @@ const AdminDashboard: React.FC = () => {
         return <AttendanceTab />;
       case "Списки групп":
         return <GroupListTab />;
-      case "Уроки":
+      case "Календарь":
         return <LessonsTab />;
       case "Добавление уроков":
         return <AddLessonTab />;
@@ -57,7 +57,7 @@ const AdminDashboard: React.FC = () => {
           "Посещение",
           "Списки групп",
           "Добавление уроков",
-          "Уроки",
+          "Календарь",
           "Отчеты по группам",
           "Выставление счетов",
         ].map((tab) => (

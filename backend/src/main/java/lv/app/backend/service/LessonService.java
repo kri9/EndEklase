@@ -31,6 +31,17 @@ public class LessonService {
     private final AttendanceRepository attendanceRepository;
 
     @Transactional
+    public void updateLesson(LessonDTO lessonDTO) {
+        Lesson lesson = lessonRepository.findById(lessonDTO.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+        if (lesson.getAttendances().stream().anyMatch(a -> a.getInvoice() != null)) {
+            throw new RuntimeException("Lesson " + lessonDTO.getId() + " has already been attended");
+        }
+        entityMapper.updateLesson(lesson, lessonDTO);
+        lessonRepository.save(lesson);
+    }
+
+    @Transactional
     public void saveLesson(LessonDTO lessonDTO) {
         Group group = groupRepository.findById(lessonDTO.getGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group ID"));
@@ -108,6 +119,7 @@ public class LessonService {
                 .map(entityMapper::attendanceToDto)
                 .collect(Collectors.toList());
     }
+
     @Transactional
     public List<AttendanceDTO> getAttendanceByUser(Long userId) {
         List<Attendance> attendances = attendanceRepository.findByChildParentId(userId);
@@ -117,4 +129,9 @@ public class LessonService {
                 .collect(Collectors.toList());
     }
 
+    public LessonDTO getLessonById(Long lessonId) {
+        return lessonRepository.findById(lessonId)
+                .map(entityMapper::lessonToDto)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found for lessonId: " + lessonId));
+    }
 }
