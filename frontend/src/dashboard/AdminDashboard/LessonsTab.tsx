@@ -59,7 +59,8 @@ export function LessonsTab() {
       localizer={localizer}
       events={lessons}
       style={{ height: 750 }}
-      onSelectEvent={l => setSelectedLesson(l)}
+      onSelectEvent={l => !l.isLockedForEditing && setSelectedLesson(l)}
+      eventPropGetter={(event) => ({ className: event.isLockedForEditing ? "!bg-gray-400" : "" })}
     />
 
   </>)

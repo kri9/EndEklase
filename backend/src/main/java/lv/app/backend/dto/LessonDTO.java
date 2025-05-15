@@ -15,4 +15,5 @@ public class LessonDTO {
     Long groupId;
     String groupName;
     String kindergartenName;
+    Boolean isLockedForEditing;
 }

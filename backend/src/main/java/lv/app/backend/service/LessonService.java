@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lv.app.backend.dto.AttendanceDTO;
 import lv.app.backend.dto.LessonDTO;
 import lv.app.backend.mappers.EntityMapper;
+import lv.app.backend.mappers.LessonMapper;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Group;
 import lv.app.backend.model.Lesson;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class LessonService {
 
     private final EntityMapper entityMapper;
+    private final LessonMapper lessonMapper;
     private final GroupRepository groupRepository;
     private final LessonRepository lessonRepository;
     private final AttendanceRepository attendanceRepository;
@@ -37,7 +39,7 @@ public class LessonService {
         if (lesson.getAttendances().stream().anyMatch(a -> a.getInvoice() != null)) {
             throw new RuntimeException("Lesson " + lessonDTO.getId() + " has already been attended");
         }
-        entityMapper.updateLesson(lesson, lessonDTO);
+        lessonMapper.updateLesson(lesson, lessonDTO);
         lessonRepository.save(lesson);
     }
 
@@ -46,7 +48,7 @@ public class LessonService {
         Group group = groupRepository.findById(lessonDTO.getGroupId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid group ID"));
 
-        Lesson lesson = entityMapper.dtoToLesson(lessonDTO);
+        Lesson lesson = lessonMapper.dtoToLesson(lessonDTO);
         lesson.setGroup(group);
         lessonRepository.saveAndFlush(lesson);
         linkChildrenWithLesson(lesson);
@@ -63,19 +65,17 @@ public class LessonService {
         );
     }
 
-
     public List<LessonDTO> getLessonsByGroup(Long groupId) {
         List<Lesson> lessons = lessonRepository.findByGroupId(groupId);
         System.out.println("Fetched Lessons for Group ID " + groupId + ": " + lessons);
         return lessons.stream()
-                .map(entityMapper::lessonToDto)
+                .map(lessonMapper::lessonToDto)
                 .collect(Collectors.toList());
     }
 
-
     public List<LessonDTO> getAllLessons() {
         return lessonRepository.findAll().stream()
-                .map(entityMapper::lessonToDto)
+                .map(lessonMapper::lessonToDto)
                 .collect(Collectors.toList());
     }
 
@@ -102,7 +102,7 @@ public class LessonService {
     public List<LessonDTO> getLessonsByUser(Long userId) {
         List<Lesson> lessons = lessonRepository.findLessonsByUserId(userId);
         return lessons.stream()
-                .map(entityMapper::lessonToDto)
+                .map(lessonMapper::lessonToDto)
                 .collect(Collectors.toList());
     }
 
@@ -131,7 +131,7 @@ public class LessonService {
 
     public LessonDTO getLessonById(Long lessonId) {
         return lessonRepository.findById(lessonId)
-                .map(entityMapper::lessonToDto)
+                .map(lessonMapper::lessonToDto)
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found for lessonId: " + lessonId));
     }
 }

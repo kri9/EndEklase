@@ -21,4 +21,5 @@ export interface LessonDTO {
   groupId: number;
   groupName: string;
   kindergartenName: string;
+  isLockedForEditing: boolean;
 }

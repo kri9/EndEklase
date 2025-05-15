@@ -20,15 +20,6 @@ public interface EntityMapper {
     @Mapping(target = "kindergartenId", source = "group.kindergarten.id")
     ChildDTO childToDto(Child child);
 
-    @Mapping(target = "groupId", source = "group.id")
-    @Mapping(target = "groupName", source = "group.name")
-    @Mapping(target = "kindergartenName", source = "group.kindergarten.name")
-    LessonDTO lessonToDto(Lesson lesson);
-
-    @Mapping(target = "group.id", source = "groupId")
-    @Mapping(target = "attendances", ignore = true)
-    Lesson dtoToLesson(LessonDTO lessonDTO);
-
     @Mapping(target = "childId", source = "child.id")
     @Mapping(target = "lessonId", source = "lesson.id")
     @Mapping(target = "attended", source = "status", qualifiedByName = "mapAttendanceStatusToBoolean")
@@ -59,10 +50,6 @@ public interface EntityMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "attendances", ignore = true)
     void updateInvoice(@MappingTarget Invoice invoice, InvoiceDTO dto);
-
-    @Mapping(target = "group", ignore = true)
-    @Mapping(target = "attendances", ignore = true)
-    void updateLesson(@MappingTarget Lesson lesson, LessonDTO dto);
 
     @Named("mapAttendanceStatusToBoolean")
     default boolean mapAttendanceStatusToBoolean(AttendanceStatus status) {
