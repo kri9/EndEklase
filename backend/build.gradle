@@ -2,6 +2,20 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.4'
     id 'io.spring.dependency-management' version '1.1.6'
+
+    /* ── static analysis ── */
+    id 'checkstyle'
+    id 'pmd'
+    id 'com.github.spotbugs' version '6.1.11'
+    id 'org.owasp.dependencycheck' version '12.1.1'
+
+    /* ── dynamic analysis ── */
+    id 'jacoco'
+    id 'info.solidsoft.pitest' version '1.15.0'
+
+    /* ── Sonar ── */
+    id 'org.sonarqube' version '6.2.0.5505'
+
 }
 
 group = 'lv.app'
@@ -44,9 +58,117 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'org.mockito:mockito-core:5.12.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.12.0'
+    testImplementation 'org.assertj:assertj-core:3.25.3'
+    testCompileOnly 'org.projectlombok:lombok:1.18.32'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.h2database:h2'
+    testImplementation 'io.rest-assured:rest-assured:5.4.0'
+
+    // --- Testcontainers if we later want the *real* DB instead of H2 ---
+    // testImplementation 'org.testcontainers:junit-jupiter:1.19.4'
+    // testImplementation 'org.testcontainers:postgresql:1.19.4'
+
+    // --- Cucumber  ---
+    // testImplementation 'io.cucumber:cucumber-spring:7.18.0'
+    // testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.18.0'
+
 }
+
+checkstyle {
+    toolVersion = '10.23.0'
+    // April 2025 release :contentReference[oaicite:7]{index=7}
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+}
+
+pmd {
+    toolVersion = '7.12.0'                                   // Mar 2025 minor :contentReference[oaicite:8]{index=8}
+    ruleSetConfig = resources.text.fromFile('config/pmd/pmd-ruleset.xml')
+    consoleOutput = true
+}
+
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
+
+spotbugs {
+    effort = Effort.valueOf('DEFAULT')
+    reportLevel = Confidence.valueOf('DEFAULT')
+}
+
+tasks.spotbugsMain {
+    reports.create("html") {
+        required = true
+        outputLocation = file("$buildDir/reports/spotbugs.html")
+        setStylesheet("fancy-hist.xsl")
+    }
+}
+
+tasks.spotbugsTest {
+    reports.create("html") {
+        required = true
+        outputLocation = file("$buildDir/reports/spotbugs.html")
+        setStylesheet("fancy-hist.xsl")
+    }
+}
+
+/* Optional: make all SpotBugs HTML go into a single folder */
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+    reports.html.outputLocation = layout.buildDirectory.file("reports/spotbugs/${name}.html")
+}
+
+dependencyCheck {
+    formats = ['HTML', 'JSON']
+    outputDirectory = "$buildDir/reports/dependency-check"
+}
+
+/* ---------- Dynamic tools ---------- */
+
+jacoco {
+    toolVersion = '0.8.13'
+    // Java 21 support (2025-04-02) :contentReference[oaicite:9]{index=9}
+}
+
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true   // needed by Sonar
+        html.required = true
+    }
+}
+
+pitest {
+    targetClasses = ['lv.app.*']      // adjust to your packages
+    timestampedReports = false
+    junit5PluginVersion = '1.2.1'
+}
+
+/* ---------- Sonar ---------- */
+
+sonarqube {
+    properties {
+        property 'sonar.projectKey', 'EklaseBackend'
+        property 'sonar.projectName', 'EklaseBackend'
+        property 'sonar.host.url', 'http://funnyenglish.eu:9000'  // or SonarCloud URL
+        property 'sonar.token', System.getenv('SONAR_TOKEN')
+        property 'sonar.coverage.jacoco.xmlReportPaths',
+                "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    }
+}
+
+/* ---------- Wire everything into the standard `check` task ---------- */
+
+tasks.named('check') {
+    dependsOn 'spotbugsMain', 'pmdMain', 'checkstyleMain',
+            'dependencyCheckAnalyze', 'pitest'
 }
