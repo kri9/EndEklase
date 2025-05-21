@@ -48,7 +48,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
     try {
       const user = usersInfo.find((u) => u.fullName === newInvoice.fullName);
       if (!user) {
-        alert("Пользователь не найден");
+        alert("Lietotājs nav atrasts");
         return;
       }
 
@@ -65,22 +65,22 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
 
       onSave(invoiceToSave);
     } catch (error) {
-      console.error("Ошибка при сохранении инвойса:", error);
-      alert("Произошла ошибка при сохранении. Проверьте данные.");
+      console.error("Kļūda saglabājot rēķinu:", error);
+      alert("Radās kļūda saglabājot. Pārbaudiet datus.");
     }
   };
 
   return (
     <div className="invoice-form mt-4">
-      <h3>Добавить новый счет (Вручную)</h3>
+      <h3>Pievienot jaunu rēķinu (Manuāli)</h3>
       <div className="form-group">
-        <label htmlFor="userId">Имя Пользователя:</label>
+        <label htmlFor="userId">Lietotāja vārds:</label>
         <UserSelect
           onChange={(nv) => setNewInvoice({ ...newInvoice, ["fullName"]: nv })}
         />
       </div>
       <div className="form-group mt-3">
-        <label htmlFor="dateIssued">Дата выставления:</label>
+        <label htmlFor="dateIssued">Izrakstīšanas datums:</label>
         <input
           type="date"
           id="dateIssued"
@@ -93,7 +93,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
         />
       </div>
       <div className="form-group mt-3">
-        <label htmlFor="dueDate">Дата оплаты:</label>
+        <label htmlFor="dueDate">Apmaksas datums:</label>
         <input
           type="date"
           id="dueDate"
@@ -106,7 +106,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
         />
       </div>
       <div className="form-group mt-3">
-        <label htmlFor="amount">Сумма:</label>
+        <label htmlFor="amount">Summa:</label>
         <input
           type="number"
           id="amount"
@@ -119,7 +119,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
         />
       </div>
       <div className="form-group mt-3">
-        <label htmlFor="status">Статус:</label>
+        <label htmlFor="status">Statuss:</label>
         <select
           id="status"
           name="status"
@@ -129,14 +129,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
             setNewInvoice({ ...newInvoice, status: e.target.value })
           }
         >
-          <option value="">-- Выберите статус --</option>
-          <option value="NOT_PAID">Неоплачен</option>
-          <option value="PAID">Оплачен</option>
-          <option value="EXPIRED">Просрочен</option>
+          <option value="">-- Izvēlieties statusu --</option>
+          <option value="NOT_PAID">Neapmaksāts</option>
+          <option value="PAID">Apmaksāts</option>
+          <option value="EXPIRED">Nokavēts</option>
         </select>
       </div>
       <div className="form-group mt-3">
-        <label htmlFor="lesson">Урок:</label>
+        <label htmlFor="lesson">Stunda:</label>
         <select
           id="lesson"
           name="lesson"
@@ -144,7 +144,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
           value={selectedLessonId ?? ""}
           onChange={(e) => setSelectedLessonId(Number(e.target.value))}
         >
-          <option value="">-- Выберите урок --</option>
+          <option value="">-- Izvēlieties stundu --</option>
           {lessons &&
             lessons.map((lesson) => (
               <option key={lesson.id} value={lesson.id}>
@@ -153,18 +153,18 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
             ))}
         </select>
         <button onClick={addLesson} className="btn btn-secondary mt-2">
-          Добавить урок
+          Pievienot stundu
         </button>
       </div>
       <div className="form-group mt-3">
-        <h4>Выбранные уроки:</h4>
+        <h4>Izvēlētās stundas:</h4>
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>ID Урока</th>
-              <th>Тема</th>
-              <th>Дата</th>
-              <th>Действие</th>
+              <th>Stundas ID</th>
+              <th>Tēma</th>
+              <th>Datums</th>
+              <th>Darbība</th>
             </tr>
           </thead>
           <tbody>
@@ -179,7 +179,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
                       onClick={() => removeLesson(lesson.id)}
                       className="btn btn-danger"
                     >
-                      Удалить
+                      Dzēst
                     </button>
                   </td>
                 </tr>
@@ -188,7 +188,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
         </table>
       </div>
       <button onClick={saveInvoice} className="btn btn-primary mt-3">
-        Выставить счет
+        Izrakstīt rēķinu
       </button>
     </div>
   );

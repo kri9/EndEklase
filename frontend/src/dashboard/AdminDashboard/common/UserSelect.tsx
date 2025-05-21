@@ -26,7 +26,7 @@ export default function UserSelect(props: UserSelectProps) {
   };
 
   const inputProps = {
-    placeholder: "Введите имя пользователя",
+    placeholder: "Ievadiet lietotājvārdu",
     value: userFullName,
     onChange: (event: any, { newValue }: { newValue: string; method: any }) => {
       setUserFullName(newValue);

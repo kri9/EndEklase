@@ -40,7 +40,7 @@ const GroupListTab: React.FC = () => {
     }
   }, [token, selectedKindergarten]);
 
-  // Загрузка детей в группе
+  // Bērnu ielāde grupā
   const loadChildren = async (groupId: string) => {
     if (token && groupId) {
       const fetchedChildren = await getChildrenByGroup(token, groupId);
@@ -55,7 +55,7 @@ const GroupListTab: React.FC = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-3xl mb-4">Списки групп</h2>
+      <h2 className="text-3xl mb-4">Grupu saraksti</h2>
 
       <Filters
         kindergartens={kindergartens}

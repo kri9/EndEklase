@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { clearAuthToken } from "src/redux/authSlice";
 
 const UserDashboard: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState("Посещение");
+  const [selectedTab, setSelectedTab] = useState("Apmeklējums");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -21,11 +21,11 @@ const UserDashboard: React.FC = () => {
 
   const renderTabContent = () => {
     switch (selectedTab) {
-      case "Посещение":
+      case "Apmeklējums":
         return <AttendanceTab />;
-      case "Инвойсы":
+      case "Rēķini":
         return <InvoiceTab />;
-      case "Настройки":
+      case "Iestatījumi":
         return <SettingsTab />;
       default:
         return null;
@@ -37,41 +37,41 @@ const UserDashboard: React.FC = () => {
       <div className="sidebar">
         <h2>eClass</h2>
         <div className="balance">
-          <span>Сумма к оплате</span>
+          <span>Maksājuma summa</span>
           <h3>$12,488.00</h3>
         </div>
         <nav>
           <div
-            className={`sidebar-item ${selectedTab === "Посещение" ? "active" : ""}`}
-            onClick={() => setSelectedTab("Посещение")}
+            className={`sidebar-item ${selectedTab === "Apmeklējums" ? "active" : ""}`}
+            onClick={() => setSelectedTab("Apmeklējums")}
           >
             <FaUserCheck className="sidebar-icon" />
-            <span>Посещение</span>
+            <span>Apmeklējums</span>
           </div>
           <div
-            className={`sidebar-item ${selectedTab === "Инвойсы" ? "active" : ""}`}
-            onClick={() => setSelectedTab("Инвойсы")}
+            className={`sidebar-item ${selectedTab === "Rēķini" ? "active" : ""}`}
+            onClick={() => setSelectedTab("Rēķini")}
           >
             <FaFileInvoice className="sidebar-icon" />
-            <span>Инвойсы</span>
+            <span>Rēķini</span>
           </div>
           <div
-            className={`sidebar-item ${selectedTab === "Настройки" ? "active" : ""}`}
-            onClick={() => setSelectedTab("Настройки")}
+            className={`sidebar-item ${selectedTab === "Iestatījumi" ? "active" : ""}`}
+            onClick={() => setSelectedTab("Iestatījumi")}
           >
             <FaCog className="sidebar-icon" />
-            <span>Настройки</span>
+            <span>Iestatījumi</span>
           </div>
         </nav>
         <button className="logout-button" onClick={handleLogout}>
-          Выйти
+          Iziet
         </button>
       </div>
 
       <div className="content">
         <header className="dashboard-header">
-          <h1>Добро пожаловать, Родитель!</h1>
-          <input type="search" placeholder="Поиск..." />
+          <h1>Laipni lūdzam, Vecāk!</h1>
+          <input type="search" placeholder="Meklēt..." />
         </header>
         <div className="tab-content">{renderTabContent()}</div>
       </div>

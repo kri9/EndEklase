@@ -55,19 +55,19 @@ const AddChildForm: React.FC<AddChildFormProps> = ({ selectedKindergarten, selec
 
   const handleAddChild = async () => {
     if (!token) {
-      alert("Ошибка: не найден токен аутентификации!");
+      alert("Kļūda: autentifikācijas pilnvaras nav atrastas!");
       return;
     }
 
     if (!validateForm()) return;
 
     if (!selectedKindergarten || !selectedGroup) {
-      alert("Выберите садик и группу перед добавлением ребенка");
+      alert("Izvēlieties bērnudārzu un grupu pirms bērna pievienošanas");
       return;
     }
 
     if (newChild.userId === null) {
-      alert("Ошибка: не найден ID пользователя!");
+      alert("Kļūda: lietotāja ID nav atrasts!");
       return;
     }
 
@@ -80,22 +80,22 @@ const AddChildForm: React.FC<AddChildFormProps> = ({ selectedKindergarten, selec
         selectedGroup,
         newChild.userId
       );
-      alert("Ребенок успешно добавлен");
+      alert("Bērns veiksmīgi pievienots");
 
       setNewChild({ firstname: "", lastname: "", userId: null, userFullName: "" });
       reloadChildren();
     } catch (error) {
       console.error("Ошибка при добавлении ребенка:", error);
-      alert("Ошибка при добавлении ребенка");
+      alert("Kļūda, pievienojot bērnu");
     }
   };
 
   return (
     <div className="bg-white p-6 shadow-md rounded-lg">
-      <h3 className="text-xl font-semibold mb-3">Добавить ребенка</h3>
+      <h3 className="text-xl font-semibold mb-3">Pievienot bērnu</h3>
 
       <div className="form-group">
-        <label>Имя:</label>
+        <label>Vārds:</label>
         <input
           type="text"
           name="firstname"
@@ -106,7 +106,7 @@ const AddChildForm: React.FC<AddChildFormProps> = ({ selectedKindergarten, selec
       </div>
 
       <div className="form-group">
-        <label>Фамилия:</label>
+        <label>Uzvārds:</label>
         <input
           type="text"
           name="lastname"
@@ -117,16 +117,16 @@ const AddChildForm: React.FC<AddChildFormProps> = ({ selectedKindergarten, selec
       </div>
 
       <div className="form-group">
-        <label>Выберите родителя:</label>
+        <label>Izvēlieties vecāku:</label>
         <UserSelect 
           onChange={handleUserChange} 
           name="userFullName"
         />
-        {formErrors.userFullName && <div className="invalid-feedback">Пожалуйста, выберите родителя.</div>}
+        {formErrors.userFullName && <div className="invalid-feedback">Lūdzu, izvēlieties vecāku.</div>}
       </div>
 
       <button onClick={handleAddChild} className="btn btn-primary mt-3 w-full">
-        Добавить ребенка
+        Pievienot bērnu
       </button>
     </div>
   );

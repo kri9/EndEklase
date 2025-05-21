@@ -14,9 +14,9 @@ export function LessonEditForm(props: { lesson: LessonDTO }) {
   return (
     <div>
       <RootObjectForm rootObject={editedLesson} rootObjectSetter={setEditedLesson}>
-        <TextInput header="Тема Урока" field="topic" />
-        <TextInput header="Заметки" field="notes" />
-        <DateInput header="Дата" field="date" />
+        <TextInput header="Stundas Tēma" field="topic" />
+        <TextInput header="Piezīmes" field="notes" />
+        <DateInput header="Datums" field="date" />
         <button onClick={saveLesson} className="btn btn-primary mt-4 w-full">
           Сохранить
         </button>

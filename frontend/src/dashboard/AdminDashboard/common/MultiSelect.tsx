@@ -38,7 +38,7 @@ export default function MultiSelect<T extends MultiSelectOption>(props: MultiSel
           arrField.push(selectedOption);
           rootObjectSetter({ ...rootObject, [props.field]: arrField });
         }}
-      >+ Добавить</button>
+      >+ Pievienot</button>
       <table className="table-bordered mt-3 w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-center text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>

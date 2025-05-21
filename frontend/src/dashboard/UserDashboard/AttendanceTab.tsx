@@ -50,11 +50,11 @@ const AttendanceTab: React.FC = () => {
   return (
     <div className="attendance-tab">
       <header className="header">
-        <h2>Отслеживайте посещаемость вашего ребенка.</h2>
+        <h2>Izsekojiet sava bērna apmeklējumu.</h2>
       </header>
 
       <div className="month-select">
-        <label htmlFor="month-select">Выберите месяц:</label>
+        <label htmlFor="month-select">Izvēlieties mēnesi:</label>
         <div>
           <DatePicker
             selected={selectedMonth}
@@ -64,7 +64,7 @@ const AttendanceTab: React.FC = () => {
             showFullMonthYearPicker
             showTwoColumnMonthYearPicker
           />
-          <button onClick={() => setSelectedMonth(null)}>Все месяцы</button>
+          <button onClick={() => setSelectedMonth(null)}>Visi mēneši</button>
         </div>
       </div>
 
@@ -74,15 +74,15 @@ const AttendanceTab: React.FC = () => {
         ) : filteredAttendance.length > 0 ? (
           filteredAttendance.map((att) => (
             <div key={att.id} className={`attendance-card ${att.attended ? 'attended' : 'absent'}`}>
-              <div className="card-date">{att.lesson ? att.lesson.date : 'Дата неизвестна'}</div>
-              <div className="card-subject">{att.lesson ? att.lesson.topic : 'Тема неизвестна'}</div>
+              <div className="card-date">{att.lesson ? att.lesson.date : 'Datums nav zināms'}</div>
+              <div className="card-subject">{att.lesson ? att.lesson.topic : 'Tēma nav zināma'}</div>
               <div className="card-status">
-                {att.attended ? 'Присутствовал' : 'Отсутствовал'}
+                {att.attended ? 'Apmeklēja' : 'Nebija'}
               </div>
             </div>
           ))
         ) : (
-          <p>Нет доступных данных о посещаемости.</p>
+          <p>Nav pieejamu apmeklējuma datu.</p>
         )}
       </div>
     </div>

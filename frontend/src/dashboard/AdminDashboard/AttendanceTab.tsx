@@ -132,10 +132,10 @@ const AttendanceTab: React.FC = () => {
           const attended = attendance[key];
           await updateAttendance(token, childId, lessonId, attended);
         }
-        alert("Посещаемость успешно сохранена");
+        alert("Apmeklējums veiksmīgi saglabāts");
       } catch (error) {
         console.error("Failed to update attendance", error);
-        alert("Ошибка при сохранении посещаемости");
+        alert("Kļūda, saglabājot apmeklējumu");
       }
     }
   };
@@ -148,17 +148,17 @@ const AttendanceTab: React.FC = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-3xl mb-4">Посещение</h2>
+      <h2 className="text-3xl mb-4">Apmeklējums</h2>
       <div className="filters mb-4">
         <div className="form-group">
-          <label htmlFor="kindergartenSelect">Выберите садик:</label>
+          <label htmlFor="kindergartenSelect">Izvēlieties bērnudārzu:</label>
           <select
             id="kindergartenSelect"
             className="form-control"
             value={selectedKindergarten}
             onChange={handleKindergartenChange}
           >
-            <option value="">-- Выберите садик --</option>
+            <option value="">-- Izvēlieties bērnudārzu --</option>
             {kindergartens.map((kg) => (
               <option key={kg.id} value={kg.id}>
                 {kg.name}
@@ -167,7 +167,7 @@ const AttendanceTab: React.FC = () => {
           </select>
         </div>
         <div className="form-group mt-3">
-          <label htmlFor="groupSelect">Выберите группу:</label>
+          <label htmlFor="groupSelect">Izvēlieties grupu:</label>
           <select
             id="groupSelect"
             className="form-control"
@@ -175,7 +175,7 @@ const AttendanceTab: React.FC = () => {
             onChange={handleGroupChange}
             disabled={!selectedKindergarten}
           >
-            <option value="">-- Выберите группу --</option>
+            <option value="">-- Izvēlieties grupu --</option>
             {groups.map((group) => (
               <option key={group.id} value={group.id}>
                 {group.name}
@@ -184,14 +184,14 @@ const AttendanceTab: React.FC = () => {
           </select>
         </div>
         <div className="form-group mt-3">
-          <label htmlFor="monthSelect">Выберите месяц:</label>
+          <label htmlFor="monthSelect">Izvēlieties mēnesi:</label>
           <DatePicker
             selected={selectedMonth}
             onChange={handleMonthChange}
             dateFormat="yyyy-MM"
             showMonthYearPicker
             className="form-control"
-            placeholderText="-- Все месяцы --"
+            placeholderText="-- Visi mēneši --"
           />
         </div>
       </div>
@@ -201,7 +201,7 @@ const AttendanceTab: React.FC = () => {
           <table className="table table-bordered table-hover">
             <thead className="thead-dark">
               <tr>
-                <th>Ребенок</th>
+                <th>Bērns</th>
                 {filteredLessons.map((lesson) => (
                   <th key={lesson.id}>
                     {lesson.topic} <br /> ({lesson.date})
@@ -230,11 +230,11 @@ const AttendanceTab: React.FC = () => {
             </tbody>
           </table>
           <button className="btn btn-primary mt-3" onClick={saveAttendanceChanges}>
-            Сохранить посещаемость
+            Saglabāt apmeklējumu
           </button>
         </div>
       ) : (
-        <p>Выберите садик и группу, чтобы увидеть данные по посещению.</p>
+        <p>Izvēlieties bērnudārzu un grupu, lai redzētu apmeklējuma datus.</p>
       )}
     </div>
   );

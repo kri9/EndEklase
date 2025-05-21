@@ -63,21 +63,21 @@ export default function UserTab() {
 
   return (
     <div className="p-6">
-      <h2 className="text-3xl mb-5 font-semibold">Пользователи</h2>
+      <h2 className="text-3xl mb-5 font-semibold">Lietotāji</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 shadow-md rounded-lg">
-          <h3 className="text-xl font-semibold mb-3">Добавить / Изменить пользователя</h3>
+          <h3 className="text-xl font-semibold mb-3">Pievienot / Rediģēt lietotāju</h3>
           <UserSelect onChange={(_, id) => setUserId(id)} />
 
           <RootObjectForm rootObject={user} rootObjectSetter={setUser}>
-            <TextInput field="email" header="Почта" />
-            <TextInput field="firstName" header="Имя" />
-            <TextInput field="lastName" header="Фамилия" />
-            <TextInput field="password" header="Пароль" />
-            <BooleanInput field="separateInvoices" displayText="Отдельные счeта для детей" />
+            <TextInput field="email" header="E-pasts" />
+            <TextInput field="firstName" header="Vārds" />
+            <TextInput field="lastName" header="Uzvārds" />
+            <TextInput field="password" header="Parole" />
+            <BooleanInput field="separateInvoices" displayText="Atsevišķi rēķini bērniem" />
             <NumberInput
               field="discountRate"
-              header="Скидка (%)"
+              header="Atlaide (%)"
               min={0}
               max={1}
               step={0.05}
@@ -86,16 +86,16 @@ export default function UserTab() {
             />
 
             <button onClick={saveUser} className="btn btn-primary mt-4 w-full">
-              Сохранить пользователя
+              Saglabāt lietotāju
             </button>
           </RootObjectForm>
         </div>
         <div className="bg-white p-6 shadow-md rounded-lg">
-          <h3 className="text-xl font-semibold mb-3">Список пользователей</h3>
+          <h3 className="text-xl font-semibold mb-3">Lietotāju saraksts</h3>
           <input
             type="text"
             className="form-control my-3"
-            placeholder="Поиск по имени или email"
+            placeholder="Meklēt pēc vārda vai e-pasta"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

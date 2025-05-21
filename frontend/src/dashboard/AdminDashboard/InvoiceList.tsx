@@ -40,10 +40,10 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
 
   return (
     <div className="invoice-list mt-5">
-      <h3>Список счетов</h3>
+      <h3>Rēķinu saraksts</h3>
       <div className="filter-form">
         <div className="form-group">
-          <label htmlFor="filterFullName">Имя пользователя:</label>
+          <label htmlFor="filterFullName">Lietotāja vārds:</label>
           <input
             type="text"
             id="filterFullName"
@@ -54,7 +54,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
           />
         </div>
         <div className="form-group">
-          <label htmlFor="filterDateIssuedFrom">Дата выставления (от):</label>
+          <label htmlFor="filterDateIssuedFrom">Izrakstīšanas datums (no):</label>
           <input
             type="date"
             id="filterDateIssuedFrom"
@@ -65,7 +65,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
           />
         </div>
         <div className="form-group">
-          <label htmlFor="filterDateIssuedTo">Дата выставления (до):</label>
+          <label htmlFor="filterDateIssuedTo">Izrakstīšanas datums (līdz):</label>
           <input
             type="date"
             id="filterDateIssuedTo"
@@ -76,7 +76,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
           />
         </div>
         <div className="form-group">
-          <label htmlFor="filterDueDateFrom">Дата оплаты (от):</label>
+          <label htmlFor="filterDueDateFrom">Apmaksas datums (no):</label>
           <input
             type="date"
             id="filterDueDateFrom"
@@ -87,7 +87,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
           />
         </div>
         <div className="form-group">
-          <label htmlFor="filterDueDateTo">Дата оплаты (до):</label>
+          <label htmlFor="filterDueDateTo">Apmaksas datums (līdz):</label>
           <input
             type="date"
             id="filterDueDateTo"
@@ -98,7 +98,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
           />
         </div>
         <div className="form-group">
-          <label htmlFor="filterStatus">Статус:</label>
+          <label htmlFor="filterStatus">Statuss:</label>
           <select
             id="filterStatus"
             name="status"
@@ -106,10 +106,10 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
             value={filters.status}
             onChange={onFilterChange}
           >
-            <option value="">-- Выберите статус --</option>
-            <option value="NOT_PAID">Неоплачен</option>
-            <option value="PAID">Оплачен</option>
-            <option value="EXPIRED">Просрочен</option>
+            <option value="">-- Izvēlieties statusu --</option>
+            <option value="NOT_PAID">Neapmaksāts</option>
+            <option value="PAID">Apmaksāts</option>
+            <option value="EXPIRED">Nokavēts</option>
           </select>
         </div>
       </div>
@@ -117,14 +117,14 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>ID Счета</th>
-              <th>Имя пользователя</th>
-              <th>Дата выставления</th>
-              <th>Дата оплаты</th>
-              <th>Сумма</th>
-              <th>Статус</th>
-              <th>Уроки</th>
-              <th>Действие</th>
+              <th>Rēķina ID</th>
+              <th>Lietotāja vārds</th>
+              <th>Izrakstīšanas datums</th>
+              <th>Apmaksas datums</th>
+              <th>Summa</th>
+              <th>Statuss</th>
+              <th>Stundas</th>
+              <th>Darbība</th>
             </tr>
           </thead>
           <tbody>
@@ -191,9 +191,9 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                       onChange={(e) => setEditingInvoice({ ...editingInvoice, [e.target.name]: e.target.value })}
                       className="form-control"
                     >
-                      <option value="NOT_PAID">Неоплачен</option>
-                      <option value="PAID">Оплачен</option>
-                      <option value="EXPIRED">Просрочен</option>
+                      <option value="NOT_PAID">Neapmaksāts</option>
+                      <option value="PAID">Apmaksāts</option>
+                      <option value="EXPIRED">Nokavēts</option>
                     </select>
                   ) : (
                     invoice.status
@@ -202,29 +202,29 @@ const InvoiceList: React.FC<InvoiceListProps> = ({
                 <td>
                   {invoice.lessons && invoice.lessons.length > 0
                     ? invoice.lessons.map((lesson: any) => lesson.topic).join(", ")
-                    : "Нет уроков"}
+                    : "Nav stundu"}
                 </td>
                 <td>
                   {editingInvoiceId === invoice.id ? (
                     <div className="d-flex justify-content-around">
                       <button onClick={onSave} className="btn btn-primary">
-                        Сохранить
+                        Saglabāt
                       </button>
                       <button onClick={onCancel} className="btn btn-secondary">
-                        Отменить
+                        Atcelt
                       </button>
                     </div>
                   ) : (
                     <div className="flex flex-col">
                       <button onClick={() => onEdit(invoice)} className="btn btn-primary">
-                        Редактировать
+                        Rediģēt
                       </button>
                       <button
                         className="flex btn btn-primary mt-1 justify-center"
                         onClick={() => handleDownloadPDFAdmin(invoice.id)}
                       >
                         <FaDownload className="icon-download" />
-                        Скачать PDF
+                        Lejupielādēt PDF
                       </button>
                     </div>
                   )}

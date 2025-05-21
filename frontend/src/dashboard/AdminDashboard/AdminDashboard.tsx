@@ -13,7 +13,7 @@ import UserTab from "./UserTab";
 import { LessonsTab } from "./LessonsTab";
 
 const AdminDashboard: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState("Списки групп");
+  const [selectedTab, setSelectedTab] = useState("Grupu saraksti");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -24,19 +24,19 @@ const AdminDashboard: React.FC = () => {
 
   const renderTabContent = () => {
     switch (selectedTab) {
-      case "Пользователи":
-        return <UserTab />
-      case "Посещение":
+      case "Lietotāji":
+        return <UserTab />;
+      case "Apmeklējums":
         return <AttendanceTab />;
-      case "Списки групп":
+      case "Grupu saraksti":
         return <GroupListTab />;
-      case "Календарь":
+      case "Kalendārs":
         return <LessonsTab />;
-      case "Добавление уроков":
+      case "Pievienot nodarbības":
         return <AddLessonTab />;
-      case "Отчеты по группам":
+      case "Grupu pārskati":
         return <ReportsTab />;
-      case "Выставление счетов":
+      case "Rēķinu izrakstīšana":
         return <InvoicesTab />;
       default:
         return null;
@@ -46,20 +46,20 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="admin-dashboard-wrapper d-flex flex-column w-100 vh-100">
       <div className="d-flex justify-content-between align-items-center">
-        <h1>Панель администратора</h1>
+        <h1>Administratora panelis</h1>
         <button className="btn btn-danger" onClick={handleLogout}>
-          Выйти
+          Iziet
         </button>
       </div>
       <div className="tabs d-flex">
         {[
-          "Пользователи",
-          "Посещение",
-          "Списки групп",
-          "Добавление уроков",
-          "Календарь",
-          "Отчеты по группам",
-          "Выставление счетов",
+          "Lietotāji",
+          "Apmeklējums",
+          "Grupu saraksti",
+          "Pievienot nodarbības",
+          "Kalendārs",
+          "Grupu pārskati",
+          "Rēķinu izrakstīšana",
         ].map((tab) => (
           <div
             key={tab}

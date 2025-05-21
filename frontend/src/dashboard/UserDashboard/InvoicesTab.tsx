@@ -10,17 +10,17 @@ const InvoiceTab: React.FC = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const token = useSelector((state: RootState) => state.auth.token);
 
-  // Сопоставление статусов из базы данных с отображаемыми значениями
+  // Statusu kartēšana no datubāzes uz attēlojamiem tekstiem
   const mapStatusToLabel = (status: string) => {
     switch (status) {
       case "PAID":
-        return "Оплачен";
+        return "Apmaksāts";
       case "NOT_PAID":
-        return "Неоплачен";
+        return "Nav apmaksāts";
       case "EXPIRED":
-        return "Просрочен";
+        return "Nokavēts";
       default:
-        return "Неизвестно";
+        return "Nezināms";
     }
   };
 
@@ -31,7 +31,7 @@ const InvoiceTab: React.FC = () => {
           const fetchedInvoices = await getInvoicesByUser(token);
           setInvoices(fetchedInvoices || []);
         } catch (error) {
-          console.error("Ошибка загрузки счетов:", error);
+          console.error("Kļūda, ielādējot rēķinus:", error);
         }
       }
     };
@@ -41,17 +41,17 @@ const InvoiceTab: React.FC = () => {
 
   return (
     <div className="invoices-tab">
-      <h2 className="text-3xl mb-4">Счета</h2>
+      <h2 className="text-3xl mb-4">Rēķini</h2>
       <div className="invoices-cards">
         {invoices.length > 0 ? (
           invoices.map((invoice) => (
             <div key={invoice.id} className="invoice-card">
               <div className="invoice-header">
                 <FaFilePdf className="icon-pdf" />
-                <h3>Инвойс #{invoice.id}</h3>
+                <h3>Rēķins #{invoice.id}</h3>
               </div>
-              <p>Дата: {invoice.date}</p>
-              <p>Сумма: {invoice.amount}</p>
+              <p>Datums: {invoice.date}</p>
+              <p>Summa: {invoice.amount}</p>
               <p className={`status ${invoice.status.toLowerCase()}`}>
                 {mapStatusToLabel(invoice.status)}
               </p>
@@ -61,19 +61,19 @@ const InvoiceTab: React.FC = () => {
                   onClick={() => handleDownloadPDF(invoice.id)}
                 >
                   <FaDownload className="icon-download" />
-                  Скачать PDF
+                  Lejupielādēt PDF
                 </button>
                 {invoice.status === "NOT_PAID" && (
                   <button className="pay-button">
                     <FaCreditCard className="icon-pay" />
-                    Оплатить
+                    Apmaksāt
                   </button>
                 )}
               </div>
             </div>
           ))
         ) : (
-          <p>Нет доступных счетов.</p>
+          <p>Nav pieejamu rēķinu.</p>
         )}
       </div>
     </div>

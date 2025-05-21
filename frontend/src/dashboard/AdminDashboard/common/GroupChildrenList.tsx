@@ -25,50 +25,50 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
 
   const handleChildDelete = async (index: number) => {
     if (!token) {
-      alert("Ошибка: не найден токен аутентификации!");
+      alert("Kļūda: autentifikācijas pilnvaras nav atrastas!");
       return;
     }
 
     const child = localEditedChildren[index];
-    const confirmDelete = window.confirm(`Вы уверены, что хотите удалить ${child.firstname} ${child.lastname}?`);
+    const confirmDelete = window.confirm(`Vai tiešām vēlaties dzēst ${child.firstname} ${child.lastname}?`);
     if (!confirmDelete) return;
 
     try {
       await deleteChildren(token, [child.id]);
       reloadChildren();
     } catch (error) {
-      console.error("Ошибка при удалении ребенка:", error);
-      alert("Ошибка при удалении ребенка");
+      console.error("Kļūda, dzēšot bērnu:", error);
+      alert("Kļūda, dzēšot bērnu");
     }
   };
 
   const handleSaveChildrenChanges = async () => {
     if (!token) {
-      alert("Ошибка: не найден токен аутентификации!");
+      alert("Kļūda: autentifikācijas pilnvaras nav atrastas!");
       return;
     }
 
     try {
       await updateChildren(localEditedChildren);
-      alert("Изменения успешно сохранены");
+      alert("Izmaiņas veiksmīgi saglabātas");
       reloadChildren();
     } catch (error) {
-      console.error("Ошибка при сохранении:", error);
-      alert("Ошибка при сохранении изменений");
+      console.error("Kļūda, saglabājot:", error);
+      alert("Kļūda, saglabājot izmaiņas");
     }
   };
 
   return (
     <div className="bg-white p-6 shadow-md rounded-lg">
-      <h3 className="text-xl font-semibold mb-3">Дети в группе</h3>
+      <h3 className="text-xl font-semibold mb-3">Bērni grupā</h3>
       {localEditedChildren.length > 0 ? (
         <>
           <table className="table table-bordered mt-3">
             <thead>
               <tr>
-                <th>Имя</th>
-                <th>Фамилия</th>
-                <th>Действие</th>
+                <th>Vārds</th>
+                <th>Uzvārds</th>
+                <th>Darbība</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +97,7 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
                       className={`btn ${child.isDeleted ? "btn-success" : "btn-danger"}`}
                       onClick={() => handleChildDelete(index)}
                     >
-                      {child.isDeleted ? "Восстановить" : "Удалить"}
+                      {child.isDeleted ? "Atjaunot" : "Dzēst"}
                     </button>
                   </td>
                 </tr>
@@ -105,11 +105,11 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
             </tbody>
           </table>
           <button onClick={handleSaveChildrenChanges} className="btn btn-success mt-3">
-            Сохранить изменения
+            Saglabāt izmaiņas
           </button>
         </>
       ) : (
-        <p>Выберите садик и группу, чтобы увидеть список детей.</p>
+        <p>Izvēlieties bērnudārzu un grupu, lai redzētu bērnu sarakstu.</p>
       )}
     </div>
   );

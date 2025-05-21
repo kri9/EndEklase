@@ -27,9 +27,9 @@ export default function UserTable({ users, searchTerm }: UserTableProps) {
         <tr>
           <th>ID</th>
           <th>Email</th>
-          <th>Имя</th>
-          <th>Фамилия</th>
-          <th>Скидка (%)</th>
+          <th>vārds</th>
+          <th>Uzvārds</th>
+          <th>Atlaide (%)</th>
         </tr>
       </thead>
       <tbody>

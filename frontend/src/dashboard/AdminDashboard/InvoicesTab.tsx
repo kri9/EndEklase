@@ -49,7 +49,7 @@ const InvoicesTab: React.FC = () => {
 
   const handleDeleteInvoice = async (invoice: InvoiceDTO) => {
     if (!token || invoice.id === undefined) return;
-    if (window.confirm(`Вы уверены, что хотите удалить инвойс №${invoice.id}?`)) {
+    if (window.confirm(`Vai esat pārliecināts, ka vēlaties dzēst rēķinu Nr.${invoice.id}?`)) {
       await deleteInvoice(token, invoice.id);
       setInvoices((prev) => prev.filter((i) => i.id !== invoice.id));
     }
@@ -60,8 +60,8 @@ const InvoicesTab: React.FC = () => {
       const savedInvoice = await postRequest<InvoiceDTO>("admin/invoice", invoice);
       setInvoices((invs) => invs.concat(savedInvoice))
     } catch (error) {
-      console.error("Ошибка при сохранении инвойса:", error);
-      alert("Ошибка при сохранении инвойса");
+      console.error("Kļūda, saglabājot rēķinu:", error);
+      alert("Kļūda, saglabājot rēķinu");
     }
   };
 
@@ -75,8 +75,8 @@ const InvoicesTab: React.FC = () => {
 
       alert("Invoices generated successfully");
     } catch (error) {
-      console.error("Ошибка при генерации инвойсов:", error);
-      alert("Ошибка при генерации инвойсов");
+      console.error("Kļūda, ģenerējot rēķinus:", error);
+      alert("Kļūda, ģenerējot rēķinus");
     }
   };
 
@@ -84,7 +84,7 @@ const InvoicesTab: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-3xl">Выставление счетов</h2>
+      <h2 className="text-3xl">Rēķinu izrakstīšana</h2>
       <div className="d-flex">
         <InvoiceForm usersInfo={usersInfo} lessons={lessons} onSave={handleInvoiceSave} />
         <GenerateInvoicesForm kindergartens={[]} onGenerate={handleGenerateInvoices} />
@@ -123,14 +123,14 @@ const InvoicesTab: React.FC = () => {
 
           return (
             <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
-              <NumberInput field="amount" header="Сумма" />
+              <NumberInput field="amount" header="Summa" />
               <MultiSelect
                 field="lessons"
                 columns={["id", "topic", "date"]}
                 columnMap={{
-                  id: "ID Урока",
-                  topic: "Тема",
-                  date: "Дата",
+                  id: "Stundas ID",
+                  topic: "Tēma",
+                  date: "Datums",
                 }}
                 options={userLessons.map((i) => ({
                   ...i,
@@ -151,10 +151,10 @@ const InvoicesTab: React.FC = () => {
                   }}
                   className="btn btn-primary"
                 >
-                  Сохранить
+                  Saglabāt
                 </button>
                 <button onClick={close} className="btn btn-secondary">
-                  Закрыть
+                  Aizvērt
                 </button>
               </div>
             </RootObjectForm>

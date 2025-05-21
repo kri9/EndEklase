@@ -10,15 +10,15 @@ const GenerateInvoiceForm = (props: { kindergartens: any[], onGenerate: any }) =
     try {
       await props.onGenerate({ startDate, endDate });
     } catch (error) {
-      console.error("Ошибка при генерации инвойсов:", error);
-      alert("Ошибка при генерации инвойсов");
+      console.error("Kļūda, ģenerējot rēķinus:", error);
+      alert("Kļūda, ģenerējot rēķinus");
     }
   };
   
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
-        <label htmlFor="startDate">Дата от:</label>
+        <label htmlFor="startDate">Datums no:</label>
         <input
           type="date"
           id="startDate"
@@ -29,7 +29,7 @@ const GenerateInvoiceForm = (props: { kindergartens: any[], onGenerate: any }) =
         />
       </div>
       <div className="form-group mt-3">
-        <label htmlFor="endDate">Дата до:</label>
+        <label htmlFor="endDate">Datums līdz:</label>
         <input
           type="date"
           id="endDate"
@@ -39,7 +39,7 @@ const GenerateInvoiceForm = (props: { kindergartens: any[], onGenerate: any }) =
           onChange={(e) => setEndDate(e.target.value)}
         />
       </div>
-      <button type="submit" className="btn btn-primary mt-3">Generate Invoices</button>
+      <button type="submit" className="btn btn-primary mt-3">Ģenerēt rēķinus</button>
     </form>
   );
 };

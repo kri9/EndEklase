@@ -3,7 +3,7 @@ import { FaUserCircle, FaPhoneAlt, FaGlobe } from "react-icons/fa";
 import "./css/SettingsTab.css";
 
 const SettingsTab: React.FC = () => {
-  const [language, setLanguage] = useState<string>("Русский");
+  const [language, setLanguage] = useState<string>("Krievu");
   const [phoneNumber, setPhoneNumber] = useState<string>("+3712*******");
 
   const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -19,40 +19,40 @@ const SettingsTab: React.FC = () => {
 
   return (
     <div className="settings-tab">
-      <h2>Настройки</h2>
+      <h2>Iestatījumi</h2>
 
-      {/* Карточка профиля */}
+      {/* Profila karte */}
       <div className="profile-card">
         <FaUserCircle className="profile-icon" />
         <div className="profile-info">
-          <h3>Профиль пользователя</h3>
-          <p>Email: example@email.com</p>
-          <p>Имя: Родитель Иванов</p>
+          <h3>Lietotāja profils</h3>
+          <p>E-pasts: example@email.com</p>
+          <p>Vārds: Vecāks Ivanovs</p>
         </div>
       </div>
 
-      {/* Выбор языка */}
+      {/* Lietotnes valodas izvēle */}
       <div className="settings-option">
         <label htmlFor="language-select">
           <FaGlobe className="icon" />
-          Язык приложения:
+          Lietotnes valoda:
         </label>
         <select
           id="language-select"
           value={language}
           onChange={handleLanguageChange}
         >
-          <option value="Латышский">Латышский</option>
-          <option value="Русский">Русский</option>
-          <option value="Английский">Английский</option>
+          <option value="Latviešu">Latviešu</option>
+          <option value="Krievu">Krievu</option>
+          <option value="Angļu">Angļu</option>
         </select>
       </div>
 
-      {/* Смена номера телефона */}
+      {/* Telefona numura maiņa */}
       <div className="settings-option">
         <label htmlFor="phone-number">
           <FaPhoneAlt className="icon" />
-          Номер телефона:
+          Tālruņa numurs:
         </label>
         <input
           type="tel"

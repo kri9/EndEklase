@@ -80,10 +80,10 @@ const AddLessonTab: React.FC = () => {
           groupId: selectedGroup,
         });
         if (response && response.success) {
-          alert("Урок успешно добавлен");
+          alert("Stunda veiksmīgi pievienota");
           setNewLesson({ topic: "", date: "", notes: "" });
         } else {
-          alert("Ошибка при добавлении урока");
+          alert("Kļūda, pievienojot stundu");
         }
       }
     }
@@ -91,17 +91,17 @@ const AddLessonTab: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-3xl">Добавление уроков</h2>
+      <h2 className="text-3xl">Stundu pievienošana</h2>
       <div className="filters mb-4">
         <div className="form-group">
-          <label htmlFor="kindergartenSelect">Выберите садик:</label>
+          <label htmlFor="kindergartenSelect">Izvēlieties bērnudārzu:</label>
           <select
             id="kindergartenSelect"
             className="form-control"
             value={selectedKindergarten}
             onChange={handleKindergartenChange}
           >
-            <option value="">-- Выберите садик --</option>
+            <option value="">-- Izvēlieties bērnudārzu --</option>
             {kindergartens.map((kg) => (
               <option key={kg.id} value={kg.id}>
                 {kg.name}
@@ -110,7 +110,7 @@ const AddLessonTab: React.FC = () => {
           </select>
         </div>
         <div className="form-group mt-3">
-          <label htmlFor="groupSelect">Выберите группу:</label>
+          <label htmlFor="groupSelect">Izvēlieties grupu:</label>
           <select
             id="groupSelect"
             className="form-control"
@@ -118,7 +118,7 @@ const AddLessonTab: React.FC = () => {
             onChange={handleGroupChange}
             disabled={!selectedKindergarten}
           >
-            <option value="">-- Выберите группу --</option>
+            <option value="">-- Izvēlieties grupu --</option>
             {groups.map((group) => (
               <option key={group.id} value={group.id}>
                 {group.name}
@@ -129,9 +129,9 @@ const AddLessonTab: React.FC = () => {
       </div>
 
       <div className="add-lesson-form mt-5">
-        <h3>Добавить урок</h3>
+        <h3>Pievienot stundu</h3>
         <div className="form-group mt-3">
-          <label htmlFor="topic">Тема урока:</label>
+          <label htmlFor="topic">Stundas tēma:</label>
           <input
             type="text"
             id="topic"
@@ -142,7 +142,7 @@ const AddLessonTab: React.FC = () => {
           />
         </div>
         <div className="form-group mt-3">
-          <label htmlFor="date">Дата:</label>
+          <label htmlFor="date">Datums:</label>
           <input
             type="date"
             id="date"
@@ -153,7 +153,7 @@ const AddLessonTab: React.FC = () => {
           />
         </div>
         <div className="form-group mt-3">
-          <label htmlFor="notes">Заметки:</label>
+          <label htmlFor="notes">Piezīmes:</label>
           <textarea
             id="notes"
             name="notes"
@@ -163,9 +163,9 @@ const AddLessonTab: React.FC = () => {
           ></textarea>
         </div>
         <button onClick={handleAddLesson} className="btn btn-primary mt-3">
-          Добавить урок
+          Pievienot stundu
         </button>
-        <FileUploadButton acceptedFileExtension=".xlsx" buttonTitle="Импортироавть Уроки" uploadUrl="admin/lessons/import" />
+        <FileUploadButton acceptedFileExtension=".xlsx" buttonTitle="Importēt stundas" uploadUrl="admin/lessons/import" />
       </div>
     </div>
   );
