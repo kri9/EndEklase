@@ -27,6 +27,19 @@ import static lv.app.backend.util.Common.init;
 @RequiredArgsConstructor
 public class DataCreator implements ApplicationRunner {
 
+    private static final List<String> ADJECTIVES = Arrays.asList(
+            "Sunny", "Little", "Happy", "Rainbow", "Bright", "Creative", "Growing", "Shining", "Playful", "Curious"
+    );
+    private static final List<String> THEMES = Arrays.asList(
+            "Stars", "Butterflies", "Dreams", "Explorers", "Adventures", "Wonders",
+            "Friends", "Meadows", "Gardens", "Joy"
+    );
+    private static final List<String> SUFFIXES = Arrays.asList(
+            "Kindergarten", "Preschool", "Academy", "Care Center", "Early Learning", "Playhouse", "Nursery"
+    );
+
+    private static final Map<String, List<String>> SUBJECTS_WITH_TOPICS = new HashMap<>();
+
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final ChildRepository childRepository;
@@ -39,33 +52,24 @@ public class DataCreator implements ApplicationRunner {
     private final Faker faker = new Faker(new Random(1970));
     private final Set<String> usedNames = new HashSet<>();
 
-    private static final List<String> adjectives = Arrays.asList(
-            "Sunny", "Little", "Happy", "Rainbow", "Bright", "Creative", "Growing", "Shining", "Playful", "Curious"
-    );
-
-    private static final List<String> themes = Arrays.asList(
-            "Stars", "Butterflies", "Dreams", "Explorers", "Adventures", "Wonders", "Friends", "Meadows", "Gardens", "Joy"
-    );
-
-    private static final List<String> suffixes = Arrays.asList(
-            "Kindergarten", "Preschool", "Academy", "Care Center", "Early Learning", "Playhouse", "Nursery"
-    );
-
-    private static final Map<String, List<String>> subjectsWithTopics = new HashMap<>();
-
     static {
-        subjectsWithTopics.put("Mathematics", Arrays.asList("Algebra", "Geometry", "Calculus", "Statistics"));
-        subjectsWithTopics.put("Science", Arrays.asList("Physics", "Chemistry", "Biology", "Earth Science"));
-        subjectsWithTopics.put("History", Arrays.asList("World History", "American History", "Ancient Civilizations"));
-        subjectsWithTopics.put("Geography", Arrays.asList("Physical Geography", "Human Geography", "Cartography"));
-        subjectsWithTopics.put("Literature", Arrays.asList("Poetry", "Prose", "Drama", "Literary Criticism"));
-        subjectsWithTopics.put("Biology", Arrays.asList("Genetics", "Ecology", "Microbiology", "Human Biology"));
-        subjectsWithTopics.put("Chemistry", Arrays.asList("Organic Chemistry", "Inorganic Chemistry", "Physical Chemistry"));
-        subjectsWithTopics.put("Physics", Arrays.asList("Mechanics", "Thermodynamics", "Quantum Physics"));
-        subjectsWithTopics.put("Computer Science", Arrays.asList("Programming Fundamentals", "Algorithms", "Data Structures"));
-        subjectsWithTopics.put("Art", Arrays.asList("Painting", "Sculpture", "Art History", "Photography"));
-        subjectsWithTopics.put("Music", Arrays.asList("Music Theory", "Composition", "Instrumental Music", "Vocal Music"));
-        subjectsWithTopics.put("Physical Education", Arrays.asList("Fitness Training", "Team Sports", "Individual Sports"));
+        SUBJECTS_WITH_TOPICS.put("Mathematics", Arrays.asList("Algebra", "Geometry", "Calculus", "Statistics"));
+        SUBJECTS_WITH_TOPICS.put("Science", Arrays.asList("Physics", "Chemistry", "Biology", "Earth Science"));
+        SUBJECTS_WITH_TOPICS.put("History",
+                Arrays.asList("World History", "American History", "Ancient Civilizations"));
+        SUBJECTS_WITH_TOPICS.put("Geography", Arrays.asList("Physical Geography", "Human Geography", "Cartography"));
+        SUBJECTS_WITH_TOPICS.put("Literature", Arrays.asList("Poetry", "Prose", "Drama", "Literary Criticism"));
+        SUBJECTS_WITH_TOPICS.put("Biology", Arrays.asList("Genetics", "Ecology", "Microbiology", "Human Biology"));
+        SUBJECTS_WITH_TOPICS.put("Chemistry",
+                Arrays.asList("Organic Chemistry", "Inorganic Chemistry", "Physical Chemistry"));
+        SUBJECTS_WITH_TOPICS.put("Physics", Arrays.asList("Mechanics", "Thermodynamics", "Quantum Physics"));
+        SUBJECTS_WITH_TOPICS.put("Computer Science",
+                Arrays.asList("Programming Fundamentals", "Algorithms", "Data Structures"));
+        SUBJECTS_WITH_TOPICS.put("Art", Arrays.asList("Painting", "Sculpture", "Art History", "Photography"));
+        SUBJECTS_WITH_TOPICS.put("Music",
+                Arrays.asList("Music Theory", "Composition", "Instrumental Music", "Vocal Music"));
+        SUBJECTS_WITH_TOPICS.put("Physical Education",
+                Arrays.asList("Fitness Training", "Team Sports", "Individual Sports"));
     }
 
     @Override
@@ -114,7 +118,7 @@ public class DataCreator implements ApplicationRunner {
                 r.run();
                 return;
             } catch (Exception e) {
-
+                log.error(e.getMessage());
             }
         }
     }
@@ -230,19 +234,19 @@ public class DataCreator implements ApplicationRunner {
     }
 
     private String getRandomSubject() {
-        List<String> keys = new ArrayList<>(subjectsWithTopics.keySet());
+        List<String> keys = new ArrayList<>(SUBJECTS_WITH_TOPICS.keySet());
         return keys.get(random.nextInt(keys.size()));
     }
 
     private String getRandomTopic(String subject) {
-        List<String> topics = subjectsWithTopics.get(subject);
+        List<String> topics = SUBJECTS_WITH_TOPICS.get(subject);
         return topics.get(random.nextInt(topics.size()));
     }
 
     public String generateRandomKindergartenName() {
-        String adjective = adjectives.get(random.nextInt(adjectives.size()));
-        String theme = themes.get(random.nextInt(themes.size()));
-        String suffix = suffixes.get(random.nextInt(suffixes.size()));
+        String adjective = ADJECTIVES.get(random.nextInt(ADJECTIVES.size()));
+        String theme = THEMES.get(random.nextInt(THEMES.size()));
+        String suffix = SUFFIXES.get(random.nextInt(SUFFIXES.size()));
         String name = adjective + " " + theme + " " + suffix;
         if (usedNames.contains(name)) {
             return generateRandomKindergartenName();

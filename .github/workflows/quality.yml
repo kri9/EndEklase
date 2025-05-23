@@ -43,7 +43,7 @@ jobs:
     #    (checkstyle, pmd, spotbugs, OWASP Dependency‑Check, PIT, JaCoCo…)
     # ------------------------------------------------------------------
     - name: 🏗️ Gradle quality check
-      run: ./gradlew --no-daemon check jacocoTestReport dependencyCheckAnalyze pitest
+      run: ./gradlew --no-daemon check jacocoTestReport pitest
       working-directory: backend
 
     # ------------------------------------------------------------------

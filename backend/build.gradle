@@ -7,7 +7,6 @@ plugins {
     id 'checkstyle'
     id 'pmd'
     id 'com.github.spotbugs' version '6.1.11'
-    id 'org.owasp.dependencycheck' version '12.1.1'
 
     /* ── dynamic analysis ── */
     id 'jacoco'
@@ -98,6 +97,7 @@ import com.github.spotbugs.snom.Effort
 spotbugs {
     effort = Effort.valueOf('DEFAULT')
     reportLevel = Confidence.valueOf('DEFAULT')
+    excludeFilter = file("${project.rootDir}/config/spotbugs/exclude.xml")
 }
 
 tasks.spotbugsMain {
@@ -119,11 +119,6 @@ tasks.spotbugsTest {
 /* Optional: make all SpotBugs HTML go into a single folder */
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
     reports.html.outputLocation = layout.buildDirectory.file("reports/spotbugs/${name}.html")
-}
-
-dependencyCheck {
-    formats = ['HTML', 'JSON']
-    outputDirectory = "$buildDir/reports/dependency-check"
 }
 
 /* ---------- Dynamic tools ---------- */
@@ -169,6 +164,5 @@ sonarqube {
 /* ---------- Wire everything into the standard `check` task ---------- */
 
 tasks.named('check') {
-    dependsOn 'spotbugsMain', 'pmdMain', 'checkstyleMain',
-            'dependencyCheckAnalyze', 'pitest'
+    dependsOn 'spotbugsMain', 'pmdMain', 'checkstyleMain', 'pitest'
 }

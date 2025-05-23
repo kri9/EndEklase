@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="epeli_pmd_rule_set"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+    <description>Epeli PMD rule set</description>
+
+    <rule ref="category/java/bestpractices.xml">
+        <exclude name="GuardLogStatement"/>
+        <exclude name="UnusedAssignment"/><!-- False positive with lombok no-args constructors: https://github.com/pmd/pmd/issues/2817 -->
+    </rule>
+
+    <rule ref="category/java/security.xml"/>
+
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="UseConcurrentHashMap"/>
+        <exclude name="DoNotUseThreads"/>
+        <exclude name="AvoidSynchronizedStatement"/>
+    </rule>
+
+
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+    </rule>
+
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="AvoidLiteralsInIfCondition"/>
+        <exclude name="NonSerializableClass"/>
+        <exclude name="AvoidDuplicateLiterals"/>
+        <exclude name="NullAssignment"/>
+        <exclude name="UseLocaleWithCaseConversions"/>
+        <exclude name="MissingSerialVersionUID"/>
+        <exclude name="OverrideBothEqualsAndHashcode"/>
+        <exclude name="ConstructorCallsOverridableMethod"/>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="LongVariable"/>
+        <exclude name="ShortVariable"/>
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="ShortClassName"/>
+        <exclude name="UnnecessaryAnnotationValueElement"/>
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="ShortMethodName"/>
+        <exclude name="ClassNamingConventions"/>
+        <exclude name="TooManyStaticImports"/>
+        <exclude name="FieldDeclarationsShouldBeAtStartOfClass"/>
+        <exclude name="CallSuperInConstructor"/>
+        <exclude name="ConfusingTernary"/>
+        <exclude name="LinguisticNaming"/>
+        <exclude name="UnnecessaryLocalBeforeReturn"/>
+        <exclude name="UselessParentheses"/>
+        <exclude name="PrematureDeclaration"/>
+        <exclude name="UseShortArrayInitializer"/>
+        <exclude name="GenericsNaming"/>
+        <exclude name="UnnecessaryFullyQualifiedName"/>
+        <exclude name="BooleanGetMethodName"/>
+        <exclude name="UseExplicitTypes"/>
+        <exclude name="UnnecessaryBoxing"/>
+    </rule>
+
+    <rule ref="category/java/bestpractices.xml/LooseCoupling">
+        <properties>
+            <property name="allowedTypes" value="
+            java.util.Properties,
+            org.springframework.http.HttpHeaders,
+            java.util.Stack,
+            io.swagger.v3.oas.models.responses.ApiResponses,
+            fi.mandatumlife.epeli.api.rap9.service.sheet.parameters.IndexRow,
+            fi.mandatumlife.epeli.api.rap9.service.sheet.support.DepartmentAnnualInformationSummaries,
+            fi.mandatumlife.epeli.api.rap9.service.sheet.support.GroupAnnualInformationSummaries,
+            fi.mandatumlife.epeli.api.rap9.service.sheet.support.InsuranceYears
+"/>
+        </properties>
+    </rule>
+
+</ruleset>

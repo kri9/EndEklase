@@ -213,9 +213,15 @@ public class InvoiceService {
             }
             children.add(c);
             int callNum = call.incrementAndGet();
-            if (callNum == 1) return 1.; // First child - full rate
-            if (callNum == 2) return 0.5; // Second child - 0.5 rate
-            if (callNum == 3) return 0.5; // third child - 0.5 rate
+            if (callNum == 1) {
+                return 1.; // First child - full rate
+            }
+            if (callNum == 2) {
+                return 0.5; // Second child - 0.5 rate
+            }
+            if (callNum == 3) {
+                return 0.5; // third child - 0.5 rate
+            }
             return 1.; // Other children full rate
         };
     }

@@ -1,10 +1,9 @@
 package lv.app.backend.service;
 
 import lombok.RequiredArgsConstructor;
-import lv.app.backend.dto.KindergartenDTO;
 import lv.app.backend.dto.GroupDTO;
+import lv.app.backend.dto.KindergartenDTO;
 import lv.app.backend.model.Kindergarten;
-import lv.app.backend.model.Group;
 import lv.app.backend.model.repository.KindergartenRepository;
 import org.springframework.stereotype.Service;
 

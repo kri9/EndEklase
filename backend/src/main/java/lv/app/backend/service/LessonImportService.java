@@ -34,10 +34,11 @@ public class LessonImportService {
         XSSFSheet sheet = sheets.getSheetAt(0);
         DataFormatter dataFormatter = new DataFormatter();
         sheet.forEach(r -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             Lesson lesson = Lesson.builder()
                     .topic(r.getCell(0).getStringCellValue())
                     .notes(r.getCell(1).getStringCellValue())
-                    .date(LocalDate.parse(dataFormatter.formatCellValue(r.getCell(2)), DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .date(LocalDate.parse(dataFormatter.formatCellValue(r.getCell(2)), formatter))
                     .group(resolveGroup(r))
                     .build();
             lessonRepository.save(lesson);

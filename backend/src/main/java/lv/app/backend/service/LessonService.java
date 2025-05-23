@@ -83,7 +83,8 @@ public class LessonService {
     public void updateAttendanceStatus(Long childId, Long lessonId, boolean attended) {
         log.trace("Updating attendance for childId: {}, lessonId: {}, attended: {}", childId, lessonId, attended);
         Attendance attendance = attendanceRepository.findByChildIdAndLessonId(childId, lessonId)
-                .orElseThrow(() -> new IllegalArgumentException("Attendance record not found for childId: " + childId + ", lessonId: " + lessonId));
+                .orElseThrow(() -> new IllegalArgumentException("Attendance record not found for childId: " +
+                        childId + ", lessonId: " + lessonId));
         attendance.setStatus(attended ? AttendanceStatus.ATTENDED : AttendanceStatus.NOT_ATTENDED);
         attendanceRepository.saveAndFlush(attendance);
         log.trace("Attendance status updated successfully for childId: {}, lessonId: {}", childId, lessonId);

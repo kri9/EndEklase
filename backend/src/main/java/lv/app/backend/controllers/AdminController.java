@@ -75,7 +75,6 @@ public class AdminController {
     public ResponseEntity<List<GroupDTO>> getGroupsByKindergarten(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
             @PathVariable Long kindergartenId) {
-        final String jwt = authHeader.substring(7);
         List<GroupDTO> groups = kindergartenService.getGroupsByKindergarten(kindergartenId);
         return ResponseEntity.ok(groups);
     }
@@ -180,7 +179,8 @@ public class AdminController {
     @PutMapping("/attendances")
     public ResponseEntity<Void> updateAttendance(@RequestBody AttendanceDTO attendanceDTO) {
         System.out.println("Received request to update attendance: " + attendanceDTO);
-        lessonService.updateAttendanceStatus(attendanceDTO.getChildId(), attendanceDTO.getLessonId(), attendanceDTO.isAttended());
+        lessonService.updateAttendanceStatus(attendanceDTO.getChildId(),
+                attendanceDTO.getLessonId(), attendanceDTO.isAttended());
         System.out.println("Attendance updated successfully");
         return ResponseEntity.ok().build();
     }
@@ -192,7 +192,8 @@ public class AdminController {
     }
 
     @GetMapping("/groups/{groupId}/attendances/{yearMonth}")
-    public ResponseEntity<List<AttendanceDTO>> getAttendanceByGroupAndMonth(@PathVariable Long groupId, @PathVariable String yearMonth) {
+    public ResponseEntity<List<AttendanceDTO>> getAttendanceByGroupAndMonth(@PathVariable Long groupId,
+                                                                            @PathVariable String yearMonth) {
         YearMonth month = YearMonth.parse(yearMonth);
         List<AttendanceDTO> attendances = lessonService.getAttendanceByGroupAndMonth(groupId, month);
         return ResponseEntity.ok(attendances);

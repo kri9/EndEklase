@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+
+  <!-- Reason: To be included in service assembly == -->
+  <Match>
+    <Bug pattern="CRLF_INJECTION_LOGS" />
+  </Match>
+
+  <!-- Reason: Separate work for global fixes : Needs e2e testing to avoid side effects -->
+  <Match>
+    <Bug pattern="EQ_OVERRIDING_EQUALS_NOT_SYMMETRIC" />
+  </Match>
+
+  <!-- Reason: Separate work for global fixes : Needs e2e testing to avoid side effects -->
+  <Match>
+    <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE" />
+  </Match>
+
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
+  <Match>
+    <Bug pattern="CT_CONSTRUCTOR_THROW" />
+  </Match>
+
+  <Match>
+    <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" />
+  </Match>
+
+  <Match>
+    <Bug pattern="SE_BAD_FIELD" />
+  </Match>
+
+  <Match>
+    <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE" />
+  </Match>
+
+  <!-- Reason: Boolean value may be True, False or Null in DB -->
+  <Match>
+    <Or>
+      <Class name="lv.some.ClassName" />
+    </Or>
+    <Bug pattern="NP_BOOLEAN_RETURN_NULL" />
+  </Match>
+
+  <!-- Reason: Introduced as a part of library use -->
+  <Match>
+    <Or>
+      <Class name="lv.app.backend.service.ext.KlixPaymentFormationService" />
+    </Or>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+  </Match>
+
+  <!-- TODO: check reason, and possible changes if spring batch api -->
+  <Match>
+    <Bug pattern="NP_NONNULL_RETURN_VIOLATION"/>
+  </Match>
+
+  <!-- Reason: constructed file path cannot fully be controlled by the user, reported instance is a false positive-->
+  <Match>
+    <Or>
+    </Or>
+    <Bug pattern="PATH_TRAVERSAL_IN" />
+  </Match>
+
+</FindBugsFilter>

@@ -1,7 +1,6 @@
 package lv.app.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 
 import java.util.ArrayList;

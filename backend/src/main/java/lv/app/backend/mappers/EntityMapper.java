@@ -1,10 +1,12 @@
 package lv.app.backend.mappers;
 
-import lv.app.backend.dto.*;
+import lv.app.backend.dto.AttendanceDTO;
+import lv.app.backend.dto.ChildDTO;
+import lv.app.backend.dto.InvoiceCreateDTO;
+import lv.app.backend.dto.InvoiceDTO;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
-import lv.app.backend.model.Lesson;
 import lv.app.backend.model.enums.AttendanceStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -94,11 +94,16 @@ public class PDFInvoiceGenerator {
         table.setWidth(UnitValue.createPercentValue(100));
 
 
-        table.addHeaderCell(new Cell().add(new Paragraph("Lesson No.")).setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Topic")).setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Date")).setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Child")).setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Lesson Cost")).setBackgroundColor(new DeviceRgb(211, 211, 211)));
+        table.addHeaderCell(new Cell().add(new Paragraph("Lesson No."))
+                .setBackgroundColor(new DeviceRgb(211, 211, 211)));
+        table.addHeaderCell(new Cell().add(new Paragraph("Topic"))
+                .setBackgroundColor(new DeviceRgb(211, 211, 211)));
+        table.addHeaderCell(new Cell().add(new Paragraph("Date"))
+                .setBackgroundColor(new DeviceRgb(211, 211, 211)));
+        table.addHeaderCell(new Cell().add(new Paragraph("Child"))
+                .setBackgroundColor(new DeviceRgb(211, 211, 211)));
+        table.addHeaderCell(new Cell().add(new Paragraph("Lesson Cost"))
+                .setBackgroundColor(new DeviceRgb(211, 211, 211)));
         AtomicReference<Integer> i = new AtomicReference<>(0);
         invoice.getAttendances().forEach(a -> {
             Child child = childRepository.findEvenDeletedChild(a.getId());

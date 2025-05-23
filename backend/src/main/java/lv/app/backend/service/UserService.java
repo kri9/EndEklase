@@ -2,10 +2,8 @@ package lv.app.backend.service;
 
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.LoginUserDTO;
-import lv.app.backend.dto.PasswordResetDTO;
 import lv.app.backend.dto.UserDTO;
 import lv.app.backend.mappers.UserMapper;
-import lv.app.backend.model.PasswordResetToken;
 import lv.app.backend.model.User;
 import lv.app.backend.model.enums.UserRole;
 import lv.app.backend.model.repository.UserRepository;
@@ -18,9 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
