@@ -30,7 +30,6 @@ public class Child implements IdSupplier {
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
     @OneToMany(mappedBy = "child")
-    // If you ever add REMOVE cascading, make sure to fix ChildService deletion to only delete child
     private List<Attendance> attendances = new ArrayList<>();
     private String lastname;
     private String firstname;

@@ -1,4 +1,5 @@
 import React from "react";
+import { deleteRequest } from "src/api";
 
 interface User {
   id: number;
@@ -18,7 +19,7 @@ export default function UserTable({ users, searchTerm }: UserTableProps) {
     (user) =>
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase())
+      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -30,6 +31,7 @@ export default function UserTable({ users, searchTerm }: UserTableProps) {
           <th>vārds</th>
           <th>Uzvārds</th>
           <th>Atlaide (%)</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -41,6 +43,14 @@ export default function UserTable({ users, searchTerm }: UserTableProps) {
               <td>{user.firstName}</td>
               <td>{user.lastName}</td>
               <td>{user.discountRate * 100}%</td>
+              <td>
+                <button
+                  onClick={() => deleteRequest(`admin/user/${user.id}`, null)}
+                  className="btn btn-danger"
+                >
+                  Dzēst
+                </button>
+              </td>
             </tr>
           ))
         ) : (

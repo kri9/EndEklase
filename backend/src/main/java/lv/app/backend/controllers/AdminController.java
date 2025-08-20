@@ -230,6 +230,12 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/user/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
 //    @GetMapping("users/{userId}/invoices")
 //    public ResponseEntity<List<InvoiceDTO>> getInvoicesByUser(@PathVariable Long userId) {
 //        List<InvoiceDTO> invoices = invoiceService.getInvoicesByUser(userId);

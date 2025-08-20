@@ -33,8 +33,10 @@ public class Attendance {
     private Invoice invoice;
     private Long cost;
 
-
     public boolean isAttended() {
         return AttendanceStatus.ATTENDED.equals(this.getStatus());
+    }
+    public boolean hasRelatedChild() {
+        return getChild() != null;
     }
 }

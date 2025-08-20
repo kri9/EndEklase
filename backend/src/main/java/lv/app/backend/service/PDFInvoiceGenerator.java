@@ -16,6 +16,7 @@ import lv.app.backend.model.Invoice;
 import lv.app.backend.model.User;
 import lv.app.backend.model.repository.ChildRepository;
 import lv.app.backend.model.repository.InvoiceRepository;
+import lv.app.backend.model.repository.UserRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ import static lv.app.backend.util.Common.singleResult;
 public class PDFInvoiceGenerator {
 
     private final UserService userService;
+    private final UserRepository userRepository;
     private final ChildRepository childRepository;
     private final InvoiceRepository invoiceRepository;
 
@@ -74,7 +76,7 @@ public class PDFInvoiceGenerator {
                 Email: info@company.com
                 """;
         document.add(new Paragraph(companyInfo).setMarginBottom(10));
-        User user = invoice.getUser();
+        User user = userRepository.findDeletedByInvoice(invoice.getId());
         String customerDetails = """
                 Bill To:
                 %s

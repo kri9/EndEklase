@@ -1,5 +1,6 @@
 package lv.app.backend.model;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import lv.app.backend.model.enums.InvoiceStatus;
@@ -29,7 +30,8 @@ public class Invoice {
     private Long id;
     @Builder.Default
     private UUID uuid = UUID.randomUUID();
-    @ManyToOne
+    @ManyToOne(optional = true)
+    @Nullable
     private User user;
     @OneToMany(mappedBy = "invoice")
     private List<Attendance> attendances = new ArrayList<>();

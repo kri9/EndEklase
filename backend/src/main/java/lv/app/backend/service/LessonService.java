@@ -94,7 +94,7 @@ public class LessonService {
     public List<AttendanceDTO> getAttendanceByGroup(Long groupId) {
         List<Attendance> attendances = attendanceRepository.findByLessonGroupId(groupId);
         return attendances.stream()
-                .filter(a -> a.getChild() != null)
+                .filter(Attendance::hasRelatedChild)
                 .map(entityMapper::attendanceToDto)
                 .collect(Collectors.toList());
     }
@@ -116,7 +116,7 @@ public class LessonService {
                 groupId, startDate, endDate
         );
         return attendances.stream()
-                .filter(a -> a.getChild() != null)
+                .filter(Attendance::hasRelatedChild)
                 .map(entityMapper::attendanceToDto)
                 .collect(Collectors.toList());
     }
@@ -125,7 +125,7 @@ public class LessonService {
     public List<AttendanceDTO> getAttendanceByUser(Long userId) {
         List<Attendance> attendances = attendanceRepository.findByChildParentId(userId);
         return attendances.stream()
-                .filter(a -> a.getChild() != null)
+                .filter(Attendance::hasRelatedChild)
                 .map(entityMapper::attendanceToDto)
                 .collect(Collectors.toList());
     }
