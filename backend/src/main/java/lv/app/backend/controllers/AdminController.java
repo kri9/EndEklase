@@ -5,6 +5,7 @@ import lv.app.backend.dto.*;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.Child;
+import lv.app.backend.model.enums.InvoiceStatus;
 import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.*;
 import org.springframework.core.io.InputStreamResource;
@@ -235,6 +236,18 @@ public class AdminController {
         userService.deleteUser(userId);
         return ResponseEntity.ok().build();
     }
+
+
+    @ResponseBody
+    @GetMapping("/invoices/search")
+    public List<InvoiceDTO> searchInvoices(
+            @RequestParam(required = false) Long kindergartenId,
+            @RequestParam(required = false) Long groupId,
+            @RequestParam(required = false) InvoiceStatus status
+    ) {
+        return invoiceService.searchInvoices(kindergartenId, groupId, status);
+    }
+
 
 //    @GetMapping("users/{userId}/invoices")
 //    public ResponseEntity<List<InvoiceDTO>> getInvoicesByUser(@PathVariable Long userId) {

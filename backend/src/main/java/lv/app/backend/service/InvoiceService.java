@@ -10,6 +10,7 @@ import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
 import lv.app.backend.model.User;
+import lv.app.backend.model.enums.InvoiceStatus;
 import lv.app.backend.model.repository.AttendanceRepository;
 import lv.app.backend.model.repository.InvoiceRepository;
 import lv.app.backend.model.repository.LessonRepository;
@@ -225,5 +226,17 @@ public class InvoiceService {
             return 1.; // Other children full rate
         };
     }
+
+    @Transactional
+    public List<InvoiceDTO> searchInvoices(Long kindergartenId, Long groupId, InvoiceStatus status) {
+        if (kindergartenId == null && groupId == null && status == null) {
+            return getAllInvoices();
+        }
+        return invoiceRepository.searchByFilters(kindergartenId, groupId, status)
+                .stream()
+                .map(entityMapper::invoiceToDto)
+                .toList();
+    }
+
 
 }
