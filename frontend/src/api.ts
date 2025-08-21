@@ -140,11 +140,11 @@ export const getGroupsByKindergarten = async (
   );
 };
 
-export const getChildrenByGroup = async (token: string, groupId: string) => {
+export const getChildrenByGroup = async (groupId: string) => {
   return await fetchFromBackendWithAuth(
     `admin/groups/${groupId}/children`,
     "GET",
-    token,
+    store.getState().auth.token,
   );
 };
 

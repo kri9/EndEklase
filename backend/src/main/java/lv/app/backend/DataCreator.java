@@ -131,14 +131,14 @@ public class DataCreator implements ApplicationRunner {
         return LocalDate.ofEpochDay(randomEpochDay);
     }
 
-    private LocalDate generate2024Date() {
-        return generateRandomDate(LocalDate.of(2024, 8, 1), LocalDate.of(2025, 6, 20));
+    private LocalDate generateLessonDate() {
+        return generateRandomDate(LocalDate.now().minusMonths(6), LocalDate.now().plusMonths(6));
     }
 
     private Lesson createLesson(List<Group> groups) {
         Group group = groups.get(random.nextInt(groups.size()));
         String randomSubject = getRandomSubject();
-        LocalDate lessonDate = generate2024Date();
+        LocalDate lessonDate = generateLessonDate();
         Lesson lesson = lessonRepository.save(Lesson.builder()
                 .group(group)
                 .topic(randomSubject)
