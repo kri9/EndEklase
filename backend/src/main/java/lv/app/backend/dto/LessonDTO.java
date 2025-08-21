@@ -20,4 +20,5 @@ public class LessonDTO {
     String groupName;
     String kindergartenName;
     Boolean isLockedForEditing;
+    Integer numOfAttendees;
 }

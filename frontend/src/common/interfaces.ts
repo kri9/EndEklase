@@ -22,4 +22,5 @@ export interface LessonDTO {
   groupName: string;
   kindergartenName: string;
   isLockedForEditing: boolean;
+  numOfAttendees: number;
 }

@@ -1,6 +1,7 @@
 package lv.app.backend.mappers;
 
 import lv.app.backend.dto.LessonDTO;
+import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Lesson;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,6 +17,7 @@ public interface LessonMapper {
     @Mapping(target = "groupName", source = "group.name")
     @Mapping(target = "kindergartenName", source = "group.kindergarten.name")
     @Mapping(target = "isLockedForEditing", source = "lesson", qualifiedByName = "isLockedForEditing")
+    @Mapping(target = "numOfAttendees", source = "lesson", qualifiedByName = "numOfAttendees")
     LessonDTO lessonToDto(Lesson lesson);
 
     @Mapping(target = "group.id", source = "groupId")
@@ -30,5 +32,12 @@ public interface LessonMapper {
     default boolean isLockedForEditing(Lesson lesson) {
         return lesson.getAttendances().stream()
                 .anyMatch(a -> a.getInvoice() != null);
+    }
+
+    @Named("numOfAttendees")
+    default int getNumOfAttendees(Lesson lesson) {
+        return lesson.getAttendances().stream()
+                .filter(Attendance::isAttended)
+                .toList().size();
     }
 }
