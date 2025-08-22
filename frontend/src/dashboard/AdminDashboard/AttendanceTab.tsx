@@ -45,10 +45,8 @@ const AttendanceTab: React.FC = () => {
     const loadGroups = async () => {
       if (token && selectedKindergarten) {
         try {
-          const fetchedGroups = await getGroupsByKindergarten(
-            token,
-            selectedKindergarten,
-          );
+          const fetchedGroups =
+            await getGroupsByKindergarten(selectedKindergarten);
           setGroups(fetchedGroups || []);
           handleGroupChange(fetchedGroups?.[0]?.id);
         } catch (error) {
@@ -273,4 +271,3 @@ const AttendanceTab: React.FC = () => {
 };
 
 export default AttendanceTab;
-
