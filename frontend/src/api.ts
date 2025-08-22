@@ -129,10 +129,8 @@ export const getKindergartens = async (token: string) => {
   return await fetchFromBackendWithAuth("admin/kindergartens", "GET", token);
 };
 
-export const getGroupsByKindergarten = async (
-  token: string,
-  kindergartenId: string,
-) => {
+export const getGroupsByKindergarten = async (kindergartenId: string) => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
     `admin/kindergartens/${kindergartenId}/groups`,
     "GET",

@@ -27,14 +27,17 @@ const GroupListTab: React.FC = () => {
     if (token) {
       getKindergartens(token).then(setKindergartens);
       getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(
-        setUsersInfo
+        setUsersInfo,
       );
     }
   }, [token]);
 
   useEffect(() => {
     if (token && selectedKindergarten) {
-      getGroupsByKindergarten(token, selectedKindergarten).then(setGroups);
+      getGroupsByKindergarten(selectedKindergarten).then((r) => {
+        setGroups(r);
+        handleGroupChange(r?.[0]?.id);
+      });
     } else {
       setGroups([]);
     }
@@ -43,7 +46,7 @@ const GroupListTab: React.FC = () => {
   // Bērnu ielāde grupā
   const loadChildren = async (groupId: string) => {
     if (token && groupId) {
-      const fetchedChildren = await getChildrenByGroup(token, groupId);
+      const fetchedChildren = await getChildrenByGroup(groupId);
       setChildren(fetchedChildren || []);
     }
   };
@@ -68,7 +71,7 @@ const GroupListTab: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
         <ChildrenList
-          editedChildren={children} 
+          editedChildren={children}
           reloadChildren={() => loadChildren(selectedGroup)}
         />
 
