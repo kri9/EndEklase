@@ -8,26 +8,26 @@ import NumberInput from "./common/NumberInput";
 import UserTable from "./common/UserTable";
 
 interface UserFormData {
-  id: number,
-  email: string,
-  firstName: string,
-  lastName: string,
-  password: string,
-  separateInvoices: boolean,
-  discountRate: number,
-  children: { id: number, firsname: string, lastname: string }[]
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  separateInvoices: boolean;
+  discountRate: number;
+  children: { id: number; firsname: string; lastname: string }[];
 }
 
 const defaultFormValues: UserFormData = {
   id: 0,
-  email: '',
-  firstName: '',
-  lastName: '',
-  password: '',
+  email: "",
+  firstName: "",
+  lastName: "",
+  password: "",
   separateInvoices: false,
   discountRate: 0,
-  children: []
-}
+  children: [],
+};
 
 export default function UserTab() {
   const [user, setUser] = useState<UserFormData>(defaultFormValues);
@@ -54,19 +54,24 @@ export default function UserTab() {
     });
   };
 
-  const saveUser = () => postRequest<any>('admin/user', user)
-    .then(r => getRequest<UserFormData>(`admin/user/${r.id}`))
-    .then(setUser)
-    .then(() => alert('Succesfully saved user'))
-    .catch(e => { alert('Failed to save user'); console.log(e) });
-    loadUsers();
+  const saveUser = () =>
+    postRequest<any>("admin/user", user)
+      .then((r) => getRequest<UserFormData>(`admin/user/${r.id}`))
+      .then(setUser)
+      .then(() => alert("Succesfully saved user"))
+      .catch((e) => {
+        alert("Failed to save user");
+        console.log(e);
+      });
 
   return (
     <div className="p-6">
       <h2 className="text-3xl mb-5 font-semibold">Lietotāji</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 shadow-md rounded-lg">
-          <h3 className="text-xl font-semibold mb-3">Pievienot / Rediģēt lietotāju</h3>
+          <h3 className="text-xl font-semibold mb-3">
+            Pievienot / Rediģēt lietotāju
+          </h3>
           <UserSelect onChange={(_, id) => setUserId(id)} />
 
           <RootObjectForm rootObject={user} rootObjectSetter={setUser}>
@@ -74,7 +79,10 @@ export default function UserTab() {
             <TextInput field="firstName" header="Vārds" />
             <TextInput field="lastName" header="Uzvārds" />
             <TextInput field="password" header="Parole" />
-            <BooleanInput field="separateInvoices" displayText="Atsevišķi rēķini bērniem" />
+            <BooleanInput
+              field="separateInvoices"
+              displayText="Atsevišķi rēķini bērniem"
+            />
             <NumberInput
               field="discountRate"
               header="Atlaide (%)"
@@ -99,9 +107,14 @@ export default function UserTab() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <UserTable users={users} searchTerm={searchTerm} />
+          <UserTable
+            users={users}
+            searchTerm={searchTerm}
+            reloadUsers={loadUsers}
+          />
         </div>
       </div>
     </div>
   );
 }
+

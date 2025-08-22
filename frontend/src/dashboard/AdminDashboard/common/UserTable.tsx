@@ -12,9 +12,14 @@ interface User {
 interface UserTableProps {
   users: User[];
   searchTerm: string;
+  reloadUsers: () => void;
 }
 
-export default function UserTable({ users, searchTerm }: UserTableProps) {
+export default function UserTable({
+  users,
+  searchTerm,
+  reloadUsers,
+}: UserTableProps) {
   const filteredUsers = users.filter(
     (user) =>
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,7 +50,11 @@ export default function UserTable({ users, searchTerm }: UserTableProps) {
               <td>{user.discountRate * 100}%</td>
               <td>
                 <button
-                  onClick={() => deleteRequest(`admin/user/${user.id}`, null)}
+                  onClick={() =>
+                    deleteRequest(`admin/user/${user.id}`, null).then(
+                      reloadUsers,
+                    )
+                  }
                   className="btn btn-danger"
                 >
                   Dzēst
