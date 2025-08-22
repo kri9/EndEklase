@@ -25,7 +25,9 @@ type Group = { id: string | number; name: string };
 const InvoicesTab: React.FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
 
-  const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>([]);
+  const [usersInfo, setUsersInfo] = useState<
+    { id: number; fullName: string }[]
+  >([]);
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
   const [invoices, setInvoices] = useState<InvoiceDTO[]>([]);
 
@@ -36,7 +38,9 @@ const InvoicesTab: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>("");
 
   useEffect(() => {
-    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(setUsersInfo);
+    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(
+      setUsersInfo,
+    );
     loadLessons();
     loadInvoices();
   }, []);
@@ -49,7 +53,7 @@ const InvoicesTab: React.FC = () => {
   useEffect(() => {
     if (!token) return;
     if (filterKindergartenId) {
-      getGroupsByKindergarten(token, filterKindergartenId).then((list: Group[]) =>
+      getGroupsByKindergarten(filterKindergartenId).then((list: Group[]) =>
         setGroups(list || []),
       );
       setFilterGroupId("");
@@ -78,23 +82,32 @@ const InvoicesTab: React.FC = () => {
   const loadInvoicesFiltered = async () => {
     if (!token) return;
     const params: string[] = [];
-    if (filterKindergartenId) params.push(`kindergartenId=${encodeURIComponent(filterKindergartenId)}`);
-    if (filterGroupId) params.push(`groupId=${encodeURIComponent(filterGroupId)}`);
+    if (filterKindergartenId)
+      params.push(`kindergartenId=${encodeURIComponent(filterKindergartenId)}`);
+    if (filterGroupId)
+      params.push(`groupId=${encodeURIComponent(filterGroupId)}`);
     if (filterStatus) params.push(`status=${encodeURIComponent(filterStatus)}`);
 
-    const url = "admin/invoices/search" + (params.length ? `?${params.join("&")}` : "");
+    const url =
+      "admin/invoices/search" + (params.length ? `?${params.join("&")}` : "");
     const fetched = await getRequest<InvoiceDTO[]>(url);
     setInvoices(sortMergeInvoices(invoices, fetched || []));
   };
 
   const sortMergeInvoices = (prev: InvoiceDTO[], fetched: InvoiceDTO[]) => {
     const map = new Map(prev.map((inv) => [inv.id, inv]));
-    return fetched.map((inv) => map.get(inv.id) || inv).sort((a, b) => a.id - b.id);
+    return fetched
+      .map((inv) => map.get(inv.id) || inv)
+      .sort((a, b) => a.id - b.id);
   };
 
   const handleDeleteInvoice = async (invoice: InvoiceDTO) => {
     if (!token || invoice.id === undefined) return;
-    if (window.confirm(`Vai esat pārliecināts, ka vēlaties dzēst rēķinu Nr.${invoice.id}?`)) {
+    if (
+      window.confirm(
+        `Vai esat pārliecināts, ka vēlaties dzēst rēķinu Nr.${invoice.id}?`,
+      )
+    ) {
       await deleteInvoice(token, invoice.id);
       setInvoices((prev) => prev.filter((i) => i.id !== invoice.id));
     }
@@ -102,7 +115,10 @@ const InvoicesTab: React.FC = () => {
 
   const handleInvoiceSave = async (invoice: InvoiceDTO) => {
     try {
-      const savedInvoice = await postRequest<InvoiceDTO>("admin/invoice", invoice);
+      const savedInvoice = await postRequest<InvoiceDTO>(
+        "admin/invoice",
+        invoice,
+      );
       setInvoices((invs) => invs.concat(savedInvoice));
     } catch (error) {
       console.error("Kļūda, saglabājot rēķinu:", error);
@@ -110,7 +126,10 @@ const InvoicesTab: React.FC = () => {
     }
   };
 
-  const handleGenerateInvoices = async (data: { startDate: string; endDate: string }) => {
+  const handleGenerateInvoices = async (data: {
+    startDate: string;
+    endDate: string;
+  }) => {
     try {
       await postRequest("admin/invoices", data);
       await loadInvoicesFiltered();
@@ -127,8 +146,15 @@ const InvoicesTab: React.FC = () => {
 
       {/* формы слева — как было */}
       <div className="d-flex">
-        <InvoiceForm usersInfo={usersInfo} lessons={lessons} onSave={handleInvoiceSave} />
-        <GenerateInvoicesForm kindergartens={kindergartens} onGenerate={handleGenerateInvoices} />
+        <InvoiceForm
+          usersInfo={usersInfo}
+          lessons={lessons}
+          onSave={handleInvoiceSave}
+        />
+        <GenerateInvoicesForm
+          kindergartens={kindergartens}
+          onGenerate={handleGenerateInvoices}
+        />
       </div>
 
       {/* ФИЛЬТРЫ над таблицей */}
@@ -142,7 +168,9 @@ const InvoicesTab: React.FC = () => {
           >
             <option value="">— Visi —</option>
             {kindergartens.map((k) => (
-              <option key={String(k.id)} value={String(k.id)}>{k.name}</option>
+              <option key={String(k.id)} value={String(k.id)}>
+                {k.name}
+              </option>
             ))}
           </select>
         </div>
@@ -157,7 +185,9 @@ const InvoicesTab: React.FC = () => {
           >
             <option value="">— Visas —</option>
             {groups.map((g) => (
-              <option key={String(g.id)} value={String(g.id)}>{g.name}</option>
+              <option key={String(g.id)} value={String(g.id)}>
+                {g.name}
+              </option>
             ))}
           </select>
         </div>
@@ -228,7 +258,9 @@ const InvoicesTab: React.FC = () => {
                 <select
                   className="form-control"
                   value={item.status || ""}
-                  onChange={(e) => setItem((prev) => ({ ...prev, status: e.target.value }))}
+                  onChange={(e) =>
+                    setItem((prev) => ({ ...prev, status: e.target.value }))
+                  }
                 >
                   <option value="NOT_PAID">NOT_PAID</option>
                   <option value="PAID">PAID</option>
@@ -239,16 +271,25 @@ const InvoicesTab: React.FC = () => {
                 field="lessons"
                 columns={["id", "topic", "date"]}
                 columnMap={{ id: "Stundas ID", topic: "Tēma", date: "Datums" }}
-                options={userLessons.map((i) => ({ ...i, name: `${i.topic} (${i.date})` }))}
+                options={userLessons.map((i) => ({
+                  ...i,
+                  name: `${i.topic} (${i.date})`,
+                }))}
               />
 
               <div className="mt-3 flex justify-end space-x-2">
                 <button
                   onClick={() => {
                     putRequest("admin/invoice", item).then(() => {
-                      getRequest<InvoiceDTO>(`admin/invoice/${item.id}`).then((newInv) => {
-                        setInvoices((prev) => prev.map((inv) => (inv.id === newInv.id ? newInv : inv)));
-                      });
+                      getRequest<InvoiceDTO>(`admin/invoice/${item.id}`).then(
+                        (newInv) => {
+                          setInvoices((prev) =>
+                            prev.map((inv) =>
+                              inv.id === newInv.id ? newInv : inv,
+                            ),
+                          );
+                        },
+                      );
                     });
                     close();
                   }}
@@ -256,7 +297,9 @@ const InvoicesTab: React.FC = () => {
                 >
                   Saglabāt
                 </button>
-                <button onClick={close} className="btn btn-secondary">Aizvērt</button>
+                <button onClick={close} className="btn btn-secondary">
+                  Aizvērt
+                </button>
               </div>
             </RootObjectForm>
           );

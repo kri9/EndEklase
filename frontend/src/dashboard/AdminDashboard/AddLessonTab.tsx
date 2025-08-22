@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  getKindergartens,
-  getGroupsByKindergarten,
-  addLesson,
-} from "src/api";
+import { getKindergartens, getGroupsByKindergarten, addLesson } from "src/api";
 import { useSelector } from "react-redux";
 import { RootState } from "src/redux/store";
 import { FileUploadButton } from "./common/FileUploadButton";
@@ -41,10 +37,8 @@ const AddLessonTab: React.FC = () => {
   useEffect(() => {
     const loadGroups = async () => {
       if (token && selectedKindergarten) {
-        const fetchedGroups = await getGroupsByKindergarten(
-          token,
-          selectedKindergarten
-        );
+        const fetchedGroups =
+          await getGroupsByKindergarten(selectedKindergarten);
         setGroups(fetchedGroups || []);
       } else {
         setGroups([]);
@@ -54,20 +48,18 @@ const AddLessonTab: React.FC = () => {
   }, [token, selectedKindergarten]);
 
   const handleKindergartenChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     setSelectedKindergarten(event.target.value);
     setSelectedGroup("");
   };
 
-  const handleGroupChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedGroup(event.target.value);
   };
 
   const handleLessonInputChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setNewLesson({ ...newLesson, [event.target.name]: event.target.value });
   };
@@ -165,11 +157,14 @@ const AddLessonTab: React.FC = () => {
         <button onClick={handleAddLesson} className="btn btn-primary mt-3">
           Pievienot stundu
         </button>
-        <FileUploadButton acceptedFileExtension=".xlsx" buttonTitle="Importēt stundas" uploadUrl="admin/lessons/import" />
+        <FileUploadButton
+          acceptedFileExtension=".xlsx"
+          buttonTitle="Importēt stundas"
+          uploadUrl="admin/lessons/import"
+        />
       </div>
     </div>
   );
 };
 
 export default AddLessonTab;
-
