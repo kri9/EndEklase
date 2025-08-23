@@ -47,7 +47,7 @@ const InvoicesTab: React.FC = () => {
 
   useEffect(() => {
     if (!token) return;
-    getKindergartens(token).then((list: KG[]) => setKindergartens(list || []));
+    getKindergartens().then((list: KG[]) => setKindergartens(list || []));
   }, [token]);
 
   useEffect(() => {
@@ -108,7 +108,7 @@ const InvoicesTab: React.FC = () => {
         `Vai esat pārliecināts, ka vēlaties dzēst rēķinu Nr.${invoice.id}?`,
       )
     ) {
-      await deleteInvoice(token, invoice.id);
+      await deleteInvoice(invoice.id);
       setInvoices((prev) => prev.filter((i) => i.id !== invoice.id));
     }
   };
@@ -238,7 +238,7 @@ const InvoicesTab: React.FC = () => {
 
           useEffect(() => {
             if (token && it.userId && isOpen) {
-              getLessonsByUser(token, it.userId).then(setUserLessons);
+              getLessonsByUser(it.userId).then(setUserLessons);
             }
           }, [it.userId, token, isOpen]);
 

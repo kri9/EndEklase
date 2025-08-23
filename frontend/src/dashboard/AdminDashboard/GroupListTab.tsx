@@ -24,12 +24,10 @@ const GroupListTab: React.FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
-    if (token) {
-      getKindergartens(token).then(setKindergartens);
-      getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(
-        setUsersInfo,
-      );
-    }
+    getKindergartens().then(setKindergartens);
+    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(
+      setUsersInfo,
+    );
   }, [token]);
 
   useEffect(() => {

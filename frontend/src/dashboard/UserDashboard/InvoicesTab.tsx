@@ -26,18 +26,15 @@ const InvoiceTab: React.FC = () => {
 
   useEffect(() => {
     const loadInvoices = async () => {
-      if (token) {
-        try {
-          const fetchedInvoices = await getInvoicesByUser(token);
-          setInvoices(fetchedInvoices || []);
-        } catch (error) {
-          console.error("Kļūda, ielādējot rēķinus:", error);
-        }
+      try {
+        const fetchedInvoices = await getInvoicesByUser();
+        setInvoices(fetchedInvoices || []);
+      } catch (error) {
+        console.error("Kļūda, ielādējot rēķinus:", error);
       }
     };
     loadInvoices();
   }, [token]);
-
 
   return (
     <div className="invoices-tab">

@@ -29,13 +29,11 @@ const AttendanceTab: React.FC = () => {
 
   useEffect(() => {
     const loadKindergartens = async () => {
-      if (token) {
-        try {
-          const fetchedKindergartens = await getKindergartens(token);
-          setKindergartens(fetchedKindergartens || []);
-        } catch (error) {
-          console.error("Failed to load kindergartens:", error);
-        }
+      try {
+        const fetchedKindergartens = await getKindergartens();
+        setKindergartens(fetchedKindergartens || []);
+      } catch (error) {
+        console.error("Failed to load kindergartens:", error);
       }
     };
     loadKindergartens();
@@ -101,19 +99,18 @@ const AttendanceTab: React.FC = () => {
   ) => {
     if (token && groupId) {
       try {
-        const fetchedLessons = await getLessonsByGroup(token, groupId);
+        const fetchedLessons = await getLessonsByGroup(groupId);
         setLessons(fetchedLessons);
 
         let fetchedAttendance;
         if (month) {
           const formattedMonth = format(month, "yyyy-MM");
           fetchedAttendance = await getAttendanceByGroupAndMonth(
-            token,
             groupId,
             formattedMonth,
           );
         } else {
-          fetchedAttendance = await getAttendanceByGroup(token, groupId);
+          fetchedAttendance = await getAttendanceByGroup(groupId);
         }
 
         if (fetchedAttendance) {

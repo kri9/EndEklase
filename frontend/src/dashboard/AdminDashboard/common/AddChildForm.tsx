@@ -10,7 +10,11 @@ interface AddChildFormProps {
   reloadChildren: () => void;
 }
 
-const AddChildForm: React.FC<AddChildFormProps> = ({ selectedKindergarten, selectedGroup, reloadChildren }) => {
+const AddChildForm: React.FC<AddChildFormProps> = ({
+  selectedKindergarten,
+  selectedGroup,
+  reloadChildren,
+}) => {
   const [newChild, setNewChild] = useState<{
     firstname: string;
     lastname: string;
@@ -36,10 +40,10 @@ const AddChildForm: React.FC<AddChildFormProps> = ({ selectedKindergarten, selec
   };
 
   const handleUserChange = (userFullName: string, userId?: number) => {
-    setNewChild({ 
-      ...newChild, 
-      userFullName, 
-      userId: userId ?? null 
+    setNewChild({
+      ...newChild,
+      userFullName,
+      userId: userId ?? null,
     });
   };
 
@@ -73,16 +77,20 @@ const AddChildForm: React.FC<AddChildFormProps> = ({ selectedKindergarten, selec
 
     try {
       await addChild(
-        token, 
         newChild.firstname,
         newChild.lastname,
         selectedKindergarten,
         selectedGroup,
-        newChild.userId
+        newChild.userId,
       );
       alert("Bērns veiksmīgi pievienots");
 
-      setNewChild({ firstname: "", lastname: "", userId: null, userFullName: "" });
+      setNewChild({
+        firstname: "",
+        lastname: "",
+        userId: null,
+        userFullName: "",
+      });
       reloadChildren();
     } catch (error) {
       console.error("Ошибка при добавлении ребенка:", error);
@@ -118,11 +126,10 @@ const AddChildForm: React.FC<AddChildFormProps> = ({ selectedKindergarten, selec
 
       <div className="form-group">
         <label>Izvēlieties vecāku:</label>
-        <UserSelect 
-          onChange={handleUserChange} 
-          name="userFullName"
-        />
-        {formErrors.userFullName && <div className="invalid-feedback">Lūdzu, izvēlieties vecāku.</div>}
+        <UserSelect onChange={handleUserChange} name="userFullName" />
+        {formErrors.userFullName && (
+          <div className="invalid-feedback">Lūdzu, izvēlieties vecāku.</div>
+        )}
       </div>
 
       <button onClick={handleAddChild} className="btn btn-primary mt-3 w-full">

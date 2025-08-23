@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { getAttendanceByUser } from 'src/api';
-import { useSelector } from 'react-redux';
-import { RootState } from 'src/redux/store';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { format } from 'date-fns';
-import './css/AttendanceTab.css';
+import React, { useState, useEffect } from "react";
+import { getAttendanceByUser } from "src/api";
+import { useSelector } from "react-redux";
+import { RootState } from "src/redux/store";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
+import "./css/AttendanceTab.css";
 
 const AttendanceTab: React.FC = () => {
   const [attendance, setAttendance] = useState<any[]>([]);
@@ -15,17 +15,15 @@ const AttendanceTab: React.FC = () => {
 
   useEffect(() => {
     const loadAttendance = async () => {
-      if (token) {
-        try {
-          setLoading(true);
-          const fetchedAttendance = await getAttendanceByUser(token);
-          console.log('Fetched Attendance:', fetchedAttendance);
-          setAttendance(fetchedAttendance || []);
-        } catch (error) {
-          console.error('Failed to load attendance:', error);
-        } finally {
-          setLoading(false);
-        }
+      try {
+        setLoading(true);
+        const fetchedAttendance = await getAttendanceByUser();
+        console.log("Fetched Attendance:", fetchedAttendance);
+        setAttendance(fetchedAttendance || []);
+      } catch (error) {
+        console.error("Failed to load attendance:", error);
+      } finally {
+        setLoading(false);
       }
     };
     loadAttendance();
@@ -40,8 +38,8 @@ const AttendanceTab: React.FC = () => {
         const lessonDate = att.lesson ? new Date(att.lesson.date) : null;
         if (!lessonDate) return false;
 
-        const lessonMonth = format(lessonDate, 'yyyy-MM');
-        const selectedMonthFormatted = format(selectedMonth, 'yyyy-MM');
+        const lessonMonth = format(lessonDate, "yyyy-MM");
+        const selectedMonthFormatted = format(selectedMonth, "yyyy-MM");
 
         return lessonMonth === selectedMonthFormatted;
       })
@@ -73,11 +71,18 @@ const AttendanceTab: React.FC = () => {
           <p>Загрузка данных...</p>
         ) : filteredAttendance.length > 0 ? (
           filteredAttendance.map((att) => (
-            <div key={att.id} className={`attendance-card ${att.attended ? 'attended' : 'absent'}`}>
-              <div className="card-date">{att.lesson ? att.lesson.date : 'Datums nav zināms'}</div>
-              <div className="card-subject">{att.lesson ? att.lesson.topic : 'Tēma nav zināma'}</div>
+            <div
+              key={att.id}
+              className={`attendance-card ${att.attended ? "attended" : "absent"}`}
+            >
+              <div className="card-date">
+                {att.lesson ? att.lesson.date : "Datums nav zināms"}
+              </div>
+              <div className="card-subject">
+                {att.lesson ? att.lesson.topic : "Tēma nav zināma"}
+              </div>
               <div className="card-status">
-                {att.attended ? 'Apmeklēja' : 'Nebija'}
+                {att.attended ? "Apmeklēja" : "Nebija"}
               </div>
             </div>
           ))

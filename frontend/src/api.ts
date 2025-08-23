@@ -99,13 +99,13 @@ export const fetchFromBackendWithAuth = async (
 };
 
 export const addChild = async (
-  token: string,
   firstname: string,
   lastname: string,
   kindergartenId: string,
   groupId: string,
   userId: number,
 ) => {
+  const token = store.getState().auth.token;
   const body = {
     firstname,
     lastname,
@@ -116,7 +116,8 @@ export const addChild = async (
   return await fetchFromBackendWithAuth("admin/children", "POST", token, body);
 };
 
-export const deleteChildren = async (token: string, childIds: number[]) => {
+export const deleteChildren = async (childIds: number[]) => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
     "admin/children",
     "DELETE",
@@ -125,7 +126,8 @@ export const deleteChildren = async (token: string, childIds: number[]) => {
   );
 };
 
-export const getKindergartens = async (token: string) => {
+export const getKindergartens = async () => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth("admin/kindergartens", "GET", token);
 };
 
@@ -146,10 +148,13 @@ export const getChildrenByGroup = async (groupId: string) => {
   );
 };
 
-export const addLesson = async (
-  token: string,
-  lesson: { topic: string; date: string; notes?: string; groupId: string },
-) => {
+export const addLesson = async (lesson: {
+  topic: string;
+  date: string;
+  notes?: string;
+  groupId: string;
+}) => {
+  const token = store.getState().auth.token;
   const body = {
     topic: lesson.topic,
     date: lesson.date,
@@ -159,7 +164,8 @@ export const addLesson = async (
   return await fetchFromBackendWithAuth("admin/lesson", "POST", token, body);
 };
 
-export const getLessonsByGroup = async (token: string, groupId: string) => {
+export const getLessonsByGroup = async (groupId: string) => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
     `admin/groups/${groupId}/lessons`,
     "GET",
@@ -167,7 +173,8 @@ export const getLessonsByGroup = async (token: string, groupId: string) => {
   );
 };
 
-export const getLessonsByUser = async (token: string, userId: number) => {
+export const getLessonsByUser = async (userId: number) => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
     `admin/user/${userId}/lessons`,
     "GET",
@@ -175,8 +182,8 @@ export const getLessonsByUser = async (token: string, userId: number) => {
   );
 };
 
-export const getLessons = async (token?: string | undefined | null) => {
-  token = token || store.getState().auth.token;
+export const getLessons = async () => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
     "admin/lessons",
     "GET",
@@ -185,11 +192,11 @@ export const getLessons = async (token?: string | undefined | null) => {
 };
 
 export const updateAttendance = async (
-  token: string,
   childId: string,
   lessonId: string,
   attended: boolean,
 ) => {
+  const token = store.getState().auth.token;
   const body = {
     childId,
     lessonId,
@@ -203,7 +210,8 @@ export const updateAttendance = async (
   );
 };
 
-export const getAttendanceByGroup = async (token: string, groupId: string) => {
+export const getAttendanceByGroup = async (groupId: string) => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
     `admin/groups/${groupId}/attendances`,
     "GET",
@@ -212,10 +220,10 @@ export const getAttendanceByGroup = async (token: string, groupId: string) => {
 };
 
 export const getAttendanceByGroupAndMonth = async (
-  token: string,
   groupId: string,
   month: string,
 ) => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
     `admin/groups/${groupId}/attendances/${month}`,
     "GET",
@@ -223,11 +231,8 @@ export const getAttendanceByGroupAndMonth = async (
   );
 };
 
-export const getInvoices = async (token: string) => {
-  return await fetchFromBackendWithAuth("admin/invoices", "GET", token);
-};
-
-export const deleteInvoice = async (token: string, invoiceId: number) => {
+export const deleteInvoice = async (invoiceId: number) => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
     `admin/invoice/${invoiceId}`,
     "DELETE",
@@ -248,11 +253,13 @@ export const generateInvoices = async (data: {
   return await fetchFromBackendWithAuth("admin/invoices", "POST", token, data);
 };
 
-export const getInvoicesByUser = async (token: string) => {
+export const getInvoicesByUser = async () => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth("user/invoices", "GET", token);
 };
 
-export const getAttendanceByUser = async (token: string) => {
+export const getAttendanceByUser = async () => {
+  const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth("user/attendances", "GET", token);
 };
 

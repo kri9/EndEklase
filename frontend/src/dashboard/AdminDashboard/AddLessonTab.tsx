@@ -26,10 +26,8 @@ const AddLessonTab: React.FC = () => {
 
   useEffect(() => {
     const loadKindergartens = async () => {
-      if (token) {
-        const fetchedKindergartens = await getKindergartens(token);
-        setKindergartens(fetchedKindergartens || []);
-      }
+      const fetchedKindergartens = await getKindergartens();
+      setKindergartens(fetchedKindergartens || []);
     };
     loadKindergartens();
   }, [token]);
@@ -67,7 +65,7 @@ const AddLessonTab: React.FC = () => {
   const handleAddLesson = async () => {
     if (newLesson.topic && newLesson.date) {
       if (token && selectedGroup) {
-        const response = await addLesson(token, {
+        const response = await addLesson({
           ...newLesson,
           groupId: selectedGroup,
         });
