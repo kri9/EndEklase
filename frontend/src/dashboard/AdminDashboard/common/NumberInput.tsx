@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { RootFormInput, useRootObject } from "./RootObjectForm";
 
 interface NumberInputProps extends RootFormInput {

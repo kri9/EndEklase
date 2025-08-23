@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { generateInvoices } from "src/api";
+import { useState } from "react";
 
 const GenerateInvoiceForm = (props: { kindergartens: any[], onGenerate: any }) => {
   const [startDate, setStartDate] = useState('');

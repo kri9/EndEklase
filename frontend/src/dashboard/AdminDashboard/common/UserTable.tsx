@@ -1,4 +1,3 @@
-import React from "react";
 import { deleteRequest } from "src/api";
 
 interface User {

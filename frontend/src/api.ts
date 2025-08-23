@@ -82,7 +82,7 @@ export const fetchFromBackendWithAuth = async (
 
     if (!response.ok) {
       throw new Error(
-        `Ошибка: ${response.status} ${response.statusText} - ${responseText}`,
+        `Ошибка: ${response.status} ${response.statusText} - ${response.text()}`,
       );
     }
     if (response.headers.get("Content-Disposition")?.includes("filename")) {

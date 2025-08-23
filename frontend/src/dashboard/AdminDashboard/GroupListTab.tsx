@@ -17,7 +17,7 @@ const GroupListTab: React.FC = () => {
   const [kindergartens, setKindergartens] = useState<any[]>([]);
   const [groups, setGroups] = useState<any[]>([]);
   const [children, setChildren] = useState<any[]>([]);
-  const [usersInfo, setUsersInfo] = useState<
+  const [_usersInfo, setUsersInfo] = useState<
     { id: number; fullName: string }[]
   >([]);
 

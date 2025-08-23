@@ -13,7 +13,7 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "src/redux/store";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { addMonths, format } from "date-fns";
+import { format } from "date-fns";
 
 const AttendanceTab: React.FC = () => {
   const [selectedKindergarten, setSelectedKindergarten] = useState("");
@@ -143,7 +143,7 @@ const AttendanceTab: React.FC = () => {
         for (const key in attendance) {
           const [childId, lessonId] = key.split("_");
           const attended = attendance[key];
-          await updateAttendance(token, childId, lessonId, attended);
+          await updateAttendance(childId, lessonId, attended);
         }
         alert("Apmeklējums veiksmīgi saglabāts");
       } catch (error) {

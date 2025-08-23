@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FaDownload } from "react-icons/fa";
-import { getRequest } from "src/api";
-import { handleDownloadPDF, handleDownloadPDFAdmin } from "src/general";
+import { handleDownloadPDFAdmin } from "src/general";
 
 interface InvoiceListProps {
   invoices: any[];

@@ -3,8 +3,13 @@ import { deleteChildren, updateChildren } from "src/api";
 import { useSelector } from "react-redux";
 import { RootState } from "src/redux/store";
 
-const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () => void }> = ({ editedChildren, reloadChildren }) => {
-  const [localEditedChildren, setLocalEditedChildren] = useState<any[]>(editedChildren || []);
+const GroupChildrenList: React.FC<{
+  editedChildren: any[];
+  reloadChildren: () => void;
+}> = ({ editedChildren, reloadChildren }) => {
+  const [localEditedChildren, setLocalEditedChildren] = useState<any[]>(
+    editedChildren || [],
+  );
   const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
@@ -12,11 +17,13 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
       [...editedChildren].sort((a, b) => {
         const fullNameA = `${a.lastname} ${a.firstname}`;
         const fullNameB = `${b.lastname} ${b.firstname}`;
-        return fullNameA.localeCompare(fullNameB, 'lv', { sensitivity: 'base' });
-      })
+        return fullNameA.localeCompare(fullNameB, "lv", {
+          sensitivity: "base",
+        });
+      }),
     );
   }, [editedChildren]);
-  
+
   const handleChildChange = (index: number, field: string, value: string) => {
     const updatedChildren = [...localEditedChildren];
     updatedChildren[index] = { ...updatedChildren[index], [field]: value };
@@ -30,11 +37,13 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
     }
 
     const child = localEditedChildren[index];
-    const confirmDelete = window.confirm(`Vai tiešām vēlaties dzēst ${child.firstname} ${child.lastname}?`);
+    const confirmDelete = window.confirm(
+      `Vai tiešām vēlaties dzēst ${child.firstname} ${child.lastname}?`,
+    );
     if (!confirmDelete) return;
 
     try {
-      await deleteChildren(token, [child.id]);
+      await deleteChildren([child.id]);
       reloadChildren();
     } catch (error) {
       console.error("Kļūda, dzēšot bērnu:", error);
@@ -73,12 +82,17 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
             </thead>
             <tbody>
               {localEditedChildren.map((child, index) => (
-                <tr key={child.id} className={child.isDeleted ? "table-danger" : ""}>
+                <tr
+                  key={child.id}
+                  className={child.isDeleted ? "table-danger" : ""}
+                >
                   <td>
                     <input
                       type="text"
                       value={child.firstname}
-                      onChange={(e) => handleChildChange(index, "firstname", e.target.value)}
+                      onChange={(e) =>
+                        handleChildChange(index, "firstname", e.target.value)
+                      }
                       className="form-control"
                       disabled={child.isDeleted}
                     />
@@ -87,7 +101,9 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
                     <input
                       type="text"
                       value={child.lastname}
-                      onChange={(e) => handleChildChange(index, "lastname", e.target.value)}
+                      onChange={(e) =>
+                        handleChildChange(index, "lastname", e.target.value)
+                      }
                       className="form-control"
                       disabled={child.isDeleted}
                     />
@@ -104,7 +120,10 @@ const GroupChildrenList: React.FC<{ editedChildren: any[], reloadChildren: () =>
               ))}
             </tbody>
           </table>
-          <button onClick={handleSaveChildrenChanges} className="btn btn-success mt-3">
+          <button
+            onClick={handleSaveChildrenChanges}
+            className="btn btn-success mt-3"
+          >
             Saglabāt izmaiņas
           </button>
         </>
