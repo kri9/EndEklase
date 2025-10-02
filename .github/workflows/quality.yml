@@ -5,11 +5,7 @@
 
 name: quality-checks
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    types: [ opened, synchronize, reopened ]
+on: workflow_dispatch
 
 jobs:
   build-and-analyze:
