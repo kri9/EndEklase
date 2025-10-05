@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-05-18T20:25:00+0300",
+    date = "2025-10-05T12:40:17+0300",
     comments = "version: 1.6.2, compiler: javac, environment: Java 21.0.6 (Amazon.com Inc.)"
 )
 @Component
@@ -27,6 +27,7 @@ public class LessonMapperImpl implements LessonMapper {
         lessonDTO.groupName( lessonGroupName( lesson ) );
         lessonDTO.kindergartenName( lessonGroupKindergartenName( lesson ) );
         lessonDTO.isLockedForEditing( isLockedForEditing( lesson ) );
+        lessonDTO.numOfAttendees( getNumOfAttendees( lesson ) );
         lessonDTO.id( lesson.getId() );
         lessonDTO.topic( lesson.getTopic() );
         lessonDTO.notes( lesson.getNotes() );
