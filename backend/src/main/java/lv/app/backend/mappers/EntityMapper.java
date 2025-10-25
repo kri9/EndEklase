@@ -2,8 +2,8 @@ package lv.app.backend.mappers;
 
 import lv.app.backend.dto.AttendanceDTO;
 import lv.app.backend.dto.ChildDTO;
-import lv.app.backend.dto.InvoiceCreateDTO;
-import lv.app.backend.dto.InvoiceDTO;
+import lv.app.backend.dto.invoice.InvoiceCreateDTO;
+import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
