@@ -8,6 +8,7 @@ export interface InvoiceDTO extends IdSupplier {
   userFullName: string;
   dateIssued: Date;
   dueDate: Date;
+  paymentReceiveDate?: Date | string | null;
   amount: number;
   status: string;
   lessons?: LessonDTO[];

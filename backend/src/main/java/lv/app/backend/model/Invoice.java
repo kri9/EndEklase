@@ -37,6 +37,7 @@ public class Invoice {
     private List<Attendance> attendances = new ArrayList<>();
     private LocalDate dateIssued;
     private LocalDate dueDate;
+    private LocalDate paymentReceiveDate;
     private Long amount;
     @Builder.Default
     @Enumerated(EnumType.STRING)

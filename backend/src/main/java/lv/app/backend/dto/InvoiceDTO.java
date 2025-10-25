@@ -18,6 +18,7 @@ public class InvoiceDTO {
     String userFullName;
     LocalDate dateIssued;
     LocalDate dueDate;
+    LocalDate paymentReceiveDate;
     Long amount;
     InvoiceStatus status;
 }

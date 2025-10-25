@@ -126,6 +126,16 @@ const InvoicesTab: React.FC = () => {
     }
   };
 
+  const toDateInputValue = (d?: Date | string | null): string => {
+    if (!d) return "";
+    const date = typeof d === "string" ? new Date(d) : d;
+    if (isNaN(date.getTime())) return "";
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   const handleGenerateInvoices = async (data: {
     startDate: string;
     endDate: string;
@@ -248,61 +258,87 @@ const InvoicesTab: React.FC = () => {
             }
           }, [userLessons]);
 
-          return (
-            <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
-              <NumberInput field="amount" header="Summa" />
+      return (
+        <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
+          <NumberInput field="amount" header="Summa" />
 
-              {/* СТАТУС */}
-              <div className="mt-3">
-                <label className="block text-sm mb-1">Statuss</label>
-                <select
-                  className="form-control"
-                  value={item.status || ""}
-                  onChange={(e) =>
-                    setItem((prev) => ({ ...prev, status: e.target.value }))
+          {/* СТАТУС */}
+          <div className="mt-3">
+            <label className="block text-sm mb-1">Statuss</label>
+            <select
+              className="form-control"
+              value={item.status || ""}
+              onChange={(e) => {
+                const next = e.target.value as "NOT_PAID" | "PAID" | "EXPIRED";
+                setItem((prev) => {
+                  let prd = prev.paymentReceiveDate ?? null;
+                  if (next === "PAID" && !prd) prd = (new Date());
+                  if (next !== "PAID") prd = null;
+                  return { ...prev, status: next, paymentReceiveDate: prd };
+                });
+              }}
+            >
+              <option value="NOT_PAID">NOT_PAID</option>
+              <option value="PAID">PAID</option>
+              <option value="EXPIRED">EXPIRED</option>
+            </select>
+          </div>
+
+          {/* ДАТА ОПЛАТЫ: дата -> статус PAID, очистил -> NOT_PAID */}
+          <div className="mt-3">
+            <label className="block text-sm mb-1">Maksājuma saņemšanas datums</label>
+            <input
+              type="date"
+              className="form-control"
+              value={toDateInputValue(item.paymentReceiveDate ?? null)}
+              onChange={(e) => {
+                const v = e.target.value?.trim();
+                setItem((prev) => {
+                  if (v) {
+                    return { ...prev, paymentReceiveDate: v, status: "PAID" };
                   }
-                >
-                  <option value="NOT_PAID">NOT_PAID</option>
-                  <option value="PAID">PAID</option>
-                </select>
-              </div>
+                  return { ...prev, paymentReceiveDate: null, status: "NOT_PAID" };
+                });
+              }}
+            />
+          </div>
 
-              <MultiSelect
-                field="lessons"
-                columns={["id", "topic", "date"]}
-                columnMap={{ id: "Stundas ID", topic: "Tēma", date: "Datums" }}
-                options={userLessons.map((i) => ({
-                  ...i,
-                  name: `${i.topic} (${i.date})`,
-                }))}
-              />
+          <MultiSelect
+            field="lessons"
+            columns={["id", "topic", "date"]}
+            columnMap={{ id: "Stundas ID", topic: "Tēma", date: "Datums" }}
+            options={userLessons.map((i) => ({
+              ...i,
+              name: `${i.topic} (${i.date})`,
+            }))}
+          />
 
-              <div className="mt-3 flex justify-end space-x-2">
-                <button
-                  onClick={() => {
-                    putRequest("admin/invoice", item).then(() => {
-                      getRequest<InvoiceDTO>(`admin/invoice/${item.id}`).then(
-                        (newInv) => {
-                          setInvoices((prev) =>
-                            prev.map((inv) =>
-                              inv.id === newInv.id ? newInv : inv,
-                            ),
-                          );
-                        },
-                      );
-                    });
-                    close();
-                  }}
-                  className="btn btn-primary"
-                >
-                  Saglabāt
-                </button>
-                <button onClick={close} className="btn btn-secondary">
-                  Aizvērt
-                </button>
-              </div>
-            </RootObjectForm>
-          );
+          <div className="mt-3 flex justify-end space-x-2">
+            <button
+              onClick={async () => {
+                const payload = {
+                  ...item,
+                  dateIssued: (item.dateIssued),
+                  dueDate: (item.dueDate),
+                  paymentReceiveDate: (item.paymentReceiveDate ?? null),
+                  lessons: Array.isArray(item.lessons)
+                    ? item.lessons.map((l: any) => (typeof l === "number" ? l : l.id))
+                    : item.lessons,
+                };
+                await putRequest("admin/invoice", payload);
+                const fresh = await getRequest<InvoiceDTO>(`admin/invoice/${item.id}`);
+                setInvoices((prev) => prev.map((inv) => (inv.id === fresh.id ? fresh : inv)));
+                close();
+              }}
+              className="btn btn-primary"
+            >
+              Saglabāt
+            </button>
+            <button onClick={close} className="btn btn-secondary">Aizvērt</button>
+          </div>
+        </RootObjectForm>
+      );
+
         }}
       />
     </div>
