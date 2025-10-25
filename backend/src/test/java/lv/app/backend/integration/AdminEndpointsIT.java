@@ -1,7 +1,7 @@
 package lv.app.backend.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lv.app.backend.dto.InvoiceDTO;
+import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.dto.LoginResponse;
 import lv.app.backend.dto.LoginUserDTO;
 import lv.app.backend.dto.UserDTO;

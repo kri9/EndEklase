@@ -1,7 +1,7 @@
 package lv.app.backend.integration;
 
 import lv.app.backend.dto.AttendanceDTO;
-import lv.app.backend.dto.InvoiceDTO;
+import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.model.User;
 import lv.app.backend.model.enums.UserRole;
 import lv.app.backend.model.repository.UserRepository;

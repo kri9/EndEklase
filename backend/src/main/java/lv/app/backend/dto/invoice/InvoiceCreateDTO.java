@@ -1,4 +1,4 @@
-package lv.app.backend.dto;
+package lv.app.backend.dto.invoice;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Builder;
@@ -17,8 +17,7 @@ public class InvoiceCreateDTO {
     LocalDate dueDate;
     Long amount;
     InvoiceStatus status;
-
     @Builder.Default
-    @JsonAlias("lessons")
-    List<Long> lessonIds = new ArrayList<>();
+    @JsonAlias("attendances")
+    List<Long> attendanceIds = new ArrayList<>();
 }

@@ -1,4 +1,4 @@
-package lv.app.backend.dto;
+package lv.app.backend.dto.invoice;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

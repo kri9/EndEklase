@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import javax.annotation.processing.Generated;
 import lv.app.backend.dto.AttendanceDTO;
 import lv.app.backend.dto.ChildDTO;
-import lv.app.backend.dto.InvoiceCreateDTO;
-import lv.app.backend.dto.InvoiceDTO;
 import lv.app.backend.dto.LessonDTO;
+import lv.app.backend.dto.invoice.InvoiceCreateDTO;
+import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.Group;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-05-18T20:25:00+0300",
+    date = "2025-10-25T18:08:40+0300",
     comments = "version: 1.6.2, compiler: javac, environment: Java 21.0.6 (Amazon.com Inc.)"
 )
 @Component
@@ -86,6 +86,7 @@ public class EntityMapperImpl implements EntityMapper {
         invoiceDTO.id( invoice.getId() );
         invoiceDTO.dateIssued( invoice.getDateIssued() );
         invoiceDTO.dueDate( invoice.getDueDate() );
+        invoiceDTO.paymentReceiveDate( invoice.getPaymentReceiveDate() );
         invoiceDTO.amount( invoice.getAmount() );
         invoiceDTO.status( invoice.getStatus() );
 
@@ -130,6 +131,7 @@ public class EntityMapperImpl implements EntityMapper {
         invoice.setId( dto.getId() );
         invoice.setDateIssued( dto.getDateIssued() );
         invoice.setDueDate( dto.getDueDate() );
+        invoice.setPaymentReceiveDate( dto.getPaymentReceiveDate() );
         invoice.setAmount( dto.getAmount() );
         invoice.setStatus( dto.getStatus() );
     }
