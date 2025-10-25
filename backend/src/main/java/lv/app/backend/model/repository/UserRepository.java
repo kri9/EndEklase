@@ -10,7 +10,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     @Query(value="""
-            SELECT * FROM users u
+            SELECT u.* FROM users u
             join invoice i on i.user_id = u.id
             where i.id=?1
             """,

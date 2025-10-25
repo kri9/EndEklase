@@ -20,8 +20,14 @@ import lv.app.backend.model.repository.UserRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static lv.app.backend.util.Common.singleResult;
@@ -63,31 +69,40 @@ public class PDFInvoiceGenerator {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
-    private void createDocument(Document document, Invoice invoice) {
-        Paragraph header = new Paragraph("Invoice")
+    private void createDocument(Document document, Invoice invoice) throws IOException {
+        String fontPath = "src/main/resources/fonts/DejaVuSans.ttf";
+
+        PdfFont font = PdfFontFactory.createFont(
+                fontPath,
+                PdfEncodings.IDENTITY_H,
+                PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+        );
+
+        document.setFont(font);
+
+        Paragraph header = new Paragraph("Rēķins")
                 .setBold()
                 .setFontSize(20)
                 .setTextAlignment(TextAlignment.CENTER);
         document.add(header);
         String companyInfo = """
-                Your Company Name
-                Your Company Address
-                Phone: +123456789
-                Email: info@company.com
+                Funny English
+                Telefons: +37129729107
+                Email: irina.kicenko@gmail.com
                 """;
         document.add(new Paragraph(companyInfo).setMarginBottom(10));
         User user = userRepository.findDeletedByInvoice(invoice.getId());
         String customerDetails = """
-                Bill To:
+                Rēķins (kam):
                 %s
                 Email: %s
                 """.formatted(user.getFullName(), user.getUsername());
         document.add(new Paragraph(customerDetails).setMarginBottom(10));
 
         String invoiceInfo = """
-                Invoice #: %d
-                Invoice Date: %s
-                Due Date: %s
+                Rēķins #: %d
+                Maksājuma datums: %s
+                Maksājuma termiņš: %s
                 """.formatted(invoice.getId(), invoice.getDateIssued(), invoice.getDueDate());
         document.add(new Paragraph(invoiceInfo).setMarginBottom(10));
 
@@ -96,15 +111,15 @@ public class PDFInvoiceGenerator {
         table.setWidth(UnitValue.createPercentValue(100));
 
 
-        table.addHeaderCell(new Cell().add(new Paragraph("Lesson No."))
+        table.addHeaderCell(new Cell().add(new Paragraph("Stunda Nr."))
                 .setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Topic"))
+        table.addHeaderCell(new Cell().add(new Paragraph("Temats"))
                 .setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Date"))
+        table.addHeaderCell(new Cell().add(new Paragraph("Datums"))
                 .setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Child"))
+        table.addHeaderCell(new Cell().add(new Paragraph("Bērns"))
                 .setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        table.addHeaderCell(new Cell().add(new Paragraph("Lesson Cost"))
+        table.addHeaderCell(new Cell().add(new Paragraph("Stundas cena"))
                 .setBackgroundColor(new DeviceRgb(211, 211, 211)));
         AtomicReference<Integer> i = new AtomicReference<>(0);
         invoice.getAttendances().forEach(a -> {
@@ -119,16 +134,14 @@ public class PDFInvoiceGenerator {
         document.add(table);
 
         String totals = """
-                Subtotal: $%d
-                Tax: $%d
-                Total: $%d
-                """.formatted(invoice.getAmount(), 100, invoice.getAmount() + 100);
+                Kopēja summa: €%d
+                """.formatted(invoice.getAmount());
 
         document.add(new Paragraph(totals)
                 .setTextAlignment(TextAlignment.RIGHT)
                 .setMarginTop(10));
 
-        Paragraph footer = new Paragraph("Payment due within 30 days. Thank you for your business.")
+        Paragraph footer = new Paragraph("Apmāksu veiciet 10 dienu laikā. Paldies!")
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginTop(20);
         document.add(footer);
