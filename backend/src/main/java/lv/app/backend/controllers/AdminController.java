@@ -266,9 +266,17 @@ public class AdminController {
     public List<FullInvoiceDTO> searchInvoices(
             @RequestParam(required = false) Long kindergartenId,
             @RequestParam(required = false) Long groupId,
-            @RequestParam(required = false) InvoiceStatus status
+            @RequestParam(required = false) InvoiceStatus status,
+            @RequestParam(required = false) String issueMonth
     ) {
-        return invoiceRetrievalService.searchInvoices(kindergartenId, groupId, status);
+            LocalDate start = null;
+            LocalDate end = null;
+            if (issueMonth != null && !issueMonth.isBlank()) {
+                    YearMonth ym = YearMonth.parse(issueMonth);
+                    start = ym.atDay(1);
+                    end = ym.plusMonths(1).atDay(1);
+                    }
+            return invoiceRetrievalService.searchInvoices(kindergartenId, groupId, status, start, end);
     }
 
     @ResponseBody

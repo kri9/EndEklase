@@ -16,6 +16,7 @@ import CrudTable from "./common/CrudTable";
 import RootObjectForm from "./common/RootObjectForm";
 import NumberInput from "./common/NumberInput";
 import MultiSelect from "./common/MultiSelect";
+
 import {
   AttendanceDTO,
   FullInvoiceDTO,
@@ -29,9 +30,9 @@ type Group = { id: string | number; name: string };
 const InvoicesTab: React.FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
 
-  const [usersInfo, setUsersInfo] = useState<
-    { id: number; fullName: string }[]
-  >([]);
+  const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>(
+    []
+  );
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
   const [invoices, setInvoices] = useState<FullInvoiceDTO[]>([]);
 
@@ -41,9 +42,16 @@ const InvoicesTab: React.FC = () => {
   const [filterGroupId, setFilterGroupId] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
 
+  const [filterIssueMonth, setFilterIssueMonth] = useState<string>(() => {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    return `${y}-${m}`;
+  });
+
   useEffect(() => {
     getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(
-      setUsersInfo,
+      setUsersInfo
     );
     loadLessons();
     loadInvoices();
@@ -58,7 +66,7 @@ const InvoicesTab: React.FC = () => {
     if (!token) return;
     if (filterKindergartenId) {
       getGroupsByKindergarten(filterKindergartenId).then((list: Group[]) =>
-        setGroups(list || []),
+        setGroups(list || [])
       );
       setFilterGroupId("");
     } else {
@@ -69,7 +77,7 @@ const InvoicesTab: React.FC = () => {
 
   useEffect(() => {
     loadInvoicesFiltered();
-  }, [filterKindergartenId, filterGroupId, filterStatus]);
+  }, [filterKindergartenId, filterGroupId, filterStatus, filterIssueMonth]);
 
   const loadLessons = async () => {
     if (!token) return;
@@ -91,6 +99,8 @@ const InvoicesTab: React.FC = () => {
     if (filterGroupId)
       params.push(`groupId=${encodeURIComponent(filterGroupId)}`);
     if (filterStatus) params.push(`status=${encodeURIComponent(filterStatus)}`);
+    if (filterIssueMonth)
+      params.push(`issueMonth=${encodeURIComponent(filterIssueMonth)}`);
 
     const url =
       "admin/invoices/search" + (params.length ? `?${params.join("&")}` : "");
@@ -100,7 +110,7 @@ const InvoicesTab: React.FC = () => {
 
   const sortMergeInvoices = (
     prev: FullInvoiceDTO[],
-    fetched: FullInvoiceDTO[],
+    fetched: FullInvoiceDTO[]
   ) => {
     const map = new Map(prev.map((inv) => [inv.id, inv]));
     return fetched
@@ -112,7 +122,7 @@ const InvoicesTab: React.FC = () => {
     if (!token || invoice.id === undefined) return;
     if (
       window.confirm(
-        `Vai esat pārliecināts, ka vēlaties dzēst rēķinu Nr.${invoice.id}?`,
+        `Vai esat pārliecināts, ka vēlaties dzēst rēķinu Nr.${invoice.id}?`
       )
     ) {
       await deleteInvoice(invoice.id);
@@ -124,7 +134,7 @@ const InvoicesTab: React.FC = () => {
     try {
       const savedInvoice = await postRequest<FullInvoiceDTO>(
         "admin/invoice",
-        invoice,
+        invoice
       );
       setInvoices((invs) => invs.concat(savedInvoice));
     } catch (error) {
@@ -148,7 +158,11 @@ const InvoicesTab: React.FC = () => {
     endDate: string;
   }) => {
     try {
-      await postRequest("admin/invoices", data);
+      const drafts = await postRequest<FullInvoiceDTO[]>(
+        "admin/invoices/draft",
+        data,
+      );
+      await postRequest("admin/invoices", drafts);
       await loadInvoicesFiltered();
       alert("Invoices generated successfully");
     } catch (error) {
@@ -175,7 +189,7 @@ const InvoicesTab: React.FC = () => {
       </div>
 
       {/* ФИЛЬТРЫ над таблицей */}
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
         <div>
           <label className="text-sm mb-1 block">Bērnudārzs</label>
           <select
@@ -219,8 +233,19 @@ const InvoicesTab: React.FC = () => {
             <option value="">— Visi —</option>
             <option value="NOT_PAID">NOT_PAID</option>
             <option value="PAID">PAID</option>
-            {/* если используешь EXPIRED — добавь: <option value="EXPIRED">EXPIRED</option> */}
+            <option value="EXPIRED">EXPIRED</option>
           </select>
+        </div>
+
+        {/* 🟩 Фильтр по месяцу */}
+        <div>
+          <label className="text-sm mb-1 block">Mēnesis</label>
+          <input
+            type="month"
+            className="form-control"
+            value={filterIssueMonth}
+            onChange={(e) => setFilterIssueMonth(e.target.value)}
+          />
         </div>
 
         <div>
@@ -230,6 +255,12 @@ const InvoicesTab: React.FC = () => {
               setFilterKindergartenId("");
               setFilterGroupId("");
               setFilterStatus("");
+              setFilterIssueMonth(() => {
+                const d = new Date();
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, "0");
+                return `${y}-${m}`;
+              });
             }}
           >
             Notīrīt filtrus
@@ -237,7 +268,7 @@ const InvoicesTab: React.FC = () => {
         </div>
       </div>
 
-      {/* ТАБЛИЦА (CrudTable оставляем как есть) */}
+      {/* Таблица инвойсов */}
       <CrudTable
         excludeColumns={["lessons", "attendanceIds", "attendances", "actions"]}
         items={invoices as Required<FullInvoiceDTO>[]}
@@ -251,17 +282,19 @@ const InvoicesTab: React.FC = () => {
           >([]);
           const [item, setItem] = useState<InvoiceState>({
             ...it,
-            attendances: Array.isArray(it.attendances) ? it.attendances : [],
+            attendances: Array.isArray(it.attendances)
+              ? it.attendances
+              : [],
             attendancesMeta: [],
           });
           useEffect(() => {
             if (token && it.id && isOpen) {
               getRequest<AttendanceDTO[]>(
-                `admin/invoice/${it.id}/potential-attendances`,
+                `admin/invoice/${it.id}/potential-attendances`
               ).then((at) => {
                 setUserAttendances(at);
                 const ats: AttendanceDTO[] = item.attendances!.map(
-                  (id) => at.find((i) => i.id == id)!,
+                  (id) => at.find((i) => i.id == id)!
                 );
                 setItem({ ...item, attendancesMeta: ats });
               });
@@ -297,7 +330,7 @@ const InvoicesTab: React.FC = () => {
                 </select>
               </div>
 
-              {/* ДАТА ОПЛАТЫ: дата -> статус PAID, очистил -> NOT_PAID */}
+              {/* ДАТА ОПЛАТЫ */}
               <div className="mt-3">
                 <label className="block text-sm mb-1">
                   Maksājuma saņemšanas datums
@@ -330,7 +363,7 @@ const InvoicesTab: React.FC = () => {
                 <MultiSelect
                   field="attendancesMeta"
                   columns={["id", "lesson.topic", "date"]}
-                  columnMap={{    
+                  columnMap={{
                     id: "Stundas ID",
                     "lesson.topic": "Tēma",
                     date: "Datums",
@@ -354,10 +387,10 @@ const InvoicesTab: React.FC = () => {
                     };
                     await putRequest("admin/invoice", payload);
                     const fresh = await getRequest<FullInvoiceDTO>(
-                      `admin/invoice/${item.id}`,
+                      `admin/invoice/${item.id}`
                     );
                     setInvoices((prev) =>
-                      prev.map((inv) => (inv.id === fresh.id ? fresh : inv)),
+                      prev.map((inv) => (inv.id === fresh.id ? fresh : inv))
                     );
                     close();
                   }}
