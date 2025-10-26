@@ -28,7 +28,7 @@ type KG = { id: string | number; name: string };
 type Group = { id: string | number; name: string };
 
 const EmailBlastForm: React.FC = () => (
-  <div className="invoice-form mt-4">
+  <div className="invoice-form">
     <h3>Masveida e-pasta izsūtīšana (sagatavošana)</h3>
     <div className="text-sm text-gray-600">
       Šeit būs forma, lai atlasītu rēķinus un sagatavotu sūtīšanu klientiem.
@@ -39,7 +39,9 @@ const EmailBlastForm: React.FC = () => (
 const InvoicesTab: React.FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
 
-  const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>([]);
+  const [usersInfo, setUsersInfo] = useState<{ id: number; fullName: string }[]>(
+    []
+  );
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
   const [invoices, setInvoices] = useState<FullInvoiceDTO[]>([]);
 
@@ -57,11 +59,13 @@ const InvoicesTab: React.FC = () => {
   });
 
   const [showManual, setShowManual] = useState<boolean>(true);
-  const [showGenerate, setShowGenerate] = useState<boolean>(false);
-  const [showEmail, setShowEmail] = useState<boolean>(false);
+  const [showGenerate, setShowGenerate] = useState<boolean>(true);
+  const [showEmail, setShowEmail] = useState<boolean>(true);
 
   useEffect(() => {
-    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(setUsersInfo);
+    getRequest<{ id: number; fullName: string }[]>("admin/user-emails").then(
+      setUsersInfo
+    );
     loadLessons();
     loadInvoices();
   }, []);
@@ -117,7 +121,10 @@ const InvoicesTab: React.FC = () => {
     setInvoices(sortMergeInvoices(invoices, fetched || []));
   };
 
-  const sortMergeInvoices = (prev: FullInvoiceDTO[], fetched: FullInvoiceDTO[]) => {
+  const sortMergeInvoices = (
+    prev: FullInvoiceDTO[],
+    fetched: FullInvoiceDTO[]
+  ) => {
     const map = new Map(prev.map((inv) => [inv.id, inv]));
     return fetched
       .map((inv) => map.get(inv.id) || inv)
@@ -127,7 +134,9 @@ const InvoicesTab: React.FC = () => {
   const handleDeleteInvoice = async (invoice: FullInvoiceDTO) => {
     if (!token || invoice.id === undefined) return;
     if (
-      window.confirm(`Vai esat pārliecināts, ka vēlaties dzēst rēķinu Nr.${invoice.id}?`)
+      window.confirm(
+        `Vai esat pārliecināts, ka vēlaties dzēst rēķinu Nr.${invoice.id}?`
+      )
     ) {
       await deleteInvoice(invoice.id);
       setInvoices((prev) => prev.filter((i) => i.id !== invoice.id));
@@ -136,11 +145,14 @@ const InvoicesTab: React.FC = () => {
 
   const handleInvoiceSave = async (invoice: FullInvoiceDTO) => {
     try {
-      const savedInvoice = await postRequest<FullInvoiceDTO>("admin/invoice", invoice);
+      const savedInvoice = await postRequest<FullInvoiceDTO>(
+        "admin/invoice",
+        invoice
+      );
       setInvoices((invs) => invs.concat(savedInvoice));
     } catch (error) {
-      console.error("Kļūda, saglabājot rēķину:", error);
-      alert("Kļūda, saglabājot rēķину");
+      console.error("Kļūda, saglabājot rēķinu:", error);
+      alert("Kļūda, saglabājot rēķinu");
     }
   };
 
@@ -154,15 +166,21 @@ const InvoicesTab: React.FC = () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  const handleGenerateInvoices = async (data: { startDate: string; endDate: string }) => {
+  const handleGenerateInvoices = async (data: {
+    startDate: string;
+    endDate: string;
+  }) => {
     try {
-      const drafts = await postRequest<FullInvoiceDTO[]>("admin/invoices/draft", data);
+      const drafts = await postRequest<FullInvoiceDTO[]>(
+        "admin/invoices/draft",
+        data
+      );
       await postRequest("admin/invoices", drafts);
       await loadInvoicesFiltered();
       alert("Invoices generated successfully");
     } catch (error) {
       console.error("Kļūda, ģenerējot rēķinus:", error);
-      alert("Kļūda, ģenerējot рēķinus");
+      alert("Кļūda, ģenerējot рēķinus");
     }
   };
 
@@ -173,6 +191,7 @@ const InvoicesTab: React.FC = () => {
     <div>
       <h2 className="text-3xl">Rēķinu izrakstīšana</h2>
 
+      {/* переключатели */}
       <div className="mt-4 flex flex-wrap gap-2">
         <button className={btnClass(showManual)} onClick={() => setShowManual((v) => !v)}>
           Мануальное выставление счетов
@@ -185,9 +204,10 @@ const InvoicesTab: React.FC = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* формы: grid 12 колонок, на xl — 5/12 + 2/12 + 5/12 */}
+      <div className="mt-4 grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
         {showManual && (
-          <div className="lg:col-span-2">
+          <div className="min-w-0 overflow-hidden p-4 rounded border bg-white xl:col-span-5">
             <InvoiceForm
               usersInfo={usersInfo}
               lessons={lessons}
@@ -195,23 +215,25 @@ const InvoicesTab: React.FC = () => {
             />
           </div>
         )}
+
         {showGenerate && (
-          <div className="lg:col-span-1">
+          <div className="min-w-0 overflow-hidden p-4 rounded border bg-white xl:col-span-2">
             <GenerateInvoicesForm
               kindergartens={kindergartens}
               onGenerate={handleGenerateInvoices}
             />
           </div>
         )}
+
         {showEmail && (
-          <div className="lg:col-span-2">
+          <div className="min-w-0 overflow-hidden p-4 rounded border bg-white xl:col-span-5">
             <EmailBlastForm />
           </div>
         )}
       </div>
 
       {/* фильтры */}
-      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
         <div>
           <label className="text-sm mb-1 block">Bērnudārzs</label>
           <select
@@ -299,7 +321,9 @@ const InvoicesTab: React.FC = () => {
           if (invoice) handleDeleteInvoice(invoice);
         }}
         editFormSupplier={(it, close, isOpen) => {
-          const [userAttendances, setUserAttendances] = useState<AttendanceDTO[]>([]);
+          const [userAttendances, setUserAttendances] = useState<AttendanceDTO[]>(
+            []
+          );
           const [item, setItem] = useState<InvoiceState>({
             ...it,
             attendances: Array.isArray(it.attendances) ? it.attendances : [],
@@ -320,11 +344,20 @@ const InvoicesTab: React.FC = () => {
             }
           }, [it.id, token, isOpen]);
 
+          const toDateInputValueInner = (d?: Date | string | null): string => {
+            if (!d) return "";
+            const date = typeof d === "string" ? new Date(d) : d;
+            if (isNaN(date.getTime())) return "";
+            const yyyy = date.getFullYear();
+            const mm = String(date.getMonth() + 1).padStart(2, "0");
+            const dd = String(date.getDate()).padStart(2, "0");
+            return `${yyyy}-${mm}-${dd}`;
+          };
+
           return (
             <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
               <NumberInput field="amount" header="Summa" />
 
-              {/* статус */}
               <div className="mt-3">
                 <label className="block text-sm mb-1">Statuss</label>
                 <select
@@ -346,7 +379,6 @@ const InvoicesTab: React.FC = () => {
                 </select>
               </div>
 
-              {/* дата оплаты */}
               <div className="mt-3">
                 <label className="block text-sm mb-1">
                   Maksājuma saņemšanas datums
@@ -354,7 +386,7 @@ const InvoicesTab: React.FC = () => {
                 <input
                   type="date"
                   className="form-control"
-                  value={toDateInputValue(item.paymentReceiveDate ?? null)}
+                  value={toDateInputValueInner(item.paymentReceiveDate ?? null)}
                   onChange={(e) => {
                     const v = e.target.value?.trim();
                     setItem((prev) => {
