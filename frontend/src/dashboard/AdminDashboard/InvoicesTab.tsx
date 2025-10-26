@@ -239,7 +239,7 @@ const InvoicesTab: React.FC = () => {
 
       {/* ТАБЛИЦА (CrudTable оставляем как есть) */}
       <CrudTable
-        excludeColumns={["lessons"]}
+        excludeColumns={["lessons", "attendanceIds", "attendances", "actions"]}
         items={invoices as Required<FullInvoiceDTO>[]}
         onDelete={(item) => {
           const invoice = invoices.find((inv) => inv.id === item.id);
@@ -330,7 +330,7 @@ const InvoicesTab: React.FC = () => {
                 <MultiSelect
                   field="attendancesMeta"
                   columns={["id", "lesson.topic", "date"]}
-                  columnMap={{
+                  columnMap={{    
                     id: "Stundas ID",
                     "lesson.topic": "Tēma",
                     date: "Datums",

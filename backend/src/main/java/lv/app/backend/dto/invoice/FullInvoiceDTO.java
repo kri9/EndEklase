@@ -22,6 +22,7 @@ public class FullInvoiceDTO {
     String userFullName;
     LocalDate dateIssued;
     LocalDate dueDate;
+    LocalDate paymentReceiveDate;
     Long amount;
     InvoiceStatus status;
     @Builder.Default

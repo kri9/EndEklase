@@ -16,6 +16,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
     userId: 0,
     dateIssued: "",
     dueDate: "",
+    paymentReceiveDate: "",
     amount: "",
     status: null as any,
     attendances: [] as any[],
