@@ -148,7 +148,11 @@ const InvoicesTab: React.FC = () => {
     endDate: string;
   }) => {
     try {
-      await postRequest("admin/invoices", data);
+      const drafts = await postRequest<FullInvoiceDTO[]>(
+        "admin/invoices/draft",
+        data,
+      );
+      await postRequest("admin/invoices", drafts);
       await loadInvoicesFiltered();
       alert("Invoices generated successfully");
     } catch (error) {

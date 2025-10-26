@@ -172,8 +172,10 @@ public class AdminController {
 
     @PostMapping("/invoices")
     public ResponseEntity<List<FullInvoiceDTO>> saveInvoiceDTOs(@RequestBody List<FullInvoiceDTO> createDTOS) {
-        invoiceSavingService.saveInvoiceDTOs(createDTOS);
-        return ResponseEntity.ok(createDTOS);
+        List<FullInvoiceDTO> saved = invoiceSavingService.saveInvoiceDTOs(createDTOS).stream()
+                .map(entityMapper::invoiceToFullDTO)
+                .toList();
+        return ResponseEntity.ok(saved);
     }
 
     @PostMapping("/invoice")
