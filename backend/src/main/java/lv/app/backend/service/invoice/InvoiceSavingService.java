@@ -2,7 +2,7 @@ package lv.app.backend.service.invoice;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lv.app.backend.dto.invoice.InvoiceCreateDTO;
+import lv.app.backend.dto.invoice.FullInvoiceDTO;
 import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Attendance;
@@ -27,7 +27,7 @@ public class InvoiceSavingService {
     private final InvoiceAmountCalculator invoiceAmountCalculator;
 
     @Transactional
-    public List<Invoice> saveInvoiceDTOs(List<InvoiceCreateDTO> invoices) {
+    public List<Invoice> saveInvoiceDTOs(List<FullInvoiceDTO> invoices) {
         return invoices.stream().map(i -> {
             List<Attendance> attendances = attendanceRepository.findAllById(i.getAttendanceIds());
             Invoice createdInvoice = invoiceRepository.saveAndFlush(Invoice.builder()
@@ -48,10 +48,10 @@ public class InvoiceSavingService {
     }
 
     @Transactional
-    public void updateInvoice(InvoiceDTO dto) {
+    public void updateInvoice(FullInvoiceDTO dto) {
         Invoice invoice = invoiceRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("Invoice not found"));
-        entityMapper.updateInvoice(invoice, dto);
+        entityMapper.updateInvoiceFull(invoice, dto);
         if (dto.getUserId() != null) {
             invoice.setUser(userRepository.getReferenceById(dto.getUserId()));
         }

@@ -1,7 +1,7 @@
 package lv.app.backend.service.invoice;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import lv.app.backend.dto.invoice.FullInvoiceDTO;
 import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Invoice;
@@ -21,16 +21,23 @@ public class InvoiceRetrievalService {
     private final InvoiceRepository invoiceRepository;
 
     @Transactional
-    public List<InvoiceDTO> getAllInvoices() {
+    public List<FullInvoiceDTO> getAllInvoices() {
         return invoiceRepository.findAll().stream()
-                .map(entityMapper::invoiceToDto)
+                .map(entityMapper::invoiceToFullDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public InvoiceDTO getInvoiceById(Long invoiceId) {
+    public List<FullInvoiceDTO> getAllFullInvoices() {
+        return invoiceRepository.findAll().stream()
+                .map(entityMapper::invoiceToFullDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public FullInvoiceDTO getInvoiceById(Long invoiceId) {
         return invoiceRepository.findById(invoiceId)
-                .map(entityMapper::invoiceToDto)
+                .map(entityMapper::invoiceToFullDTO)
                 .orElseThrow(() -> new RuntimeException("Invoice not found with id: " + invoiceId));
     }
 
@@ -43,13 +50,13 @@ public class InvoiceRetrievalService {
     }
 
     @Transactional
-    public List<InvoiceDTO> searchInvoices(Long kindergartenId, Long groupId, InvoiceStatus status) {
+    public List<FullInvoiceDTO> searchInvoices(Long kindergartenId, Long groupId, InvoiceStatus status) {
         if (kindergartenId == null && groupId == null && status == null) {
             return getAllInvoices();
         }
         return invoiceRepository.searchByFilters(kindergartenId, groupId, status)
                 .stream()
-                .map(entityMapper::invoiceToDto)
+                .map(entityMapper::invoiceToFullDTO)
                 .toList();
     }
 

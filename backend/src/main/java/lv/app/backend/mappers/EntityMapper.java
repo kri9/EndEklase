@@ -2,7 +2,7 @@ package lv.app.backend.mappers;
 
 import lv.app.backend.dto.AttendanceDTO;
 import lv.app.backend.dto.ChildDTO;
-import lv.app.backend.dto.invoice.InvoiceCreateDTO;
+import lv.app.backend.dto.invoice.FullInvoiceDTO;
 import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
@@ -22,6 +22,7 @@ public interface EntityMapper {
     @Mapping(target = "kindergartenId", source = "group.kindergarten.id")
     ChildDTO childToDto(Child child);
 
+    @Mapping(target = "id", source = "id")
     @Mapping(target = "childId", source = "child.id")
     @Mapping(target = "lessonId", source = "lesson.id")
     @Mapping(target = "attended", source = "status", qualifiedByName = "mapAttendanceStatusToBoolean")
@@ -39,10 +40,20 @@ public interface EntityMapper {
     @Mapping(target = "userFullName", source = "user.fullName")
     InvoiceDTO invoiceToDto(Invoice invoice);
 
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "userFullName", source = "user.fullName")
+    @Mapping(target = "attendanceIds", source = "attendances")
+    FullInvoiceDTO invoiceToFullDTO(Invoice invoice);
+
+    default Long attendanceToLong(Attendance attendance) {
+        return attendance.getId();
+    }
+
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "attendances", ignore = true)
-    Invoice dtoToInvoice(InvoiceCreateDTO invoice);
+    Invoice dtoToInvoice(FullInvoiceDTO invoice);
 
     @Mapping(target = "parent", ignore = true)
     @Mapping(target = "group", ignore = true)
@@ -52,6 +63,10 @@ public interface EntityMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "attendances", ignore = true)
     void updateInvoice(@MappingTarget Invoice invoice, InvoiceDTO dto);
+
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "attendances", ignore = true)
+    void updateInvoiceFull(@MappingTarget Invoice invoice, FullInvoiceDTO dto);
 
     @Named("mapAttendanceStatusToBoolean")
     default boolean mapAttendanceStatusToBoolean(AttendanceStatus status) {

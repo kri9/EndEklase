@@ -2,12 +2,16 @@ package lv.app.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.*;
-import lv.app.backend.dto.invoice.InvoiceCreateDTO;
+import lv.app.backend.dto.invoice.FullInvoiceDTO;
 import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.Child;
+import lv.app.backend.model.Invoice;
+import lv.app.backend.model.User;
 import lv.app.backend.model.enums.InvoiceStatus;
+import lv.app.backend.model.repository.AttendanceRepository;
+import lv.app.backend.model.repository.InvoiceRepository;
 import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.*;
 import lv.app.backend.service.invoice.InvoiceCreationService;
@@ -19,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +35,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Controller for admin exclusive endpoints
@@ -52,6 +58,8 @@ public class AdminController {
     private final InvoiceDeletionService invoiceDeletionService;
     private final InvoiceCreationService invoiceCreationService;
     private final InvoiceRetrievalService invoiceRetrievalService;
+    private final AttendanceRepository attendanceRepository;
+    private final InvoiceRepository invoiceRepository;
 
     @ResponseBody
     @GetMapping("/user/{userId}")
@@ -155,41 +163,41 @@ public class AdminController {
     }
 
     @PostMapping("/invoices/draft")
-    public ResponseEntity<List<InvoiceCreateDTO>> createInvoiceDTOs(@RequestBody Map<String, LocalDate> request) {
+    public ResponseEntity<List<FullInvoiceDTO>> createInvoiceDTOs(@RequestBody Map<String, LocalDate> request) {
         LocalDate startDate = request.get("startDate");
         LocalDate endDate = request.get("endDate");
-        List<InvoiceCreateDTO> createdInvoices = invoiceCreationService.createInvoiceDTOs(startDate, endDate);
+        List<FullInvoiceDTO> createdInvoices = invoiceCreationService.createInvoiceDTOs(startDate, endDate);
         return ResponseEntity.ok(createdInvoices);
     }
 
     @PostMapping("/invoices")
-    public ResponseEntity<List<InvoiceCreateDTO>> saveInvoiceDTOs(@RequestBody List<InvoiceCreateDTO> createDTOS) {
+    public ResponseEntity<List<FullInvoiceDTO>> saveInvoiceDTOs(@RequestBody List<FullInvoiceDTO> createDTOS) {
         invoiceSavingService.saveInvoiceDTOs(createDTOS);
         return ResponseEntity.ok(createDTOS);
     }
 
     @PostMapping("/invoice")
-    public ResponseEntity<List<InvoiceDTO>> createInvoice(@RequestBody InvoiceCreateDTO dto) {
-        List<InvoiceDTO> invoices = invoiceSavingService.saveInvoiceDTOs(Collections.singletonList(dto)).stream()
-                .map(entityMapper::invoiceToDto)
+    public ResponseEntity<List<FullInvoiceDTO>> createInvoice(@RequestBody FullInvoiceDTO dto) {
+        List<FullInvoiceDTO> invoices = invoiceSavingService.saveInvoiceDTOs(Collections.singletonList(dto)).stream()
+                .map(entityMapper::invoiceToFullDTO)
                 .toList();
         return ResponseEntity.ok(invoices);
     }
 
     @PutMapping("/invoice")
-    public ResponseEntity<Void> updateInvoice(@RequestBody InvoiceDTO dto) {
+    public ResponseEntity<Void> updateInvoice(@RequestBody FullInvoiceDTO dto) {
         invoiceSavingService.updateInvoice(dto);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/invoices")
-    public ResponseEntity<List<InvoiceDTO>> getAllInvoices() {
-        List<InvoiceDTO> invoices = invoiceRetrievalService.getAllInvoices();
+    public ResponseEntity<List<FullInvoiceDTO>> getAllInvoices() {
+        List<FullInvoiceDTO> invoices = invoiceRetrievalService.getAllFullInvoices();
         return ResponseEntity.ok(invoices);
     }
 
     @GetMapping("/invoice/{invoiceId}")
-    public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable Long invoiceId) {
+    public ResponseEntity<FullInvoiceDTO> getInvoiceById(@PathVariable Long invoiceId) {
         return ResponseEntity.ok(invoiceRetrievalService.getInvoiceById(invoiceId));
     }
 
@@ -255,12 +263,32 @@ public class AdminController {
 
     @ResponseBody
     @GetMapping("/invoices/search")
-    public List<InvoiceDTO> searchInvoices(
+    public List<FullInvoiceDTO> searchInvoices(
             @RequestParam(required = false) Long kindergartenId,
             @RequestParam(required = false) Long groupId,
             @RequestParam(required = false) InvoiceStatus status
     ) {
         return invoiceRetrievalService.searchInvoices(kindergartenId, groupId, status);
+    }
+
+    @ResponseBody
+    @GetMapping("/user/{userId}/attendances/uncovered")
+    public List<AttendanceDTO> getUncoveredAttendances(@PathVariable Long userId) {
+        User user = userRepository.getReferenceById(userId);
+        return attendanceRepository.findAttendanceToPayForUser(user).stream()
+                .map(entityMapper::attendanceToDto)
+                .toList();
+    }
+
+    @Transactional
+    @ResponseBody
+    @GetMapping("/invoice/{invoiceId}/potential-attendances")
+    public List<AttendanceDTO> getInvoicesPotentialAttendances(@PathVariable Long invoiceId) {
+        Invoice invoice = invoiceRepository.getReferenceById(invoiceId);
+        User user = invoice.getUser();
+        return Stream.concat(attendanceRepository.findAttendanceToPayForUser(user).stream(), invoice.getAttendances().stream())
+                .map(entityMapper::attendanceToDto)
+                .toList();
     }
 
 

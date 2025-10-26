@@ -3,7 +3,8 @@ package lv.app.backend.service.invoice;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lv.app.backend.dto.invoice.InvoiceCreateDTO;
+import lv.app.backend.dto.invoice.FullInvoiceDTO;
+import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.User;
@@ -26,9 +27,10 @@ public class InvoiceCreationService {
     private final UserRepository userRepository;
     private final AttendanceRepository attendanceRepository;
     private final InvoiceAmountCalculator invoiceAmountCalculator;
+    private final EntityMapper entityMapper;
 
     @Transactional
-    public List<InvoiceCreateDTO> createInvoiceDTOs(LocalDate startDate, LocalDate endDate) {
+    public List<FullInvoiceDTO> createInvoiceDTOs(LocalDate startDate, LocalDate endDate) {
         List<User> users = userRepository.findAll();
         return users.stream()
                 .flatMap(user -> createInvoiceForUser(startDate, endDate, user).stream())
@@ -36,7 +38,7 @@ public class InvoiceCreationService {
                 .toList();
     }
 
-    private List<InvoiceCreateDTO> createInvoiceForUser(LocalDate startDate, LocalDate endDate, User user) {
+    private List<FullInvoiceDTO> createInvoiceForUser(LocalDate startDate, LocalDate endDate, User user) {
         if (!user.isSeparateInvoices()) {
             return Collections.singletonList(createInvoiceForChildren(user.getChildren(), startDate, endDate));
         }
@@ -46,13 +48,13 @@ public class InvoiceCreationService {
                 .toList();
     }
 
-    private InvoiceCreateDTO createInvoiceForChildren(List<Child> children, LocalDate startDate, LocalDate endDate) {
+    private FullInvoiceDTO createInvoiceForChildren(List<Child> children, LocalDate startDate, LocalDate endDate) {
         if (children.isEmpty()) {
             return null;
         }
         List<Attendance> attendances = attendanceRepository.findAttendanceToPayForChildren(startDate, endDate, children);
         LocalDate currentDate = LocalDate.now();
-        return InvoiceCreateDTO.builder()
+        return FullInvoiceDTO.builder()
                 .status(InvoiceStatus.NOT_PAID)
                 .userId(children.getFirst().getParent().getId())
                 .amount(invoiceAmountCalculator.calculateInvoiceAmount(attendances))

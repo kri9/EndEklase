@@ -6,7 +6,6 @@ import {
   postRequest,
   putRequest,
   deleteInvoice,
-  getLessonsByUser,
   getKindergartens,
   getGroupsByKindergarten,
 } from "src/api";
@@ -17,7 +16,12 @@ import CrudTable from "./common/CrudTable";
 import RootObjectForm from "./common/RootObjectForm";
 import NumberInput from "./common/NumberInput";
 import MultiSelect from "./common/MultiSelect";
-import { InvoiceDTO, LessonDTO } from "src/common/interfaces";
+import {
+  AttendanceDTO,
+  FullInvoiceDTO,
+  InvoiceState,
+  LessonDTO,
+} from "src/common/interfaces";
 
 type KG = { id: string | number; name: string };
 type Group = { id: string | number; name: string };
@@ -29,7 +33,7 @@ const InvoicesTab: React.FC = () => {
     { id: number; fullName: string }[]
   >([]);
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
-  const [invoices, setInvoices] = useState<InvoiceDTO[]>([]);
+  const [invoices, setInvoices] = useState<FullInvoiceDTO[]>([]);
 
   const [kindergartens, setKindergartens] = useState<KG[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
@@ -75,7 +79,7 @@ const InvoicesTab: React.FC = () => {
 
   const loadInvoices = async () => {
     if (!token) return;
-    const fetched = await getRequest<InvoiceDTO[]>("admin/invoices");
+    const fetched = await getRequest<FullInvoiceDTO[]>("admin/invoices");
     setInvoices(sortMergeInvoices(invoices, fetched || []));
   };
 
@@ -90,18 +94,21 @@ const InvoicesTab: React.FC = () => {
 
     const url =
       "admin/invoices/search" + (params.length ? `?${params.join("&")}` : "");
-    const fetched = await getRequest<InvoiceDTO[]>(url);
+    const fetched = await getRequest<FullInvoiceDTO[]>(url);
     setInvoices(sortMergeInvoices(invoices, fetched || []));
   };
 
-  const sortMergeInvoices = (prev: InvoiceDTO[], fetched: InvoiceDTO[]) => {
+  const sortMergeInvoices = (
+    prev: FullInvoiceDTO[],
+    fetched: FullInvoiceDTO[],
+  ) => {
     const map = new Map(prev.map((inv) => [inv.id, inv]));
     return fetched
       .map((inv) => map.get(inv.id) || inv)
       .sort((a, b) => a.id - b.id);
   };
 
-  const handleDeleteInvoice = async (invoice: InvoiceDTO) => {
+  const handleDeleteInvoice = async (invoice: FullInvoiceDTO) => {
     if (!token || invoice.id === undefined) return;
     if (
       window.confirm(
@@ -113,9 +120,9 @@ const InvoicesTab: React.FC = () => {
     }
   };
 
-  const handleInvoiceSave = async (invoice: InvoiceDTO) => {
+  const handleInvoiceSave = async (invoice: FullInvoiceDTO) => {
     try {
-      const savedInvoice = await postRequest<InvoiceDTO>(
+      const savedInvoice = await postRequest<FullInvoiceDTO>(
         "admin/invoice",
         invoice,
       );
@@ -233,112 +240,137 @@ const InvoicesTab: React.FC = () => {
       {/* ТАБЛИЦА (CrudTable оставляем как есть) */}
       <CrudTable
         excludeColumns={["lessons"]}
-        items={invoices as Required<InvoiceDTO>[]}
+        items={invoices as Required<FullInvoiceDTO>[]}
         onDelete={(item) => {
           const invoice = invoices.find((inv) => inv.id === item.id);
           if (invoice) handleDeleteInvoice(invoice);
         }}
         editFormSupplier={(it, close, isOpen) => {
-          const [item, setItem] = useState<InvoiceDTO>({
+          const [userAttendances, setUserAttendances] = useState<
+            AttendanceDTO[]
+          >([]);
+          const [item, setItem] = useState<InvoiceState>({
             ...it,
-            lessons: Array.isArray(it.lessons) ? it.lessons : [],
+            attendances: Array.isArray(it.attendances) ? it.attendances : [],
+            attendancesMeta: [],
           });
-
-          const [userLessons, setUserLessons] = useState<LessonDTO[]>([]);
-
           useEffect(() => {
-            if (token && it.userId && isOpen) {
-              getLessonsByUser(it.userId).then(setUserLessons);
+            if (token && it.id && isOpen) {
+              getRequest<AttendanceDTO[]>(
+                `admin/invoice/${it.id}/potential-attendances`,
+              ).then((at) => {
+                setUserAttendances(at);
+                const ats: AttendanceDTO[] = item.attendances!.map(
+                  (id) => at.find((i) => i.id == id)!,
+                );
+                setItem({ ...item, attendancesMeta: ats });
+              });
             }
-          }, [it.userId, token, isOpen]);
+          }, [it.id, token, isOpen]);
 
-          useEffect(() => {
-            if (userLessons.length > 0) {
-              setItem((prev) => ({ ...prev, lessons: userLessons }));
-            }
-          }, [userLessons]);
+          return (
+            <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
+              <NumberInput field="amount" header="Summa" />
 
-      return (
-        <RootObjectForm rootObject={item} rootObjectSetter={setItem}>
-          <NumberInput field="amount" header="Summa" />
+              {/* СТАТУС */}
+              <div className="mt-3">
+                <label className="block text-sm mb-1">Statuss</label>
+                <select
+                  className="form-control"
+                  value={item.status || ""}
+                  onChange={(e) => {
+                    const next = e.target.value as
+                      | "NOT_PAID"
+                      | "PAID"
+                      | "EXPIRED";
+                    setItem((prev) => {
+                      let prd = prev.paymentReceiveDate ?? null;
+                      if (next === "PAID" && !prd) prd = new Date();
+                      if (next !== "PAID") prd = null;
+                      return { ...prev, status: next, paymentReceiveDate: prd };
+                    });
+                  }}
+                >
+                  <option value="NOT_PAID">NOT_PAID</option>
+                  <option value="PAID">PAID</option>
+                  <option value="EXPIRED">EXPIRED</option>
+                </select>
+              </div>
 
-          {/* СТАТУС */}
-          <div className="mt-3">
-            <label className="block text-sm mb-1">Statuss</label>
-            <select
-              className="form-control"
-              value={item.status || ""}
-              onChange={(e) => {
-                const next = e.target.value as "NOT_PAID" | "PAID" | "EXPIRED";
-                setItem((prev) => {
-                  let prd = prev.paymentReceiveDate ?? null;
-                  if (next === "PAID" && !prd) prd = (new Date());
-                  if (next !== "PAID") prd = null;
-                  return { ...prev, status: next, paymentReceiveDate: prd };
-                });
-              }}
-            >
-              <option value="NOT_PAID">NOT_PAID</option>
-              <option value="PAID">PAID</option>
-              <option value="EXPIRED">EXPIRED</option>
-            </select>
-          </div>
+              {/* ДАТА ОПЛАТЫ: дата -> статус PAID, очистил -> NOT_PAID */}
+              <div className="mt-3">
+                <label className="block text-sm mb-1">
+                  Maksājuma saņemšanas datums
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={toDateInputValue(item.paymentReceiveDate ?? null)}
+                  onChange={(e) => {
+                    const v = e.target.value?.trim();
+                    setItem((prev) => {
+                      if (v) {
+                        return {
+                          ...prev,
+                          paymentReceiveDate: v,
+                          status: "PAID",
+                        };
+                      }
+                      return {
+                        ...prev,
+                        paymentReceiveDate: null,
+                        status: "NOT_PAID",
+                      };
+                    });
+                  }}
+                />
+              </div>
 
-          {/* ДАТА ОПЛАТЫ: дата -> статус PAID, очистил -> NOT_PAID */}
-          <div className="mt-3">
-            <label className="block text-sm mb-1">Maksājuma saņemšanas datums</label>
-            <input
-              type="date"
-              className="form-control"
-              value={toDateInputValue(item.paymentReceiveDate ?? null)}
-              onChange={(e) => {
-                const v = e.target.value?.trim();
-                setItem((prev) => {
-                  if (v) {
-                    return { ...prev, paymentReceiveDate: v, status: "PAID" };
-                  }
-                  return { ...prev, paymentReceiveDate: null, status: "NOT_PAID" };
-                });
-              }}
-            />
-          </div>
+              {userAttendances.length > 0 && (
+                <MultiSelect
+                  field="attendancesMeta"
+                  columns={["id", "lesson.topic", "date"]}
+                  columnMap={{
+                    id: "Stundas ID",
+                    "lesson.topic": "Tēma",
+                    date: "Datums",
+                  }}
+                  options={userAttendances.map((i) => ({
+                    ...i,
+                    name: `${i.lesson.topic} (${i.lesson.date})`,
+                  }))}
+                />
+              )}
 
-          <MultiSelect
-            field="lessons"
-            columns={["id", "topic", "date"]}
-            columnMap={{ id: "Stundas ID", topic: "Tēma", date: "Datums" }}
-            options={userLessons.map((i) => ({
-              ...i,
-              name: `${i.topic} (${i.date})`,
-            }))}
-          />
-
-          <div className="mt-3 flex justify-end space-x-2">
-            <button
-              onClick={async () => {
-                const payload = {
-                  ...item,
-                  dateIssued: (item.dateIssued),
-                  dueDate: (item.dueDate),
-                  paymentReceiveDate: (item.paymentReceiveDate ?? null),
-                  lessons: Array.isArray(item.lessons)
-                    ? item.lessons.map((l: any) => (typeof l === "number" ? l : l.id))
-                    : item.lessons,
-                };
-                await putRequest("admin/invoice", payload);
-                const fresh = await getRequest<InvoiceDTO>(`admin/invoice/${item.id}`);
-                setInvoices((prev) => prev.map((inv) => (inv.id === fresh.id ? fresh : inv)));
-                close();
-              }}
-              className="btn btn-primary"
-            >
-              Saglabāt
-            </button>
-            <button onClick={close} className="btn btn-secondary">Aizvērt</button>
-          </div>
-        </RootObjectForm>
-      );
-
+              <div className="mt-3 flex justify-end space-x-2">
+                <button
+                  onClick={async () => {
+                    const payload = {
+                      ...item,
+                      dateIssued: item.dateIssued,
+                      dueDate: item.dueDate,
+                      paymentReceiveDate: item.paymentReceiveDate ?? null,
+                      attendances: item.attendancesMeta.map((a) => a!.id),
+                    };
+                    await putRequest("admin/invoice", payload);
+                    const fresh = await getRequest<FullInvoiceDTO>(
+                      `admin/invoice/${item.id}`,
+                    );
+                    setInvoices((prev) =>
+                      prev.map((inv) => (inv.id === fresh.id ? fresh : inv)),
+                    );
+                    close();
+                  }}
+                  className="btn btn-primary"
+                >
+                  Saglabāt
+                </button>
+                <button onClick={close} className="btn btn-secondary">
+                  Aizvērt
+                </button>
+              </div>
+            </RootObjectForm>
+          );
         }}
       />
     </div>

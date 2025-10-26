@@ -17,7 +17,7 @@ public class ControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         log.error("Got error: ", e);
-        emailService.sendErrorMessage(e);
+//        emailService.sendErrorMessage(e);
         return ResponseEntity.internalServerError().body(e.getMessage());
     }
 }

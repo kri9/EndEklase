@@ -1,11 +1,13 @@
 package lv.app.backend.mappers;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.processing.Generated;
 import lv.app.backend.dto.AttendanceDTO;
 import lv.app.backend.dto.ChildDTO;
 import lv.app.backend.dto.LessonDTO;
-import lv.app.backend.dto.invoice.InvoiceCreateDTO;
+import lv.app.backend.dto.invoice.FullInvoiceDTO;
 import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
@@ -18,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-10-25T18:08:40+0300",
+    date = "2025-10-26T14:36:20+0200",
     comments = "version: 1.6.2, compiler: javac, environment: Java 21.0.6 (Amazon.com Inc.)"
 )
 @Component
@@ -49,6 +51,7 @@ public class EntityMapperImpl implements EntityMapper {
 
         AttendanceDTO attendanceDTO = new AttendanceDTO();
 
+        attendanceDTO.setId( attendance.getId() );
         attendanceDTO.setChildId( attendanceChildId( attendance ) );
         attendanceDTO.setLessonId( attendanceLessonId( attendance ) );
         attendanceDTO.setAttended( mapAttendanceStatusToBoolean( attendance.getStatus() ) );
@@ -69,6 +72,7 @@ public class EntityMapperImpl implements EntityMapper {
         attendance.child( attendanceDTOToChild( attendanceDTO ) );
         attendance.lesson( attendanceDTOToLesson( attendanceDTO ) );
         attendance.status( mapBooleanToAttendanceStatus( attendanceDTO.isAttended() ) );
+        attendance.id( attendanceDTO.getId() );
 
         return attendance.build();
     }
@@ -94,7 +98,27 @@ public class EntityMapperImpl implements EntityMapper {
     }
 
     @Override
-    public Invoice dtoToInvoice(InvoiceCreateDTO invoice) {
+    public FullInvoiceDTO invoiceToFullDTO(Invoice invoice) {
+        if ( invoice == null ) {
+            return null;
+        }
+
+        FullInvoiceDTO.FullInvoiceDTOBuilder fullInvoiceDTO = FullInvoiceDTO.builder();
+
+        fullInvoiceDTO.id( invoice.getId() );
+        fullInvoiceDTO.userId( invoiceUserId( invoice ) );
+        fullInvoiceDTO.userFullName( invoiceUserFullName( invoice ) );
+        fullInvoiceDTO.attendanceIds( attendanceListToLongList( invoice.getAttendances() ) );
+        fullInvoiceDTO.dateIssued( invoice.getDateIssued() );
+        fullInvoiceDTO.dueDate( invoice.getDueDate() );
+        fullInvoiceDTO.amount( invoice.getAmount() );
+        fullInvoiceDTO.status( invoice.getStatus() );
+
+        return fullInvoiceDTO.build();
+    }
+
+    @Override
+    public Invoice dtoToInvoice(FullInvoiceDTO invoice) {
         if ( invoice == null ) {
             return null;
         }
@@ -132,6 +156,19 @@ public class EntityMapperImpl implements EntityMapper {
         invoice.setDateIssued( dto.getDateIssued() );
         invoice.setDueDate( dto.getDueDate() );
         invoice.setPaymentReceiveDate( dto.getPaymentReceiveDate() );
+        invoice.setAmount( dto.getAmount() );
+        invoice.setStatus( dto.getStatus() );
+    }
+
+    @Override
+    public void updateInvoiceFull(Invoice invoice, FullInvoiceDTO dto) {
+        if ( dto == null ) {
+            return;
+        }
+
+        invoice.setId( dto.getId() );
+        invoice.setDateIssued( dto.getDateIssued() );
+        invoice.setDueDate( dto.getDueDate() );
         invoice.setAmount( dto.getAmount() );
         invoice.setStatus( dto.getStatus() );
     }
@@ -233,5 +270,18 @@ public class EntityMapperImpl implements EntityMapper {
             return null;
         }
         return user.getFullName();
+    }
+
+    protected List<Long> attendanceListToLongList(List<Attendance> list) {
+        if ( list == null ) {
+            return null;
+        }
+
+        List<Long> list1 = new ArrayList<Long>( list.size() );
+        for ( Attendance attendance : list ) {
+            list1.add( attendanceToLong( attendance ) );
+        }
+
+        return list1;
     }
 }

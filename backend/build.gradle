@@ -166,3 +166,8 @@ sonarqube {
 tasks.named('check') {
     dependsOn 'spotbugsMain', 'pmdMain', 'checkstyleMain', 'pitest'
 }
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += ['-parameters']
+}
+

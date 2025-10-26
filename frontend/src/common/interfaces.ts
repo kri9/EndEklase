@@ -2,7 +2,7 @@ export interface IdSupplier {
   id: any;
 }
 
-export interface InvoiceDTO extends IdSupplier {
+export interface FullInvoiceDTO extends IdSupplier {
   id: number;
   userId: number;
   userFullName: string;
@@ -11,7 +11,20 @@ export interface InvoiceDTO extends IdSupplier {
   paymentReceiveDate?: Date | string | null;
   amount: number;
   status: string;
-  lessons?: LessonDTO[];
+  attendances?: number[];
+}
+
+export type InvoiceState = FullInvoiceDTO & {
+  attendancesMeta: (AttendanceDTO | undefined)[];
+};
+
+export interface AttendanceDTO {
+  id: number;
+  childId: number;
+  lessonId: number;
+  attended: boolean;
+  lesson: LessonDTO;
+  date: string;
 }
 
 export interface LessonDTO {

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import UserSelect from "./common/UserSelect";
-import { InvoiceDTO } from "src/common/interfaces";
+import { AttendanceDTO, FullInvoiceDTO } from "src/common/interfaces";
+import { getRequest } from "src/api";
 
 interface InvoiceFormProps {
   usersInfo: { id: number; fullName: string }[];
@@ -8,11 +9,7 @@ interface InvoiceFormProps {
   onSave: (invoice: any) => void;
 }
 
-const InvoiceForm: React.FC<InvoiceFormProps> = ({
-  usersInfo,
-  lessons,
-  onSave,
-}) => {
+const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
   const [newInvoice, setNewInvoice] = useState({
     id: 0, // добавляем поле id
     fullName: "",
@@ -21,26 +18,36 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
     dueDate: "",
     amount: "",
     status: null as any,
-    lessons: [] as any[],
+    attendances: [] as any[],
   });
-  const [selectedLessonId, setSelectedLessonId] = useState<number | "">("");
+  const [selectedAttendanceId, setSelectedAttendanceId] = useState<number | "">(
+    "",
+  );
+  const [userAttendances, setUserAttendances] = useState<AttendanceDTO[]>([]);
 
   const addLesson = () => {
-    if (selectedLessonId) {
-      const lesson = lessons.find((l) => l.id === selectedLessonId);
-      if (lesson && !newInvoice.lessons.some((l) => l.id === lesson.id)) {
+    if (selectedAttendanceId) {
+      const attendance = userAttendances.find(
+        (l) => l.id === selectedAttendanceId,
+      );
+      if (
+        attendance &&
+        !newInvoice.attendances.some((l) => l.id === attendance.id)
+      ) {
         setNewInvoice({
           ...newInvoice,
-          lessons: [...newInvoice.lessons, lesson],
+          attendances: [...newInvoice.attendances, attendance],
         });
       }
     }
   };
 
-  const removeLesson = (lessonId: number) => {
+  const removeLesson = (attId: number) => {
     setNewInvoice({
       ...newInvoice,
-      lessons: newInvoice.lessons.filter((lesson) => lesson.id !== lessonId),
+      attendances: newInvoice.attendances.filter(
+        (attendance) => attendance.id !== attId,
+      ),
     });
   };
 
@@ -52,7 +59,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
         return;
       }
 
-      const invoiceToSave: InvoiceDTO = {
+      const invoiceToSave: FullInvoiceDTO = {
         id: 0,
         userId: user.id,
         userFullName: user.fullName,
@@ -60,7 +67,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
         dueDate: new Date(newInvoice.dueDate),
         amount: Number(newInvoice.amount) || 0,
         status: newInvoice.status ?? "NOT_PAID",
-        lessons: newInvoice.lessons.map((l) => l.id),
+        attendances: newInvoice.attendances.map((l) => l.id),
       };
 
       onSave(invoiceToSave);
@@ -76,7 +83,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
       <div className="form-group">
         <label htmlFor="userId">Lietotāja vārds:</label>
         <UserSelect
-          onChange={(nv) => setNewInvoice({ ...newInvoice, ["fullName"]: nv })}
+          onChange={(nv, id) => {
+            setNewInvoice({ ...newInvoice, ["fullName"]: nv });
+            if (id) {
+              getRequest<AttendanceDTO[]>(
+                `admin/user/${id}/attendances/uncovered`,
+              ).then(setUserAttendances);
+            }
+          }}
         />
       </div>
       <div className="form-group mt-3">
@@ -141,14 +155,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
           id="lesson"
           name="lesson"
           className="form-control"
-          value={selectedLessonId ?? ""}
-          onChange={(e) => setSelectedLessonId(Number(e.target.value))}
+          value={selectedAttendanceId ?? ""}
+          onChange={(e) => setSelectedAttendanceId(Number(e.target.value))}
         >
           <option value="">-- Izvēlieties stundu --</option>
-          {lessons &&
-            lessons.map((lesson) => (
-              <option key={lesson.id} value={lesson.id}>
-                {lesson.topic} ({lesson.date})
+          {userAttendances &&
+            userAttendances.map((att) => (
+              <option key={att.id} value={att.id}>
+                {att.lesson.topic} ({att.lesson.date})
               </option>
             ))}
         </select>
@@ -168,15 +182,15 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({
             </tr>
           </thead>
           <tbody>
-            {newInvoice.lessons &&
-              newInvoice.lessons.map((lesson) => (
-                <tr key={lesson.id}>
-                  <td>{lesson.id}</td>
-                  <td>{lesson.topic}</td>
-                  <td>{lesson.date}</td>
+            {newInvoice.attendances &&
+              newInvoice.attendances.map((att) => (
+                <tr key={att.id}>
+                  <td>{att.lesson.id}</td>
+                  <td>{att.lesson.topic}</td>
+                  <td>{att.lesson.date}</td>
                   <td>
                     <button
-                      onClick={() => removeLesson(lesson.id)}
+                      onClick={() => removeLesson(att.id)}
                       className="btn btn-danger"
                     >
                       Dzēst
