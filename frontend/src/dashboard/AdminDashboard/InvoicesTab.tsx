@@ -271,6 +271,9 @@ const InvoicesTab: React.FC = () => {
       {/* Таблица инвойсов */}
       <CrudTable
         excludeColumns={["lessons", "attendanceIds", "attendances", "actions"]}
+        columnTransormers={{
+          amount: (v) => parseFloat(v) / 100 + "€",
+        }}
         items={invoices as Required<FullInvoiceDTO>[]}
         onDelete={(item) => {
           const invoice = invoices.find((inv) => inv.id === item.id);

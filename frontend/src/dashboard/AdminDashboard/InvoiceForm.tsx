@@ -66,7 +66,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
         userFullName: user.fullName,
         dateIssued: new Date(newInvoice.dateIssued),
         dueDate: new Date(newInvoice.dueDate),
-        amount: Number(newInvoice.amount) || undefined,
+        amount: Number(newInvoice.amount) * 100 || undefined,
         status: newInvoice.status ?? "NOT_PAID",
         attendances: newInvoice.attendances.map((l: any) => l.id),
       };
@@ -123,14 +123,27 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
       <div className="form-group mt-3">
         <label htmlFor="amount">Summa:</label>
         <input
-          type="number"
           id="amount"
           name="amount"
+          type="number"
+          placeholder="€"
           className="form-control"
+          step="0.01"
+          pattern="^\d+(?:\.\d{1,2})?$"
+          min="0"
           value={newInvoice.amount}
-          onChange={(e) =>
-            setNewInvoice({ ...newInvoice, amount: e.target.value })
-          }
+          onChange={(e) => {
+            let str = e.target.value;
+            let rounded: string = parseFloat(str).toFixed(2);
+            let result =
+              parseFloat(rounded) % 1 === 0
+                ? parseInt(rounded)
+                : parseFloat(rounded);
+            setNewInvoice({
+              ...newInvoice,
+              amount: result.toString(),
+            });
+          }}
         />
       </div>
       <div className="form-group mt-3">
