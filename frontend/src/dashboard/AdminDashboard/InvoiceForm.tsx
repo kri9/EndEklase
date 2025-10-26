@@ -33,7 +33,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
       );
       if (
         attendance &&
-        !newInvoice.attendances.some((l) => l.id === attendance.id)
+        !newInvoice.attendances.some((l: { id: number }) => l.id === attendance.id)
       ) {
         setNewInvoice({
           ...newInvoice,
@@ -184,14 +184,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
           </thead>
           <tbody>
             {newInvoice.attendances &&
-              newInvoice.attendances.map((att) => (
+              newInvoice.attendances.map((att: { id: React.Key | null | undefined; lesson: { id: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; topic: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; date: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }; }) => (
                 <tr key={att.id}>
                   <td>{att.lesson.id}</td>
                   <td>{att.lesson.topic}</td>
                   <td>{att.lesson.date}</td>
                   <td>
                     <button
-                      onClick={() => removeLesson(att.id)}
+                      onClick={() => removeLesson(att.id as number)}
                       className="btn btn-danger"
                     >
                       Dzēst
