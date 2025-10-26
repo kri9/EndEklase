@@ -49,10 +49,13 @@ public class InvoiceCreationService {
     }
 
     private FullInvoiceDTO createInvoiceForChildren(List<Child> children, LocalDate startDate, LocalDate endDate) {
+        List<Attendance> attendances = attendanceRepository.findAttendanceToPayForChildren(startDate, endDate, children);
         if (children.isEmpty()) {
             return null;
         }
-        List<Attendance> attendances = attendanceRepository.findAttendanceToPayForChildren(startDate, endDate, children);
+        if(attendances.isEmpty()) {
+            return null;
+        }
         LocalDate currentDate = LocalDate.now();
         return FullInvoiceDTO.builder()
                 .status(InvoiceStatus.NOT_PAID)

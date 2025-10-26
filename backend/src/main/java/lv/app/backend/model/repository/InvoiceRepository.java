@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,11 +26,15 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
         where (:kgId is null or k.id = :kgId)
           and (:groupId is null or g.id = :groupId)
           and (:status is null or i.status = :status)
+          and i.dateIssued >= coalesce(:start, i.dateIssued)
+          and i.dateIssued <  coalesce(:end,   i.dateIssued)
         order by i.id
     """)
     List<Invoice> searchByFilters(
             @Param("kgId") Long kindergartenId,
             @Param("groupId") Long groupId,
-            @Param("status") InvoiceStatus status
+            @Param("status") InvoiceStatus status,
+            @Param("start") LocalDate startInclusive,
+            @Param("end") LocalDate endExclusive
     );
 }

@@ -10,14 +10,14 @@ interface InvoiceFormProps {
 }
 
 const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
-  const [newInvoice, setNewInvoice] = useState({
+  const [newInvoice, setNewInvoice] = useState<any>({
     id: 0, // добавляем поле id
     fullName: "",
     userId: 0,
     dateIssued: "",
     dueDate: "",
     paymentReceiveDate: "",
-    amount: "",
+    amount: undefined,
     status: null as any,
     attendances: [] as any[],
   });
@@ -47,7 +47,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
     setNewInvoice({
       ...newInvoice,
       attendances: newInvoice.attendances.filter(
-        (attendance) => attendance.id !== attId,
+        (attendance: any) => attendance.id !== attId,
       ),
     });
   };
@@ -66,9 +66,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
         userFullName: user.fullName,
         dateIssued: new Date(newInvoice.dateIssued),
         dueDate: new Date(newInvoice.dueDate),
-        amount: Number(newInvoice.amount) || 0,
+        amount: Number(newInvoice.amount) || undefined,
         status: newInvoice.status ?? "NOT_PAID",
-        attendances: newInvoice.attendances.map((l) => l.id),
+        attendances: newInvoice.attendances.map((l: any) => l.id),
       };
 
       onSave(invoiceToSave);

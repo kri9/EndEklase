@@ -9,7 +9,7 @@ export interface FullInvoiceDTO extends IdSupplier {
   dateIssued: Date;
   dueDate: Date;
   paymentReceiveDate?: Date | string | null;
-  amount: number;
+  amount?: number;
   status: string;
   attendances?: number[];
 }

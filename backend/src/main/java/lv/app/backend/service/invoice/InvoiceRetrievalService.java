@@ -10,6 +10,7 @@ import lv.app.backend.model.repository.InvoiceRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,13 +52,20 @@ public class InvoiceRetrievalService {
 
     @Transactional
     public List<FullInvoiceDTO> searchInvoices(Long kindergartenId, Long groupId, InvoiceStatus status) {
-        if (kindergartenId == null && groupId == null && status == null) {
-            return getAllInvoices();
-        }
-        return invoiceRepository.searchByFilters(kindergartenId, groupId, status)
-                .stream()
-                .map(entityMapper::invoiceToFullDTO)
-                .toList();
-    }
+                return searchInvoices(kindergartenId, groupId, status, null, null);
+            }
+
+    @Transactional
+    public List<FullInvoiceDTO> searchInvoices(Long kindergartenId, Long groupId, InvoiceStatus status,
+                                               LocalDate startInclusive, LocalDate endExclusive) {
+                        if (kindergartenId == null && groupId == null && status == null
+                                && startInclusive == null && endExclusive == null) {
+                        return getAllInvoices();
+                    }
+                return invoiceRepository.searchByFilters(kindergartenId, groupId, status, startInclusive, endExclusive)
+                                .stream()
+                                .map(entityMapper::invoiceToFullDTO)
+                                .toList();
+            }
 
 }
