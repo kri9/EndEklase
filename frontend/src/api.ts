@@ -1,32 +1,45 @@
 import { store } from "./redux/store";
 
-export const fetchFromBackend = async (
-  endpoint: string,
-  method: string = "GET",
-  body: any = null,
-) => {
-  const options: RequestInit = {
+const BASE_URL =
+  (typeof window !== 'undefined' && (window as any).APP_API_BASE_URL) ||
+  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) ||
+  `${window.location.origin}/api`;
+
+async function parseOkResponse(res: Response) {
+  if (res.status === 204) return { ok: true };
+  const text = await res.text().catch(() => '');
+  if (!text) return { ok: true };
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { ok: true, text };
+  }
+}
+
+
+export async function fetchFromBackend(
+  path: string,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
+  body?: any,
+  extraInit?: RequestInit
+) {
+  const init: RequestInit = {
     method,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { 'Content-Type': 'application/json', ...(extraInit?.headers || {}) },
+    ...(body !== undefined ? { body: typeof body === 'string' ? body : JSON.stringify(body) } : {}),
+    ...extraInit,
   };
 
-  if (body) {
-    options.body = JSON.stringify(body);
+  const res = await fetch(`${BASE_URL}/${path}`, init);
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status}${errText ? `: ${errText}` : ''}`);
   }
 
-  try {
-    const response = await fetch(`${window.origin}/api/${endpoint}`, options);
-    if (!response.ok) {
-      throw new Error(`Ошибка: ${response.status} ${response.statusText}`);
-    }
-    return await response.json();
-  } catch (error) {
-    console.error(`Ошибка при выполнении запроса к ${endpoint}:`, error);
-    throw new Error(`Ошибка при выполнении запроса к ${endpoint}: ${error} zz`);
-  }
-};
+  return parseOkResponse(res);
+}
+
 
 export function getRequest<T>(endpoint: string): Promise<T> {
   const token = store.getState().auth.token;
@@ -57,45 +70,36 @@ export function deleteRequest<T>(endpoint: string, body: any): Promise<T> {
 
 export const fetchFromBackendWithAuth = async (
   endpoint: string,
-  method: string = "GET",
+  method: string = 'GET',
   token: string | null,
   body: any = null,
-  headers?: any,
+  headers?: Record<string, string>,
 ) => {
   headers = headers || {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`,
   };
-  const options: RequestInit = {
-    method,
-    headers,
-  };
+  const options: RequestInit = { method, headers };
 
-  if (body && headers["Content-Type"] === "application/json") {
+  if (body && headers['Content-Type'] === 'application/json') {
     options.body = JSON.stringify(body);
-  } else {
+  } else if (body) {
     options.body = body;
   }
 
-  try {
-    const response = await fetch(`${window.origin}/api/${endpoint}`, options);
+  const url = `${window.origin}/api/${endpoint}`; 
+  const response = await fetch(url, options);
 
-    if (!response.ok) {
-      throw new Error(
-        `Ошибка: ${response.status} ${response.statusText} - ${response.text()}`,
-      );
-    }
-    if (response.headers.get("Content-Disposition")?.includes("filename")) {
-      console.log("Blob response received");
-      return response.blob();
-    }
-    const responseText = await response.text();
-    //console.debug(`Response from ${endpoint}:`, responseText);
-    return responseText ? JSON.parse(responseText) : { success: true };
-  } catch (error) {
-    console.error(`Ошибка при выполнении запроса к ${endpoint}:`, error);
-    throw new Error(`Ошибка при выполнении запроса к ${endpoint}: ${error}`);
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new Error(`Ошибка: ${response.status} ${response.statusText}${errText ? ` - ${errText}` : ''}`);
   }
+
+  if (response.headers.get('Content-Disposition')?.includes('filename')) {
+    return response.blob();
+  }
+
+  return parseOkResponse(response);
 };
 
 export const addChild = async (
@@ -264,15 +268,12 @@ export const getAttendanceByUser = async () => {
 };
 
 export const requestPasswordReset = async (email: string) => {
-  return await fetchFromBackend(
-    `password/request?email=${encodeURIComponent(email)}`,
-    "POST",
-  );
+  return fetchFromBackend(`password/request?email=${encodeURIComponent(email)}`, 'POST');
 };
 
 export const resetPassword = async (token: string, password: string) => {
-  return await fetchFromBackend(
-    `password/reset?token=${token}&password=${password}`,
-    "POST",
+  return fetchFromBackend(
+    `password/reset?token=${encodeURIComponent(token)}&password=${encodeURIComponent(password)}`,
+    'POST'
   );
 };
