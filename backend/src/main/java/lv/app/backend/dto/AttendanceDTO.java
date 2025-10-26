@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceDTO {
+    private Long id;
     private Long childId;
     private Long lessonId;
     private boolean attended;
