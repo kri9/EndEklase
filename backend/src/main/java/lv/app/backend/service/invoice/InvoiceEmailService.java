@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @Service
@@ -72,20 +73,25 @@ public class InvoiceEmailService {
         return new Result(ok, fail, invoices.size());
     }
 
+    private static String eur(long cents) {
+        return String.format(Locale.US, "%.2f €", cents / 100.0);
+    }
+
     private String buildBody(Invoice inv) {
+        long amountCents = inv.getAmount() != null ? inv.getAmount() : 0L;
         return """
-                Labdien, %s!
-                
-                Pielikumā Jūsu rēķins #%d par stundu apmeklējumiem.
-                Maksājuma termiņš: %s
-                Summa: €%s
-                
-                Paldies!
-                """.formatted(
+            Labdien, %s!
+
+            Pielikumā Jūsu rēķins #%d par stundu apmeklējumiem.
+            Maksājuma termiņš: %s
+            Summa: %s
+
+            Paldies!
+            """.formatted(
                 inv.getUser() != null ? inv.getUser().getFullName() : "",
                 inv.getId(),
                 inv.getDueDate(),
-                inv.getAmount() != null ? inv.getAmount() : 0
+                eur(amountCents)
         );
     }
 

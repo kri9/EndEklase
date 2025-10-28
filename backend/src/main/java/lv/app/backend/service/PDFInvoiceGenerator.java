@@ -17,6 +17,7 @@ import lv.app.backend.model.User;
 import lv.app.backend.model.repository.ChildRepository;
 import lv.app.backend.model.repository.InvoiceRepository;
 import lv.app.backend.model.repository.UserRepository;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,8 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static lv.app.backend.util.Common.singleResult;
@@ -69,14 +72,19 @@ public class PDFInvoiceGenerator {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
-    private void createDocument(Document document, Invoice invoice) throws IOException {
-        String fontPath = "src/main/resources/fonts/DejaVuSans.ttf";
+    private static String eur(long cents) {
+        return String.format(Locale.US, "%.2f €", cents / 100.0);
+    }
 
-        PdfFont font = PdfFontFactory.createFont(
-                fontPath,
-                PdfEncodings.IDENTITY_H,
-                PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
-        );
+    private static String nz(Object v) { return v == null ? "" : String.valueOf(v); }
+
+    private void createDocument(Document document, Invoice invoice) throws IOException {
+        PdfFont font;
+        try (InputStream is = new ClassPathResource("fonts/DejaVuSans.ttf").getInputStream()) {
+            byte[] fontBytes = is.readAllBytes();
+            font = PdfFontFactory.createFont(fontBytes, PdfEncodings.IDENTITY_H);
+        }
+        document.setFont(font);
 
         document.setFont(font);
 
@@ -106,11 +114,8 @@ public class PDFInvoiceGenerator {
                 """.formatted(invoice.getId(), invoice.getDateIssued(), invoice.getDueDate());
         document.add(new Paragraph(invoiceInfo).setMarginBottom(10));
 
-        float[] columnWidths = {2, 4, 2, 4, 2};
-        Table table = new Table(UnitValue.createPercentArray(columnWidths));
-        table.setWidth(UnitValue.createPercentValue(100));
-
-
+        float[] columnWidths = {1.2f, 3.5f, 2.2f, 3.2f, 1.9f};
+        Table table = new Table(UnitValue.createPercentArray(columnWidths)).setWidth(UnitValue.createPercentValue(100));
         table.addHeaderCell(new Cell().add(new Paragraph("Stunda Nr."))
                 .setBackgroundColor(new DeviceRgb(211, 211, 211)));
         table.addHeaderCell(new Cell().add(new Paragraph("Temats"))
@@ -121,23 +126,20 @@ public class PDFInvoiceGenerator {
                 .setBackgroundColor(new DeviceRgb(211, 211, 211)));
         table.addHeaderCell(new Cell().add(new Paragraph("Stundas cena"))
                 .setBackgroundColor(new DeviceRgb(211, 211, 211)));
-        AtomicReference<Integer> i = new AtomicReference<>(0);
+        AtomicReference<Integer> row = new AtomicReference<>(0);
         invoice.getAttendances().forEach(a -> {
-            Child child = childRepository.findEvenDeletedChild(a.getId());
-            i.getAndSet(i.get() + 1);
-            table.addCell(new Cell().add(new Paragraph(i.toString())));
-            table.addCell(new Cell().add(new Paragraph(a.getLesson().getTopic())));
-            table.addCell(new Cell().add(new Paragraph(String.valueOf(a.getLesson().getDate()))));
-            table.addCell(new Cell().add(new Paragraph(child.getFullName())));
-            table.addCell(new Cell().add(new Paragraph(String.valueOf(a.getCost()))));
+            Child child = a.getChild();
+            long costCents = a.getCost() != null ? a.getCost() : 0L;
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(row.updateAndGet(v -> v + 1)))));
+            table.addCell(new Cell().add(new Paragraph(nz(a.getLesson().getTopic()))));
+            table.addCell(new Cell().add(new Paragraph(nz(a.getLesson().getDate()))));
+            table.addCell(new Cell().add(new Paragraph(child != null ? nz(child.getFullName()) : "")));
+            table.addCell(new Cell().add(new Paragraph(eur(costCents))).setTextAlignment(TextAlignment.RIGHT)
+            );
         });
         document.add(table);
-
-        String totals = """
-                Kopēja summa: €%d
-                """.formatted(invoice.getAmount());
-
-        document.add(new Paragraph(totals)
+        long totalCents = invoice.getAmount() != null ? invoice.getAmount() : 0L;
+        document.add(new Paragraph("Kopēja summa: " + eur(totalCents))
                 .setTextAlignment(TextAlignment.RIGHT)
                 .setMarginTop(10));
 
