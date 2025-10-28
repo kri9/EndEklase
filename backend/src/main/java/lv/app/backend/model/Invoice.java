@@ -7,6 +7,7 @@ import lv.app.backend.model.enums.InvoiceStatus;
 import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,6 +40,7 @@ public class Invoice {
     private LocalDate dueDate;
     private LocalDate paymentReceiveDate;
     private Long amount;
+    private LocalDateTime emailedAt;
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status = InvoiceStatus.NOT_PAID;

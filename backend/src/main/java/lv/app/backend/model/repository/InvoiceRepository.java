@@ -37,4 +37,15 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
             @Param("start") LocalDate startInclusive,
             @Param("end") LocalDate endExclusive
     );
+
+    @Query("""
+              select i from Invoice i
+              where i.dateIssued = :issueDate
+                and (:unsentOnly = false or i.emailedAt is null)
+              order by i.id
+            """)
+    List<Invoice> findByIssueDate(
+            @Param("issueDate") LocalDate issueDate,
+            @Param("unsentOnly") boolean unsentOnly);
+
 }

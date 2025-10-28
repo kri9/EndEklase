@@ -14,10 +14,7 @@ import lv.app.backend.model.repository.AttendanceRepository;
 import lv.app.backend.model.repository.InvoiceRepository;
 import lv.app.backend.model.repository.UserRepository;
 import lv.app.backend.service.*;
-import lv.app.backend.service.invoice.InvoiceCreationService;
-import lv.app.backend.service.invoice.InvoiceDeletionService;
-import lv.app.backend.service.invoice.InvoiceRetrievalService;
-import lv.app.backend.service.invoice.InvoiceSavingService;
+import lv.app.backend.service.invoice.*;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -58,6 +55,7 @@ public class AdminController {
     private final InvoiceDeletionService invoiceDeletionService;
     private final InvoiceCreationService invoiceCreationService;
     private final InvoiceRetrievalService invoiceRetrievalService;
+    private final InvoiceEmailService invoiceEmailService;
     private final AttendanceRepository attendanceRepository;
     private final InvoiceRepository invoiceRepository;
 
@@ -300,6 +298,43 @@ public class AdminController {
                 .map(entityMapper::attendanceToDto)
                 .toList();
     }
+
+    @ResponseBody
+    @GetMapping("/invoices/by-issue-date")
+    public List<FullInvoiceDTO> byIssueDate(
+            @RequestParam LocalDate issueDate,
+            @RequestParam(defaultValue = "true") boolean unsentOnly
+    ) {
+        return invoiceRepository.findByIssueDate(issueDate, unsentOnly)
+                .stream().map(entityMapper::invoiceToFullDTO).toList();
+    }
+
+    @ResponseBody
+    @PostMapping("/invoices/email")
+    public Map<String, Object> emailInvoices(
+            @RequestParam LocalDate issueDate,
+            @RequestParam(defaultValue = "true") boolean unsentOnly
+    ) {
+        var res = invoiceEmailService.sendByIssueDate(issueDate, unsentOnly);
+        return Map.of("total", res.total(), "sent", res.sent(), "failed", res.failed());
+    }
+
+    @ResponseBody
+    @PostMapping("/invoices/email-by-ids")
+    public Map<String, Object> emailInvoicesByIds(@RequestBody List<Long> invoiceIds) {
+        int sent = 0, failed = 0;
+        for (Long id : invoiceIds) {
+            try {
+                invoiceEmailService.sendByIssueDate(
+                        invoiceRepository.findById(id).orElseThrow().getDateIssued(), false);
+                sent++;
+            } catch (Exception e) {
+                failed++;
+            }
+        }
+        return Map.of("total", invoiceIds.size(), "sent", sent, "failed", failed);
+    }
+
 
 
 //    @GetMapping("users/{userId}/invoices")

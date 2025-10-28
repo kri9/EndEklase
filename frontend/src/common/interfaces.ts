@@ -12,6 +12,7 @@ export interface FullInvoiceDTO extends IdSupplier {
   amount?: number;
   status: string;
   attendances?: number[];
+  emailedAt?: Date | string | null;
 }
 
 export type InvoiceState = FullInvoiceDTO & {

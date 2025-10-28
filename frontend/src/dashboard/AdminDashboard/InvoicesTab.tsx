@@ -16,6 +16,7 @@ import CrudTable from "./common/CrudTable";
 import RootObjectForm from "./common/RootObjectForm";
 import NumberInput from "./common/NumberInput";
 import MultiSelect from "./common/MultiSelect";
+import EmailBlastForm from "./EmailBlastForm";
 
 import {
   AttendanceDTO,
@@ -27,14 +28,14 @@ import {
 type KG = { id: string | number; name: string };
 type Group = { id: string | number; name: string };
 
-const EmailBlastForm: React.FC = () => (
-  <div className="invoice-form">
-    <h3>Masveida e-pasta izsūtīšana (sagatavošana)</h3>
-    <div className="text-sm text-gray-600">
-      Šeit būs forma, lai atlasītu rēķinus un sagatavotu sūtīšanu klientiem.
-    </div>
-  </div>
-);
+// const EmailBlastForm: React.FC = () => (
+//   <div className="invoice-form">
+//     <h3>Masveida e-pasta izsūtīšana (sagatavošana)</h3>
+//     <div className="text-sm text-gray-600">
+//       Šeit būs forma, lai atlasītu rēķinus un sagatavotu sūtīšanu klientiem.
+//     </div>
+//   </div>
+// );
 
 const InvoicesTab: React.FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);

@@ -9,6 +9,7 @@ import lombok.Value;
 import lv.app.backend.model.enums.InvoiceStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class FullInvoiceDTO {
     LocalDate paymentReceiveDate;
     Long amount;
     InvoiceStatus status;
+    LocalDateTime emailedAt;
     @Builder.Default
     @JsonAlias("attendances")
     @JsonProperty("attendances")
