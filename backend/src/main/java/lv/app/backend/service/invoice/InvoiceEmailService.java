@@ -7,6 +7,7 @@ import lv.app.backend.model.Invoice;
 import lv.app.backend.model.repository.InvoiceRepository;
 import lv.app.backend.service.PDFInvoiceGenerator;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,11 @@ public class InvoiceEmailService {
                 helper.setTo(inv.getUser().getUsername());
                 helper.setSubject("Rēķins #" + inv.getId());
                 helper.setText(buildBody(inv), false);
-                helper.addAttachment("invoice_" + inv.getId() + ".pdf", () -> pdf);
+                helper.addAttachment(
+                        "invoice_" + inv.getId() + ".pdf",
+                        new ByteArrayResource(pdf.readAllBytes()),
+                        "application/pdf"
+                );
 
                 mailSender.send(msg);
 
@@ -70,11 +75,11 @@ public class InvoiceEmailService {
     private String buildBody(Invoice inv) {
         return """
                 Labdien, %s!
-                                
+                
                 Pielikumā Jūsu rēķins #%d par stundu apmeklējumiem.
                 Maksājuma termiņš: %s
                 Summa: €%s
-                                
+                
                 Paldies!
                 """.formatted(
                 inv.getUser() != null ? inv.getUser().getFullName() : "",
