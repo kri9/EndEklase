@@ -24,6 +24,7 @@ public interface EntityMapper {
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "childId", source = "child.id")
+    @Mapping(target = "childFullName", source = "child.fullName")
     @Mapping(target = "lessonId", source = "lesson.id")
     @Mapping(target = "attended", source = "status", qualifiedByName = "mapAttendanceStatusToBoolean")
     @Mapping(target = "date", source = "lesson.date")

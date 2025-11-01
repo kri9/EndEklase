@@ -88,7 +88,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
             setNewInvoice({ ...newInvoice, ["fullName"]: nv });
             if (id) {
               getRequest<AttendanceDTO[]>(
-                `admin/user/${id}/attendances/uncovered`,
+                `admin/user/${id}/attendances/uncovered`
               ).then(setUserAttendances);
             }
           }}
@@ -173,12 +173,16 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
           onChange={(e) => setSelectedAttendanceId(Number(e.target.value))}
         >
           <option value="">-- Izvēlieties stundu --</option>
-          {userAttendances &&
-            userAttendances.map((att) => (
-              <option key={att.id} value={att.id}>
-                {att.lesson.topic} ({att.lesson.date})
-              </option>
-            ))}
+          {userAttendances?.map((att) => (
+            <option key={att.id} value={att.id}>
+              {att.lesson.topic} ({att.lesson.date})
+              {att.childFullName
+                ? ` — ${att.childFullName}`
+                : att.childId
+                ? ` — #${att.childId}`
+                : ""}
+            </option>
+          ))}
         </select>
         <button onClick={addLesson} className="btn btn-secondary mt-2">
           Pievienot stundu
@@ -192,26 +196,29 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ usersInfo, onSave }) => {
               <th>Stundas ID</th>
               <th>Tēma</th>
               <th>Datums</th>
+              <th>Bērns</th> {/* <-- новая колонка */}
               <th>Darbība</th>
             </tr>
           </thead>
           <tbody>
-            {newInvoice.attendances &&
-              newInvoice.attendances.map((att: { id: React.Key | null | undefined; lesson: { id: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; topic: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; date: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; }; }) => (
-                <tr key={att.id}>
-                  <td>{att.lesson.id}</td>
-                  <td>{att.lesson.topic}</td>
-                  <td>{att.lesson.date}</td>
-                  <td>
-                    <button
-                      onClick={() => removeLesson(att.id as number)}
-                      className="btn btn-danger"
-                    >
-                      Dzēst
-                    </button>
-                  </td>
-                </tr>
-              ))}
+            {newInvoice.attendances?.map((att: any) => (
+              <tr key={att.id}>
+                <td>{att.lesson.id}</td>
+                <td>{att.lesson.topic}</td>
+                <td>{att.lesson.date}</td>
+                <td>
+                  {att.childFullName ?? (att.childId ? `#${att.childId}` : "")}
+                </td>
+                <td>
+                  <button
+                    onClick={() => removeLesson(att.id as number)}
+                    className="btn btn-danger"
+                  >
+                    Dzēst
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

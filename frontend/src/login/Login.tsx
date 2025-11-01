@@ -14,7 +14,7 @@ const Login: React.FC = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [language, setLanguage] = useState('ru');
-  const [backendData, setBackendData] = useState('');
+  // const [backendData, setBackendData] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -47,13 +47,13 @@ const Login: React.FC = () => {
       };
       const response = await fetchFromBackend('login', 'POST', loginData);
       if (response && response.token) {
-        setBackendData(response.message || 'Успешный вход');
+        // setBackendData(response.message || 'Успешный вход');
         dispatch(setAuthToken(response.token));
         const isAdminResponse = await fetchFromBackendWithAuth('isadmin', 'GET', response.token);
         navigate(isAdminResponse === true ? '/admin-dashboard' : '/dashboard');
-      } else {
-        setBackendData('Ошибка при попытке входа');
-      }
+      } 
+        // setBackendData('Ошибка при попытке входа');
+      
     }
   };
 
@@ -105,9 +105,9 @@ const Login: React.FC = () => {
           </div>
 
         </form>
-        <div className="backend-response mt-4">
+        {/* <div className="backend-response mt-4">
           <p>{language === 'ru' ? 'Ответ с бэкенда:' : 'Atbilde no servera:'} {backendData}</p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

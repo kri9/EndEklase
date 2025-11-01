@@ -22,6 +22,7 @@ export type InvoiceState = FullInvoiceDTO & {
 export interface AttendanceDTO {
   id: number;
   childId: number;
+  childFullName?: string;
   lessonId: number;
   attended: boolean;
   lesson: LessonDTO;

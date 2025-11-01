@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class AttendanceDTO {
     private Long id;
     private Long childId;
+    private String childFullName;
     private Long lessonId;
     private boolean attended;
     private LessonDTO lesson;
