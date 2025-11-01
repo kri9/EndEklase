@@ -21,6 +21,7 @@ public class EmailService {
     private String supportEmailAddress;
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
+    private final ProfileChecker profileChecker;
 
     public void sendResetToken(String to, String token) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -33,6 +34,9 @@ public class EmailService {
     }
 
     public void sendErrorMessage(Exception e) {
+        if(!profileChecker.isProfileActive("prod")) {
+            return;
+        }
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(supportEmailAddress);
         message.setSubject(e.getClass().getSimpleName() + ": " + e.getMessage());

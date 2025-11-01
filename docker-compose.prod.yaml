@@ -21,6 +21,7 @@ services:
       EMAIL_PASSWORD: ${EMAIL_PASSWORD}
     volumes:
       - ./backend/:/app
+      - ./postgres/dbdata:/app/dbdata
     ports:
       - 8082:8080
 
