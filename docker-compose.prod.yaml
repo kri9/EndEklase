@@ -17,6 +17,8 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: prod
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_KEY: ${JWT_KEY}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
     volumes:
       - ./backend/:/app
     ports:

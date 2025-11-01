@@ -17,6 +17,10 @@ services:
     image: gradle:8.10.2-jdk21
     command: ["sh", "-c", "DB_IP=172.17.0.1 gradle bootRun"]
     working_dir: /app
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_KEY: ${JWT_KEY}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
     volumes:
       - ./backend/:/app
     ports:
