@@ -1,7 +1,6 @@
 package lv.app.backend.config;
 
 import lv.app.backend.service.jobs.DbBackupJob;
-import lv.app.backend.service.jobs.TestJob;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
@@ -9,10 +8,12 @@ import org.quartz.TriggerBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 @Configuration
+@Profile("prod")
 public class JobConfig {
 
     @Bean
@@ -26,7 +27,7 @@ public class JobConfig {
     public Trigger trigger(@Qualifier("dbBackupJob") JobDetail jobDetail) {
         return TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
-                .withSchedule(simpleSchedule().repeatForever().withIntervalInSeconds(100))
+                .withSchedule(simpleSchedule().repeatForever().withIntervalInHours(24))
                 .build();
     }
 }
