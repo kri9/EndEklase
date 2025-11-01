@@ -37,7 +37,7 @@ services:
       - "host.docker.internal:172.17.0.1"
 
   db:
-    image: postgres
+    image: postgres:17-trixie
     restart: always
     shm_size: 128mb
     environment:

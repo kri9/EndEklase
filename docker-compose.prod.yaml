@@ -45,7 +45,7 @@ services:
     restart: unless-stopped
 
   db-prod:
-    image: postgres
+    image: postgres:17-trixie
     container_name: postgres-prod
     restart: always
     shm_size: 128mb
