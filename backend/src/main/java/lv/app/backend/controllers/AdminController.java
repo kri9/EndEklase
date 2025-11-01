@@ -202,12 +202,13 @@ public class AdminController {
     }
 
     @PutMapping("/attendances")
-    public ResponseEntity<Void> updateAttendance(@RequestBody AttendanceDTO attendanceDTO) {
-        System.out.println("Received request to update attendance: " + attendanceDTO);
-        lessonService.updateAttendanceStatus(attendanceDTO.getChildId(),
-                attendanceDTO.getLessonId(), attendanceDTO.isAttended());
-        System.out.println("Attendance updated successfully");
-        return ResponseEntity.ok().build();
+    public ResponseEntity<AttendanceDTO> updateAttendance(@RequestBody AttendanceDTO attendanceDTO) {
+        AttendanceDTO updated = lessonService.upsertAttendanceStatus(
+                attendanceDTO.getChildId(),
+                attendanceDTO.getLessonId(),
+                attendanceDTO.isAttended()
+        );
+        return ResponseEntity.ok(updated);
     }
 
     @GetMapping("/groups/{groupId}/attendances")

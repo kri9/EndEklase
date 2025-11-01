@@ -12,6 +12,7 @@ import lv.app.backend.model.Group;
 import lv.app.backend.model.Lesson;
 import lv.app.backend.model.enums.AttendanceStatus;
 import lv.app.backend.model.repository.AttendanceRepository;
+import lv.app.backend.model.repository.ChildRepository;
 import lv.app.backend.model.repository.GroupRepository;
 import lv.app.backend.model.repository.LessonRepository;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class LessonService {
     private final EntityMapper entityMapper;
     private final LessonMapper lessonMapper;
     private final GroupRepository groupRepository;
+    private final ChildRepository childRepository;
     private final LessonRepository lessonRepository;
     private final AttendanceRepository attendanceRepository;
 
@@ -80,14 +82,26 @@ public class LessonService {
     }
 
     @Transactional
-    public void updateAttendanceStatus(Long childId, Long lessonId, boolean attended) {
-        log.trace("Updating attendance for childId: {}, lessonId: {}, attended: {}", childId, lessonId, attended);
+    public AttendanceDTO upsertAttendanceStatus(Long childId, Long lessonId, boolean attended) {
+        log.trace("Upserting attendance for childId: {}, lessonId: {}, attended: {}", childId, lessonId, attended);
+
         Attendance attendance = attendanceRepository.findByChildIdAndLessonId(childId, lessonId)
-                .orElseThrow(() -> new IllegalArgumentException("Attendance record not found for childId: " +
-                        childId + ", lessonId: " + lessonId));
+                .orElseGet(() -> {
+                    Attendance a = new Attendance();
+                    a.setChild(
+                            childRepository.findById(childId)
+                                    .orElseThrow(() -> new IllegalArgumentException("Child not found: " + childId))
+                    );
+                    a.setLesson(
+                            lessonRepository.findById(lessonId)
+                                    .orElseThrow(() -> new IllegalArgumentException("Lesson not found: " + lessonId))
+                    );
+                    return a;
+                });
+
         attendance.setStatus(attended ? AttendanceStatus.ATTENDED : AttendanceStatus.NOT_ATTENDED);
-        attendanceRepository.saveAndFlush(attendance);
-        log.trace("Attendance status updated successfully for childId: {}, lessonId: {}", childId, lessonId);
+        Attendance saved = attendanceRepository.saveAndFlush(attendance);
+        return entityMapper.attendanceToDto(saved);
     }
 
     @Transactional
