@@ -1,0 +1,6 @@
+postgres/dbdata
+nginx/prod/certbot-etc
+nginx/prod/certbot-webroot
+nginx/prod/certbot-etc/*
+nginx/prod/certbot-webroot/*
+.env
