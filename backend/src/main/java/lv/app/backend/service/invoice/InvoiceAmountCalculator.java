@@ -34,11 +34,13 @@ public class InvoiceAmountCalculator {
         return attendancesToPay.entrySet().stream()
                 .mapToLong(e -> {
                     Double childRate = costGenerator.apply(e.getKey());
-                    return BigDecimal.valueOf(e.getValue().size())
+                    long attendancesCost = BigDecimal.valueOf(e.getValue().size())
                             .multiply(BigDecimal.valueOf(lessonCost))
                             .multiply(BigDecimal.valueOf(childRate))
                             .setScale(0, RoundingMode.HALF_UP)
                             .longValue();
+                    e.getValue().forEach(a -> a.setCost(attendancesCost));
+                    return attendancesCost;
                 }).sum();
     }
 
