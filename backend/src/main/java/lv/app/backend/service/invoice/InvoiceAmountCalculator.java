@@ -1,5 +1,7 @@
 package lv.app.backend.service.invoice;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lv.app.backend.model.Attendance;
 import lv.app.backend.model.Child;
 import lv.app.backend.model.enums.AttendanceStatus;
@@ -17,6 +19,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
+@NoArgsConstructor
+@AllArgsConstructor
 public class InvoiceAmountCalculator {
 
     @Value("${lesson-attendance-cost}")
@@ -34,13 +38,14 @@ public class InvoiceAmountCalculator {
         return attendancesToPay.entrySet().stream()
                 .mapToLong(e -> {
                     Double childRate = costGenerator.apply(e.getKey());
-                    long attendancesCost = BigDecimal.valueOf(e.getValue().size())
-                            .multiply(BigDecimal.valueOf(lessonCost))
-                            .multiply(BigDecimal.valueOf(childRate))
-                            .setScale(0, RoundingMode.HALF_UP)
-                            .longValue();
-                    e.getValue().forEach(a -> a.setCost(attendancesCost));
-                    return attendancesCost;
+                    return e.getValue().stream().mapToLong(attendance -> {
+                        long cost = BigDecimal.valueOf(lessonCost)
+                                .multiply(BigDecimal.valueOf(childRate))
+                                .setScale(0, RoundingMode.HALF_UP)
+                                .longValue();
+                        attendance.setCost(cost);
+                        return cost;
+                    }).sum();
                 }).sum();
     }
 
