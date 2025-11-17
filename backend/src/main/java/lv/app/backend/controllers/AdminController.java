@@ -55,6 +55,7 @@ public class AdminController {
     private final InvoiceDeletionService invoiceDeletionService;
     private final InvoiceCreationService invoiceCreationService;
     private final InvoiceRetrievalService invoiceRetrievalService;
+    private final InvoiceAmountCalculator invoiceAmountCalculator;
     private final InvoiceEmailService invoiceEmailService;
     private final AttendanceRepository attendanceRepository;
     private final InvoiceRepository invoiceRepository;
@@ -334,6 +335,15 @@ public class AdminController {
             }
         }
         return Map.of("total", invoiceIds.size(), "sent", sent, "failed", failed);
+    }
+
+    @Transactional
+    @GetMapping("/invoice/recalculate")
+    public void recalculateAll() {
+        List<Invoice> all = invoiceRepository.findAll();
+        all.forEach(invoice -> {
+            invoiceAmountCalculator.calculateInvoiceAmount(invoice.getAttendances());
+        });
     }
 
 
