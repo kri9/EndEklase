@@ -13,6 +13,7 @@ public class UserDTO {
     private String username;
     private String firstName;
     private String lastName;
+    private String phoneNumber;
     private String password;
     private boolean separateInvoices;
     private List<UserChildDTO> children = new ArrayList<>();

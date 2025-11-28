@@ -13,6 +13,7 @@ interface UserFormData {
   firstName: string;
   lastName: string;
   password: string;
+  phoneNumber: string;
   separateInvoices: boolean;
   discountRate: number;
   children: { id: number; firsname: string; lastname: string }[];
@@ -23,6 +24,7 @@ const defaultFormValues: UserFormData = {
   email: "",
   firstName: "",
   lastName: "",
+  phoneNumber: "",
   password: "",
   separateInvoices: false,
   discountRate: 0,
@@ -76,6 +78,7 @@ export default function UserTab() {
 
           <RootObjectForm rootObject={user} rootObjectSetter={setUser}>
             <TextInput field="email" header="E-pasts" />
+            <TextInput field="phoneNumber" header="Telefona numurs" />
             <TextInput field="firstName" header="Vārds" />
             <TextInput field="lastName" header="Uzvārds" />
             <TextInput field="password" header="Parole" />

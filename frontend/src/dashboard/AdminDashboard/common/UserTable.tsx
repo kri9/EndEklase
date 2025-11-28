@@ -3,6 +3,7 @@ import { deleteRequest } from "src/api";
 interface User {
   id: number;
   email: string;
+  phoneNumber: string;
   firstName: string;
   lastName: string;
   discountRate: number;
@@ -23,6 +24,7 @@ export default function UserTable({
     (user) =>
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.phoneNumber ?? "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -32,6 +34,7 @@ export default function UserTable({
         <tr>
           <th>ID</th>
           <th>Email</th>
+          <th>Telefona numurs</th>
           <th>vārds</th>
           <th>Uzvārds</th>
           <th>Atlaide (%)</th>
@@ -44,6 +47,7 @@ export default function UserTable({
             <tr key={user.id}>
               <td>{user.id}</td>
               <td>{user.email}</td>
+              <td>{user.phoneNumber || "-"}</td>
               <td>{user.firstName}</td>
               <td>{user.lastName}</td>
               <td>{user.discountRate * 100}%</td>
