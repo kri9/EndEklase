@@ -80,6 +80,24 @@ const AttendanceTab: React.FC = () => {
       console.error("Failed to load group data:", error);
     }
   };
+
+  const setRowAttendance = (childId: string | number, attended: boolean) => {
+    const childKey = String(childId);
+
+    setAttendance((prev) => {
+      const updated: { [key: string]: boolean } = { ...prev };
+
+      filteredLessons.forEach((lesson) => {
+        const lessonKey = String(lesson.id);
+        const key = `${childKey}_${lessonKey}`;
+        updated[key] = attended;
+      });
+
+      return updated;
+    });
+  };
+
+
   const handleGroupChangeEvent = async (
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
@@ -215,44 +233,76 @@ const AttendanceTab: React.FC = () => {
 
       {filteredLessons.length > 0 && children.length > 0 ? (
         <div className="attendance-table mt-5" style={{ overflowX: "auto" }}>
-          <table className="table table-bordered table-hover">
+            <table className="table table-bordered table-hover">
             <thead className="thead-dark">
               <tr>
-                <th>Bērns</th>
-                {filteredLessons.map((lesson) => (
-                  <th key={lesson.id}>
-                    {lesson.topic} <br /> ({lesson.date})
-                  </th>
-                ))}
+              <th style={{ width: "120px" }}>Поставить / снять</th>
+              <th>Bērns</th>
+              {filteredLessons.map((lesson) => (
+                <th key={lesson.id}>
+                {lesson.topic} <br />({lesson.date})
+                </th>
+              ))}
               </tr>
             </thead>
             <tbody>
-              {children.map((child) => (
+              {children.map((child) => {
+              const allCheckedForChild = filteredLessons.length
+                ? filteredLessons.every(
+                  (lesson) =>
+                  attendance[`${child.id}_${lesson.id}`] === true,
+                )
+                : false;
+
+              const handleToggleChildRow = () => {
+                setRowAttendance(child.id, !allCheckedForChild);
+              };
+
+              return (
                 <tr key={child.id}>
-                  <td>
-                    {child.firstname} {child.lastname}
-                  </td>
-                  {filteredLessons.map((lesson) => (
-                    <td key={lesson.id} className="text-center">
-                      <input
-                        type="checkbox"
-                        checked={
-                          attendance[`${child.id}_${lesson.id}`] || false
-                        }
-                        onChange={() =>
-                          handleAttendanceChange(
-                            child.id,
-                            lesson.id?.toString() || "",
+                <td className="text-center align-middle">
+                  <button
+                    type="button"
+                    className={
+                      "btn btn-sm " +
+                      (allCheckedForChild
+                        ? "btn-success"
+                        : filteredLessons.some(
+                            (lesson) => attendance[`${child.id}_${lesson.id}`]
                           )
-                        }
-                        style={{ accentColor: "green" }}
-                      />
-                    </td>
-                  ))}
+                        ? "btn-warning"
+                        : "btn-secondary")
+                    }
+                    onClick={handleToggleChildRow}
+                  >
+                    {allCheckedForChild ? "Снять всё" : "Выбрать все"}
+                  </button>
+                </td>
+                <td className="align-middle">
+                  {child.firstname} {child.lastname}
+                </td>
+                {filteredLessons.map((lesson) => (
+                  <td key={lesson.id} className="text-center align-middle">
+                  <input
+                    type="checkbox"
+                    checked={
+                    attendance[`${child.id}_${lesson.id}`] || false
+                    }
+                    onChange={() =>
+                    handleAttendanceChange(
+                      String(child.id),
+                      lesson.id?.toString() || "",
+                    )
+                    }
+                    style={{ accentColor: "green" }}
+                  />
+                  </td>
+                ))}
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
-          </table>
+            </table>
           <button
             className="btn btn-primary mt-3"
             onClick={saveAttendanceChanges}
