@@ -1,3 +1,4 @@
+import { setAuthToken } from "./redux/authSlice";
 import { store } from "./redux/store";
 
 const BASE_URL =
@@ -276,4 +277,22 @@ export const resetPassword = async (token: string, password: string) => {
     `password/reset?token=${encodeURIComponent(token)}&password=${encodeURIComponent(password)}`,
     'POST'
   );
+};
+
+export const refreshJwtToken = async () => {
+  const token = store.getState().auth.token;
+
+  if (!token) {
+    throw new Error("Нет токена для обновления");
+  }
+
+  const response: { token: string; expiresIn: number } = await fetchFromBackendWithAuth(
+    "auth/refresh",
+    "POST",
+    token
+  );
+
+  store.dispatch(setAuthToken(response.token));
+
+  return response.token;
 };
