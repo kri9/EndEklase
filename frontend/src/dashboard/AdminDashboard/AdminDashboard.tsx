@@ -13,7 +13,7 @@ import UserTab from "./UserTab";
 import { LessonsTab } from "./LessonsTab";
 import { RootState } from "src/redux/store";
 import { SessionExtendPopup } from "./common/SessionExtendPopup";
-import { parseJwt } from "src/UTILS/jwtUtils";
+import { parseJwt } from "src/utils/jwtUtils";
 import { refreshJwtToken } from "src/api";
 
 const AdminDashboard: React.FC = () => {
