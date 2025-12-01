@@ -31,7 +31,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import lv.app.backend.model.Attendance;
 
 import static lv.app.backend.util.Common.singleResult;
 
@@ -64,7 +66,8 @@ public class PDFInvoiceGenerator {
 
     private ByteArrayInputStream generateInvoice(Invoice invoice) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try (PdfWriter writer = new PdfWriter(out); PdfDocument pdfDoc = new PdfDocument(writer)) {
+        try (PdfWriter writer = new PdfWriter(out);
+             PdfDocument pdfDoc = new PdfDocument(writer)) {
             Document document = new Document(pdfDoc);
             createDocument(document, invoice);
             document.close();
@@ -80,6 +83,66 @@ public class PDFInvoiceGenerator {
 
     private static String nz(Object v) {
         return v == null ? "" : String.valueOf(v);
+    }
+
+    private String resolveKindergartenName(Invoice invoice) {
+        return invoice.getAttendances().stream()
+                .map(Attendance::getChild)
+                .filter(Objects::nonNull)
+                .map(c -> c.getGroup())
+                .filter(Objects::nonNull)
+                .map(g -> g.getKindergarten())
+                .filter(Objects::nonNull)
+                .map(k -> k.getName())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private String buildBankBlock(Invoice invoice) {
+        String kgName = resolveKindergartenName(invoice);
+
+        log.debug("Resolved kindergarten for invoice {}: {}", invoice.getId(), kgName);
+
+        if ("Domino".equalsIgnoreCase(kgName)) {
+            return """
+                    Citadele Bank
+                    Kods: PARXLV22
+                    Konts: LV36PARX0009486840002
+
+                    Maksājumā mērķī lūdzu norādīt:
+                    P.I.I. numuru, bērna vārdu uzvārdu un grupas numuru.
+                    """;
+        } else if ("PII 193".equalsIgnoreCase(kgName)) {
+            return """
+                    Citadele Bank
+                    Kods: PARXLV22
+                    Konts: LV36PARX0009486840002
+
+                    Maksājumā mērķī lūdzu norādīt:
+                    P.I.I. numuru, bērna vārdu uzvārdu un grupas numuru.
+                    """;
+        } else if ("PII 216".equalsIgnoreCase(kgName)) {
+            return """
+                    Irina Kicenko p/k 061073–10808
+                    Swedbank Bank
+                    Kods: HABALV22
+                    Konts: LV73HABA0551059075292
+
+                    Maksājumā mērķī lūdzu norādīt:
+                    P.I.I. numuru, bērna vārdu uzvārdu un grupas numuru.
+                    """;
+        } else {
+            // дефолт: PII 239 Luminor (как было)
+            return """
+                    Luminor Bank
+                    Kods: RIKOLV2X
+                    Konts: LV39RIKO0002221262931
+
+                    Maksājumā mērķī lūdzu norādīt:
+                    P.I.I. numuru, bērna vārdu uzvārdu un grupas numuru.
+                    """;
+        }
     }
 
     private void createDocument(Document document, Invoice invoice) throws IOException {
@@ -141,18 +204,11 @@ public class PDFInvoiceGenerator {
                 .setTextAlignment(TextAlignment.RIGHT)
                 .setMarginTop(10));
 
-        String bankBlock = """
-                Luminor Bank
-                Kods: RIKOLV2X
-                Konts: LV39RIKO0002221262931
-
-                Maksājumā mērķī lūdzu norādīt:
-                P.I.I. numuru, bērna vārdu uzvārdu un grupas numuru.
-                """;
+        String bankBlock = buildBankBlock(invoice);
         document.add(new Paragraph(bankBlock)
                 .setTextAlignment(TextAlignment.LEFT)
                 .setMarginTop(15)
-                .setFontSize(10));
+                .setFontSize(11));
 
         Paragraph footer = new Paragraph("Apmāksu veiciet 10 dienu laikā. Paldies!")
                 .setTextAlignment(TextAlignment.CENTER)

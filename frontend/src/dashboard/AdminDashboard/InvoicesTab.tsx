@@ -8,6 +8,7 @@ import {
   deleteInvoice,
   getKindergartens,
   getGroupsByKindergarten,
+  fetchFromBackendWithAuth
 } from "src/api";
 
 import InvoiceForm from "./InvoiceForm";
@@ -310,6 +311,21 @@ const InvoicesTab: React.FC = () => {
         onDelete={(item) => {
           const invoice = invoices.find((inv) => inv.id === item.id);
           if (invoice) handleDeleteInvoice(invoice);
+        }}
+        onPdf={async (item) => {
+          if (!token) return;
+          try {
+            const blob = (await fetchFromBackendWithAuth(
+              `admin/invoice/${item.id}/pdf`,
+              "GET",
+              token
+            )) as Blob;
+            const url = URL.createObjectURL(blob);
+            window.open(url, "_blank");
+          } catch (e) {
+            console.error("Не удалось получить PDF:", e);
+            alert("Не удалось загрузить PDF счёта");
+          }
         }}
         editFormSupplier={(it, close, isOpen) => {
           const [userAttendances, setUserAttendances] = useState<AttendanceDTO[]>(

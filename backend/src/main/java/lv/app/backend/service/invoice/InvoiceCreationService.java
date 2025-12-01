@@ -61,7 +61,7 @@ public class InvoiceCreationService {
                 .status(InvoiceStatus.NOT_PAID)
                 .userId(children.getFirst().getParent().getId())
                 .amount(invoiceAmountCalculator.calculateInvoiceAmount(attendances))
-                .dueDate(currentDate.plusWeeks(2))
+                .dueDate(currentDate.plusDays(10))
                 .dateIssued(currentDate)
                 .attendanceIds(attendances.stream().map(Attendance::getId).distinct().toList())
                 .build();

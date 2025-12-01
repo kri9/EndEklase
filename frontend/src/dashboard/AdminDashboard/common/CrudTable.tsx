@@ -16,6 +16,7 @@ interface CrudTableProps<T extends IdSupplier> {
     closeForm: () => void,
     isOpen: boolean,
   ) => ReactElement;
+  onPdf?: (item: T) => void;
 }
 
 interface CrudRowProps<T extends IdSupplier> {
@@ -28,6 +29,7 @@ interface CrudRowProps<T extends IdSupplier> {
     isOpen: boolean,
   ) => ReactElement;
   columnTransormers?: { [key: string]: (v: any) => any }; // transormers that map columns values. key is column name
+  onPdf?: (item: T) => void;
 }
 
 function ActionButton(props: any) {
@@ -85,6 +87,12 @@ function CrudTableRow<T extends IdSupplier>(props: CrudRowProps<T>) {
             <ActionButton onClick={() => setOpenModal(true)}>
               <EditIcon />
             </ActionButton>
+            {props.onPdf && (
+              <ActionButton onClick={() => props.onPdf!(item)}>
+                {/* можешь сделать нормальную иконку, пока просто текст */}
+                PDF
+              </ActionButton>
+            )}
             <ActionButton onClick={props.deleteItem}>
               <DeleteIcon />
             </ActionButton>
@@ -140,6 +148,7 @@ export default function CrudTable<T extends IdSupplier>(
               setItems(items.filter((i) => i !== it));
             }}
             editFormSupplier={props.editFormSupplier}
+            onPdf={props.onPdf}
           />
         ))}
       </tbody>
