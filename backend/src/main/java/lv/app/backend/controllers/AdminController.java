@@ -3,7 +3,6 @@ package lv.app.backend.controllers;
 import lombok.RequiredArgsConstructor;
 import lv.app.backend.dto.*;
 import lv.app.backend.dto.invoice.FullInvoiceDTO;
-import lv.app.backend.dto.invoice.InvoiceDTO;
 import lv.app.backend.mappers.EntityMapper;
 import lv.app.backend.mappers.UserMapper;
 import lv.app.backend.model.Child;
@@ -271,21 +270,21 @@ public class AdminController {
             @RequestParam(required = false) InvoiceStatus status,
             @RequestParam(required = false) String issueMonth
     ) {
-            LocalDate start = null;
-            LocalDate end = null;
-            if (issueMonth != null && !issueMonth.isBlank()) {
-                    YearMonth ym = YearMonth.parse(issueMonth);
-                    start = ym.atDay(1);
-                    end = ym.plusMonths(1).atDay(1);
-                    }
-            return invoiceRetrievalService.searchInvoices(kindergartenId, groupId, status, start, end);
+        LocalDate start = null;
+        LocalDate end = null;
+        if (issueMonth != null && !issueMonth.isBlank()) {
+            YearMonth ym = YearMonth.parse(issueMonth);
+            start = ym.atDay(1);
+            end = ym.plusMonths(1).atDay(1);
+        }
+        return invoiceRetrievalService.searchInvoices(kindergartenId, groupId, status, start, end);
     }
 
     @ResponseBody
     @GetMapping("/user/{userId}/attendances/uncovered")
     public List<AttendanceDTO> getUncoveredAttendances(@PathVariable Long userId) {
         User user = userRepository.getReferenceById(userId);
-        return attendanceRepository.findAttendanceToPayForUser(user).stream()
+        return attendanceRepository.findAttendanceToPayForUser(user.getId()).stream()
                 .map(entityMapper::attendanceToDto)
                 .toList();
     }
@@ -296,7 +295,10 @@ public class AdminController {
     public List<AttendanceDTO> getInvoicesPotentialAttendances(@PathVariable Long invoiceId) {
         Invoice invoice = invoiceRepository.getReferenceById(invoiceId);
         User user = invoice.getUser();
-        return Stream.concat(attendanceRepository.findAttendanceToPayForUser(user).stream(), invoice.getAttendances().stream())
+        if (user == null) {
+            return Collections.emptyList();
+        }
+        return Stream.concat(attendanceRepository.findAttendanceToPayForUser(user.getId()).stream(), invoice.getAttendances().stream())
                 .map(entityMapper::attendanceToDto)
                 .toList();
     }
@@ -345,7 +347,6 @@ public class AdminController {
             invoiceAmountCalculator.calculateInvoiceAmount(invoice.getAttendances());
         });
     }
-
 
 
 //    @GetMapping("users/{userId}/invoices")

@@ -4,7 +4,9 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import lv.app.backend.model.enums.InvoiceStatus;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static lv.app.backend.util.Common.getIds;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -49,11 +51,11 @@ public class InvoiceCreationService {
     }
 
     private FullInvoiceDTO createInvoiceForChildren(List<Child> children, LocalDate startDate, LocalDate endDate) {
-        List<Attendance> attendances = attendanceRepository.findAttendanceToPayForChildren(startDate, endDate, children);
+        List<Attendance> attendances = attendanceRepository.findAttendanceToPayForChildren(startDate, endDate, getIds(children));
         if (children.isEmpty()) {
             return null;
         }
-        if(attendances.isEmpty()) {
+        if (attendances.isEmpty()) {
             return null;
         }
         LocalDate currentDate = LocalDate.now();

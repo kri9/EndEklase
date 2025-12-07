@@ -36,6 +36,10 @@ public class Common {
         );
     }
 
+    public static <A extends IdSupplier> List<Long> getIds(Collection<A> ids) {
+        return ids.stream().map(IdSupplier::getId).collect(Collectors.toList());
+    }
+
     public static <A1 extends IdSupplier, A2 extends IdSupplier>
     List<Pair<A1, A2>> matchIds(List<A1> o1, List<A2> o2) {
         BiFunction<List<A2>, Long, A2> idGetter =

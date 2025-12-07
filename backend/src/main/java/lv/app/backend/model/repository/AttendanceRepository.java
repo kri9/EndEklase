@@ -19,19 +19,27 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
     List<Attendance> findByChildParentId(Long userId);
 
-    @Query("""
-            select distinct a from Lesson l
-            join l.attendances a
-            where l.date >= ?1 and l.date <= ?2 and a.child in (?3) and a.invoice is NULL and a.status = 'ATTENDED'
-            """)
-    List<Attendance> findAttendanceToPayForChildren(LocalDate start, LocalDate end, List<Child> child);
+    @Query(value = """
+            select distinct a.* from lessons l
+            join attendances a on l.id = a.lesson_id
+            left join invoice i on a.invoice_id = i.id
+            where l.date > ?1 and l.date <= ?2 
+              and a.child_id in (?3) 
+              and (a.invoice_id is NULL or i.deleted = true) 
+              and a.status = 'ATTENDED'
+            """, nativeQuery = true)
+    List<Attendance> findAttendanceToPayForChildren(LocalDate start, LocalDate end, List<Long> children);
 
-    @Query("""
-            select distinct a from Lesson l
-            join l.attendances a
-            where a.child.parent = ?1 and a.invoice is NULL and a.status = 'ATTENDED'
-            """)
-    List<Attendance> findAttendanceToPayForUser(User user);
+    @Query(value = """
+            select distinct a.* from lessons l
+            join attendances a on l.id = a.lesson_id
+            join public.children c on a.child_id = c.id
+            left join invoice i on a.invoice_id = i.id
+            where c.parent_id = ?1
+                and (a.invoice_id is NULL or i.deleted = true)
+                and a.status = 'ATTENDED'
+            """, nativeQuery = true)
+    List<Attendance> findAttendanceToPayForUser(Long userId);
 
     void deleteByChildId(Long childId);
 }
