@@ -11,6 +11,14 @@ interface Lesson {
   notes?: string;
 }
 
+type ToastType = "success" | "error";
+
+interface ToastState {
+  message: string;
+  type: ToastType;
+  visible: boolean;
+}
+
 const AddLessonTab: React.FC = () => {
   const [selectedKindergarten, setSelectedKindergarten] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
@@ -22,7 +30,21 @@ const AddLessonTab: React.FC = () => {
     notes: "",
   });
 
+  const [toast, setToast] = useState<ToastState>({
+    message: "",
+    type: "success",
+    visible: false,
+  });
+
   const token = useSelector((state: RootState) => state.auth.token);
+
+  // маленький хелпер для тоста
+  const showToast = (message: string, type: ToastType = "success") => {
+    setToast({ message, type, visible: true });
+    setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 3000);
+  };
 
   useEffect(() => {
     const loadKindergartens = async () => {
@@ -63,19 +85,30 @@ const AddLessonTab: React.FC = () => {
   };
 
   const handleAddLesson = async () => {
-    if (newLesson.topic && newLesson.date) {
-      if (token && selectedGroup) {
-        const response = await addLesson({
-          ...newLesson,
-          groupId: selectedGroup,
-        });
-        if (response && response.success) {
-          alert("Stunda veiksmīgi pievienota");
-          setNewLesson({ topic: "", date: "", notes: "" });
-        } else {
-          alert("Kļūda, pievienojot stundu");
-        }
-      }
+    if (!newLesson.topic || !newLesson.date) {
+      showToast("Lūdzu aizpildiet tēmu un datumu", "error");
+      return;
+    }
+    if (!selectedKindergarten || !selectedGroup) {
+      showToast("Lūdzu izvēlieties bērnudārzu un grupu", "error");
+      return;
+    }
+    if (!token) {
+      showToast("Nav autorizācijas", "error");
+      return;
+    }
+
+    try {
+      await addLesson({
+        ...newLesson,
+        groupId: selectedGroup,
+      });
+
+      showToast("Stunda veiksmīgi pievienota", "success");
+      setNewLesson({ topic: "", date: "", notes: "" });
+    } catch (e) {
+      console.error("Error adding lesson", e);
+      showToast("Kļūda, pievienojot stundu", "error");
     }
   };
 
@@ -161,6 +194,18 @@ const AddLessonTab: React.FC = () => {
           uploadUrl="admin/lessons/import"
         />
       </div>
+
+      {toast.visible && (
+        <div
+          className={`
+            fixed top-4 center-4 z-50 px-4 py-3 rounded shadow-lg text-white
+            animate-slide-in
+            ${toast.type === "success" ? "bg-green-600" : "bg-red-600"}
+          `}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };

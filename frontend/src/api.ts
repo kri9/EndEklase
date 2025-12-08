@@ -296,3 +296,12 @@ export const refreshJwtToken = async () => {
 
   return response.token;
 };
+
+export const searchParentsByChild = async (q: string) => {
+  const token = store.getState().auth.token;
+  return await fetchFromBackendWithAuth(
+    `admin/users/search-by-child?q=${encodeURIComponent(q)}`,
+    "GET",
+    token,
+  );
+};

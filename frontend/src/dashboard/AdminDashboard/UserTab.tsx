@@ -6,6 +6,7 @@ import RootObjectForm from "./common/RootObjectForm";
 import BooleanInput from "./common/BooleanInput";
 import NumberInput from "./common/NumberInput";
 import UserTable from "./common/UserTable";
+import { searchParentsByChild } from "src/api";
 
 interface UserFormData {
   id: number;
@@ -16,7 +17,7 @@ interface UserFormData {
   phoneNumber: string;
   separateInvoices: boolean;
   discountRate: number;
-  children: { id: number; firsname: string; lastname: string }[];
+  children: { id: number; firstname: string; lastname: string }[];
 }
 
 const defaultFormValues: UserFormData = {
@@ -36,6 +37,14 @@ export default function UserTab() {
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [users, setUsers] = useState<UserFormData[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [activeRightTab, setActiveRightTab] = useState<"users" | "children">(
+    "users",
+  );
+
+  const [childQuery, setChildQuery] = useState("");
+  const [childResults, setChildResults] = useState<UserFormData[]>([]);
+  const [childSearchLoading, setChildSearchLoading] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -66,10 +75,45 @@ export default function UserTab() {
         console.log(e);
       });
 
+  // 🔎 авто-поиск по ребёнку при вводе
+  const handleChildQueryChange = async (value: string) => {
+    setChildQuery(value);
+
+    const q = value.trim();
+    if (!q) {
+      setChildResults([]);
+      return;
+    }
+
+    setChildSearchLoading(true);
+    try {
+      const data = await searchParentsByChild(q);
+      const formatted = (data || []).map((u: any) => ({
+        ...u,
+        discountRate: parseFloat(Number(u.discountRate).toFixed(2)),
+      }));
+      setChildResults(formatted);
+    } catch (err) {
+      console.error("Failed to search parents by child", err);
+      alert("Kļūda, meklējot vecākus pēc bērna");
+    } finally {
+      setChildSearchLoading(false);
+    }
+  };
+
+  // 💄 кнопки табов: у неактивной нормальный текст
+  const rightTabButtonClass = (active: boolean) =>
+    `btn btn-sm me-2 ${
+      active
+        ? "btn-primary"
+        : "btn-outline-primary bg-white text-primary border-primary"
+    }`;
+
   return (
     <div className="p-6">
       <h2 className="text-3xl mb-5 font-semibold">Lietotāji</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* левая колонка: форма пользователя */}
         <div className="bg-white p-6 shadow-md rounded-lg">
           <h3 className="text-xl font-semibold mb-3">
             Pievienot / Rediģēt lietotāju
@@ -101,23 +145,77 @@ export default function UserTab() {
             </button>
           </RootObjectForm>
         </div>
+
+        {/* правая колонка: табы поиска */}
         <div className="bg-white p-6 shadow-md rounded-lg">
-          <h3 className="text-xl font-semibold mb-3">Lietotāju saraksts</h3>
-          <input
-            type="text"
-            className="form-control my-3"
-            placeholder="Meklēt pēc vārda vai e-pasta"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <UserTable
-            users={users}
-            searchTerm={searchTerm}
-            reloadUsers={loadUsers}
-          />
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xl font-semibold">Meklēšana</h3>
+            <div>
+              <button
+                type="button"
+                className={rightTabButtonClass(activeRightTab === "users")}
+                onClick={() => setActiveRightTab("users")}
+              >
+                Pēc lietotāja
+              </button>
+              <button
+                type="button"
+                className={rightTabButtonClass(activeRightTab === "children")}
+                onClick={() => setActiveRightTab("children")}
+              >
+                Pēc bērna
+              </button>
+            </div>
+          </div>
+
+          {activeRightTab === "users" && (
+            <>
+              <input
+                type="text"
+                className="form-control my-3"
+                placeholder="Meklēt pēc vārda, uzvārda, e-pasta vai telefona"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <UserTable
+                users={users}
+                searchTerm={searchTerm}
+                reloadUsers={loadUsers}
+                // showChildren по умолчанию false, showDelete true
+              />
+            </>
+          )}
+
+              {activeRightTab === "children" && (
+                <>
+                  <div className="my-3 flex gap-2 items-center">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Bērna vārds vai uzvārds"
+                      value={childQuery}
+                      onChange={(e) => handleChildQueryChange(e.target.value)}
+                    />
+                    {childSearchLoading && (
+                      <span className="text-sm text-muted whitespace-nowrap">
+                        Meklē...
+                      </span>
+                    )}
+                  </div>
+
+                  <UserTable
+                    users={childResults}
+                    searchTerm={""}          // уже отфильтровано на сервере
+                    reloadUsers={loadUsers}
+                    showDelete={false}       // не показываем кнопки удаления
+                    showChildren={true}      // показываем колонку с bērniem
+                  />
+                </>
+              )}
+
+
         </div>
       </div>
     </div>
   );
 }
-

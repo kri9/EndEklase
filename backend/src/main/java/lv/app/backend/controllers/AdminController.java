@@ -349,6 +349,18 @@ public class AdminController {
     }
 
 
+    @ResponseBody
+    @GetMapping("/users/search-by-child")
+    public List<UserDTO> searchUsersByChild(@RequestParam("q") String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        return userRepository.searchByChildName(query.trim()).stream()
+                .map(userMapper::userToDto)
+                .toList();
+    }
+
+
 //    @GetMapping("users/{userId}/invoices")
 //    public ResponseEntity<List<InvoiceDTO>> getInvoicesByUser(@PathVariable Long userId) {
 //        List<InvoiceDTO> invoices = invoiceService.getInvoicesByUser(userId);
