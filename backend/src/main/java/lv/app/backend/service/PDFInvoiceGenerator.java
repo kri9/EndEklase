@@ -106,6 +106,7 @@ public class PDFInvoiceGenerator {
 
         if ("Domino".equalsIgnoreCase(kgName)) {
             return """
+                    Irina Kicenko p/k 061073–10808
                     Citadele Bank
                     Kods: PARXLV22
                     Konts: LV36PARX0009486840002
@@ -135,6 +136,7 @@ public class PDFInvoiceGenerator {
         } else {
             // дефолт: PII 239 Luminor (как было)
             return """
+                    Irina Kicenko p/k 061073–10808
                     Luminor Bank
                     Kods: RIKOLV2X
                     Konts: LV39RIKO0002221262931
@@ -158,7 +160,8 @@ public class PDFInvoiceGenerator {
                 .setTextAlignment(TextAlignment.CENTER));
 
         String companyInfo = """
-                Funny English
+                Saņēmējs: Irina Kicenko
+                p/k 061073–10808
                 Telefons: +37129729107
                 Email: irina.kicenko@gmail.com
                 """;
