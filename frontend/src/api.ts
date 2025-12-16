@@ -305,3 +305,27 @@ export const searchParentsByChild = async (q: string) => {
     token,
   );
 };
+
+export const registrationRequest = async (body: any) => {
+  return fetchFromBackend("registration/request", "POST", body);
+};
+
+export const registrationConfirm = async (token: string) => {
+  return fetchFromBackend(`registration/confirm?token=${encodeURIComponent(token)}`, "POST");
+};
+
+export const getPendingRegistrations = async () => {
+  const token = store.getState().auth.token;
+  return fetchFromBackendWithAuth("admin/registration/pending", "GET", token);
+};
+
+export const approveRegistration = async (id: number) => {
+  const token = store.getState().auth.token;
+  return fetchFromBackendWithAuth(`admin/registration/${id}/approve`, "POST", token);
+};
+
+export const rejectRegistration = async (id: number) => {
+  const token = store.getState().auth.token;
+  return fetchFromBackendWithAuth(`admin/registration/${id}/reject`, "POST", token);
+};
+

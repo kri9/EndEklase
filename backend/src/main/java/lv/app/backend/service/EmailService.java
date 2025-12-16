@@ -49,5 +49,24 @@ public class EmailService {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userRepository.findByUsername(principal.getUsername());
     }
+
+    @Value("${app.frontend-base-url:http://localhost:8000}")
+    private String frontendBaseUrl;
+
+    public void sendRegistrationConfirm(String email, String token) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Подтверждение e-mail (регистрация)");
+        message.setText("""
+            Для подтверждения e-mail перейдите по ссылке:
+
+            %s/registration/confirm?token=%s
+
+            Если вы не отправляли заявку — просто проигнорируйте это письмо.
+            """.formatted(frontendBaseUrl, token));
+
+        mailSender.send(message);
+    }
+
 }
 

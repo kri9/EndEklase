@@ -6,6 +6,8 @@ import Dashboard from './dashboard/UserDashboard/Dashboard';
 import AdminDashboard from './dashboard/AdminDashboard/AdminDashboard';
 import ForgotPassword from './resetpass/ForgotPassword';
 import ResetPassword from './resetpass/ResetPassword';
+import RegistrationRequestPage from './pages/RegistrationRequestPage';
+import RegistrationConfirmPage from './pages/RegistrationConfirmPage';
 
 function App() {
   const token = useSelector((state: RootState) => state.auth.token);
@@ -18,6 +20,8 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} /> {/* Страница ввода нового пароля */}
         <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/login" />} />
         <Route path="/admin-dashboard" element={token ? <AdminDashboard /> : <Navigate to="/login" />} />
+        <Route path="/registration" element={<RegistrationRequestPage />} />
+        <Route path="/registration/confirm" element={<RegistrationConfirmPage />} />
         <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

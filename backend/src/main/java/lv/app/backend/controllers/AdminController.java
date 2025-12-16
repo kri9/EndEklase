@@ -9,9 +9,7 @@ import lv.app.backend.model.Child;
 import lv.app.backend.model.Invoice;
 import lv.app.backend.model.User;
 import lv.app.backend.model.enums.InvoiceStatus;
-import lv.app.backend.model.repository.AttendanceRepository;
-import lv.app.backend.model.repository.InvoiceRepository;
-import lv.app.backend.model.repository.UserRepository;
+import lv.app.backend.model.repository.*;
 import lv.app.backend.service.*;
 import lv.app.backend.service.invoice.*;
 import org.springframework.core.io.InputStreamResource;
@@ -58,6 +56,10 @@ public class AdminController {
     private final InvoiceEmailService invoiceEmailService;
     private final AttendanceRepository attendanceRepository;
     private final InvoiceRepository invoiceRepository;
+    private final RegistrationRequestService registrationRequestService;
+    private final RegistrationRequestChildRepository registrationRequestChildRepository;
+    private final GroupRepository groupRepository;
+    private final KindergartenRepository kindergartenRepository;
 
     @ResponseBody
     @GetMapping("/user/{userId}")
@@ -359,6 +361,55 @@ public class AdminController {
                 .map(userMapper::userToDto)
                 .toList();
     }
+
+    @ResponseBody
+    @GetMapping("/registration/pending")
+    public List<RegistrationRequestViewDTO> pendingRegistrations() {
+        return registrationRequestService.pending().stream().map(req -> {
+            String kids = registrationRequestChildRepository.findByRequestId(req.getId()).stream()
+                    .map(k -> (k.getFirstname() + " " + k.getLastname()).trim())
+                    .filter(s -> !s.isBlank())
+                    .collect(java.util.stream.Collectors.joining(", "));
+
+            String kgName = null;
+            if (req.getKindergartenId() != null) {
+                kgName = kindergartenRepository.findById(req.getKindergartenId()).map(k -> k.getName()).orElse(null);
+            }
+            String groupName = null;
+            if (req.getGroupId() != null) {
+                groupName = groupRepository.findById(req.getGroupId()).map(g -> g.getName()).orElse(null);
+            }
+
+            return RegistrationRequestViewDTO.builder()
+                    .id(req.getId())
+                    .email(req.getEmail())
+                    .firstName(req.getFirstName())
+                    .lastName(req.getLastName())
+                    .phoneNumber(req.getPhoneNumber())
+                    .kindergartenId(req.getKindergartenId())
+                    .kindergartenName(kgName)
+                    .groupId(req.getGroupId())
+                    .groupName(groupName)
+                    .emailConfirmed(req.isEmailConfirmed())
+                    .status(req.getStatus().name())
+                    .childrenLine(kids)
+                    .createdAt(req.getCreatedAt())
+                    .build();
+        }).toList();
+    }
+
+    @PostMapping("/registration/{id}/approve")
+    public ResponseEntity<Void> approveRegistration(@PathVariable Long id) {
+        registrationRequestService.approve(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/registration/{id}/reject")
+    public ResponseEntity<Void> rejectRegistration(@PathVariable Long id) {
+        registrationRequestService.reject(id);
+        return ResponseEntity.ok().build();
+    }
+
 
 
 //    @GetMapping("users/{userId}/invoices")
