@@ -2,6 +2,7 @@ package lv.app.backend.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lv.app.backend.dto.KindergartenDTO;
 import lv.app.backend.dto.LoginResponse;
 import lv.app.backend.dto.LoginUserDTO;
 import lv.app.backend.model.Invoice;
@@ -9,6 +10,7 @@ import lv.app.backend.model.User;
 import lv.app.backend.model.enums.InvoiceStatus;
 import lv.app.backend.model.repository.InvoiceRepository;
 import lv.app.backend.service.JwtService;
+import lv.app.backend.service.KindergartenService;
 import lv.app.backend.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -28,6 +31,7 @@ public class MainController {
     private final UserService userService;
     private final UserDetailsService userDetailsService;
     private final InvoiceRepository invoiceRepository;
+    private final KindergartenService kindergartenService;
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {

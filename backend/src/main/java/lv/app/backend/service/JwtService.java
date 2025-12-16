@@ -1,6 +1,8 @@
 package lv.app.backend.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -61,6 +63,22 @@ public class JwtService {
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    public boolean isExpired(String jwt) {
+        try {
+            Date exp = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
+                    .build()
+                    .parseSignedClaims(jwt)
+                    .getPayload()
+                    .getExpiration();
+            return exp != null && exp.before(new Date());
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (JwtException e) {
+            return true; // treat invalid as unusable
+        }
     }
 
     private boolean isTokenExpired(String token) {

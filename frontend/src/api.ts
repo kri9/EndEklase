@@ -2,13 +2,14 @@ import { setAuthToken } from "./redux/authSlice";
 import { store } from "./redux/store";
 
 const BASE_URL =
-  (typeof window !== 'undefined' && (window as any).APP_API_BASE_URL) ||
-  (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) ||
+  (typeof window !== "undefined" && (window as any).APP_API_BASE_URL) ||
+  (typeof import.meta !== "undefined" &&
+    (import.meta as any).env?.VITE_API_BASE_URL) ||
   `${window.location.origin}/api`;
 
 async function parseOkResponse(res: Response) {
   if (res.status === 204) return { ok: true };
-  const text = await res.text().catch(() => '');
+  const text = await res.text().catch(() => "");
   if (!text) return { ok: true };
   try {
     return JSON.parse(text);
@@ -17,30 +18,33 @@ async function parseOkResponse(res: Response) {
   }
 }
 
-
 export async function fetchFromBackend(
   path: string,
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
+  method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
   body?: any,
-  extraInit?: RequestInit
+  extraInit?: RequestInit,
 ) {
   const init: RequestInit = {
     method,
-    headers: { 'Content-Type': 'application/json', ...(extraInit?.headers || {}) },
-    ...(body !== undefined ? { body: typeof body === 'string' ? body : JSON.stringify(body) } : {}),
+    headers: {
+      "Content-Type": "application/json",
+      ...(extraInit?.headers || {}),
+    },
+    ...(body !== undefined
+      ? { body: typeof body === "string" ? body : JSON.stringify(body) }
+      : {}),
     ...extraInit,
   };
 
   const res = await fetch(`${BASE_URL}/${path}`, init);
 
   if (!res.ok) {
-    const errText = await res.text().catch(() => '');
-    throw new Error(`HTTP ${res.status}${errText ? `: ${errText}` : ''}`);
+    const errText = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status}${errText ? `: ${errText}` : ""}`);
   }
 
   return parseOkResponse(res);
 }
-
 
 export function getRequest<T>(endpoint: string): Promise<T> {
   const token = store.getState().auth.token;
@@ -71,32 +75,34 @@ export function deleteRequest<T>(endpoint: string, body: any): Promise<T> {
 
 export const fetchFromBackendWithAuth = async (
   endpoint: string,
-  method: string = 'GET',
+  method: string = "GET",
   token: string | null,
   body: any = null,
   headers?: Record<string, string>,
 ) => {
   headers = headers || {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   };
   const options: RequestInit = { method, headers };
 
-  if (body && headers['Content-Type'] === 'application/json') {
+  if (body && headers["Content-Type"] === "application/json") {
     options.body = JSON.stringify(body);
   } else if (body) {
     options.body = body;
   }
 
-  const url = `${window.origin}/api/${endpoint}`; 
+  const url = `${window.origin}/api/${endpoint}`;
   const response = await fetch(url, options);
 
   if (!response.ok) {
-    const errText = await response.text().catch(() => '');
-    throw new Error(`Ошибка: ${response.status} ${response.statusText}${errText ? ` - ${errText}` : ''}`);
+    const errText = await response.text().catch(() => "");
+    throw new Error(
+      `Ошибка: ${response.status} ${response.statusText}${errText ? ` - ${errText}` : ""}`,
+    );
   }
 
-  if (response.headers.get('Content-Disposition')?.includes('filename')) {
+  if (response.headers.get("Content-Disposition")?.includes("filename")) {
     return response.blob();
   }
 
@@ -133,13 +139,13 @@ export const deleteChildren = async (childIds: number[]) => {
 
 export const getKindergartens = async () => {
   const token = store.getState().auth.token;
-  return await fetchFromBackendWithAuth("admin/kindergartens", "GET", token);
+  return await fetchFromBackendWithAuth("public/kindergartens", "GET", token);
 };
 
 export const getGroupsByKindergarten = async (kindergartenId: string) => {
   const token = store.getState().auth.token;
   return await fetchFromBackendWithAuth(
-    `admin/kindergartens/${kindergartenId}/groups`,
+    `public/kindergartens/${kindergartenId}/groups`,
     "GET",
     token,
   );
@@ -269,13 +275,16 @@ export const getAttendanceByUser = async () => {
 };
 
 export const requestPasswordReset = async (email: string) => {
-  return fetchFromBackend(`password/request?email=${encodeURIComponent(email)}`, 'POST');
+  return fetchFromBackend(
+    `password/request?email=${encodeURIComponent(email)}`,
+    "POST",
+  );
 };
 
 export const resetPassword = async (token: string, password: string) => {
   return fetchFromBackend(
     `password/reset?token=${encodeURIComponent(token)}&password=${encodeURIComponent(password)}`,
-    'POST'
+    "POST",
   );
 };
 
@@ -286,11 +295,8 @@ export const refreshJwtToken = async () => {
     throw new Error("Нет токена для обновления");
   }
 
-  const response: { token: string; expiresIn: number } = await fetchFromBackendWithAuth(
-    "auth/refresh",
-    "POST",
-    token
-  );
+  const response: { token: string; expiresIn: number } =
+    await fetchFromBackendWithAuth("auth/refresh", "POST", token);
 
   store.dispatch(setAuthToken(response.token));
 
@@ -311,7 +317,10 @@ export const registrationRequest = async (body: any) => {
 };
 
 export const registrationConfirm = async (token: string) => {
-  return fetchFromBackend(`registration/confirm?token=${encodeURIComponent(token)}`, "POST");
+  return fetchFromBackend(
+    `registration/confirm?token=${encodeURIComponent(token)}`,
+    "POST",
+  );
 };
 
 export const getPendingRegistrations = async () => {
@@ -321,11 +330,18 @@ export const getPendingRegistrations = async () => {
 
 export const approveRegistration = async (id: number) => {
   const token = store.getState().auth.token;
-  return fetchFromBackendWithAuth(`admin/registration/${id}/approve`, "POST", token);
+  return fetchFromBackendWithAuth(
+    `admin/registration/${id}/approve`,
+    "POST",
+    token,
+  );
 };
 
 export const rejectRegistration = async (id: number) => {
   const token = store.getState().auth.token;
-  return fetchFromBackendWithAuth(`admin/registration/${id}/reject`, "POST", token);
+  return fetchFromBackendWithAuth(
+    `admin/registration/${id}/reject`,
+    "POST",
+    token,
+  );
 };
-

@@ -90,14 +90,6 @@ public class AdminController {
         return ResponseEntity.ok(kindergartens);
     }
 
-    @GetMapping("/kindergartens/{kindergartenId}/groups")
-    public ResponseEntity<List<GroupDTO>> getGroupsByKindergarten(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader,
-            @PathVariable Long kindergartenId) {
-        List<GroupDTO> groups = kindergartenService.getGroupsByKindergarten(kindergartenId);
-        return ResponseEntity.ok(groups);
-    }
-
     @GetMapping("/groups/{groupId}/children")
     public ResponseEntity<List<ChildDTO>> getChildrenByGroup(@PathVariable Long groupId) {
         List<Child> children = childService.getChildrenByGroup(groupId);
